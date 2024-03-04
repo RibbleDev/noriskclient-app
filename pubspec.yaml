@@ -1,0 +1,45 @@
+name: mcreal
+description: "McReal mobile app."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+  intl: any
+  flutter_localizations:
+    sdk: flutter
+  shared_preferences: ^2.2.2
+  flutter_native_splash: ^2.3.13
+  mobile_scanner: ^4.0.1
+  vibration: ^1.8.4
+  http: ^1.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+   - lib/assets/app/
+   - lib/assets/icons/
+   - lib/assets/widgets/
+  fonts:
+    - family: PressStart2P
+      fonts:
+        - asset: lib/assets/fonts/PressStart2P-Regular.ttf
+
+flutter_native_splash:
+  color: "#252525"
+  image: lib/assets/app/splash.png
+
+  web: false
