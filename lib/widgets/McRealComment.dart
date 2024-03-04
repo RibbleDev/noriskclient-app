@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mcreal/config/Colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mcreal/screens/PostDetails.dart';
 import 'package:mcreal/screens/Profile.dart';
+import 'package:mcreal/screens/Report.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
+import 'package:mcreal/utils/ReportTypes.dart';
+import 'package:mcreal/widgets/McRealCommentInput.dart';
 import 'package:mcreal/widgets/NoRiskIconButton.dart';
 
 class McRealComment extends StatefulWidget {
@@ -36,6 +40,7 @@ class McRealPostState extends State<McRealComment> {
   bool? ownRating;
   List<McRealComment> replys = [];
   bool showReplys = false;
+  Widget commentInput = Container();
 
   @override
   void initState() {
@@ -56,8 +61,7 @@ class McRealPostState extends State<McRealComment> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-          bottom: 10, left: widget.parentId.isNotEmpty ? 15 : 0),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         padding: const EdgeInsets.all(7.5),
         child: Column(
@@ -152,7 +156,9 @@ class McRealPostState extends State<McRealComment> {
                   NoRiskIconButton(onTap: delete, icon: NoRiskIcon.delete),
               ],
             ),
-            SizedBox(height: replys.isNotEmpty ? 5 : 0),
+            SizedBox(
+                height: replys.isNotEmpty && commentInput is Container ? 5 : 0),
+            commentInput,
             if (replys.isNotEmpty)
               GestureDetector(
                   onTap: () {
@@ -180,7 +186,8 @@ class McRealPostState extends State<McRealComment> {
                       ])),
             if (showReplys)
               Padding(
-                  padding: const EdgeInsets.only(left: 0),
+                  padding:
+                      EdgeInsets.only(left: widget.parentId.isEmpty ? 15 : 0),
                   child: Column(children: [
                     const SizedBox(height: 7.5),
                     AnimatedContainer(
@@ -236,21 +243,16 @@ class McRealPostState extends State<McRealComment> {
             Profile(uuid: widget.commentData['comment']['author'])));
   }
 
-  void openReportPage() {
-    // Navigator.of(context).push(MaterialPageRoute(
-    //     builder: (BuildContext context) => PostDetails(
-    //         userData: widget.userData, postData: widget.commentData)));
-  }
-
   Future<void> reply() async {
-    // http.Response res = await http.post(
-    //     Uri.parse(
-    //         '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/$commentId/upvote?uuid=${widget.userData['uuid']}'),
-    //     headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
-    // if (res.statusCode != 200) {
-    //   print(res.statusCode);
-    //   return;
-    // }
+    setState(() {
+      commentInput = commentInput is McRealCommentInput
+          ? Container()
+          : McRealCommentInput(
+              userData: widget.userData,
+              postId: widget.commentData['comment']['postId'],
+              parentCommentId: widget.commentData['comment']['_id'],
+              refresh: () => widget.commentUpdateStream.sink.add(true));
+    });
   }
 
   Future<void> upvote() async {
@@ -309,25 +311,82 @@ class McRealPostState extends State<McRealComment> {
   }
 
   Future<void> report() async {
-    // http.Response res = await http.post(
-    //     Uri.parse(
-    //         '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/$commentId/upvote?uuid=${widget.userData['uuid']}'),
-    //     headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
-    // if (res.statusCode != 200) {
-    //   print(res.statusCode);
-    //   return;
-    // }
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => Report(
+            type: ReportType.COMMENT,
+            contentId: widget.commentData['comment']['_id'],
+            userData: widget.userData)));
   }
 
   Future<void> delete() async {
-    http.Response res = await http.delete(
-        Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
-    if (res.statusCode != 200) {
-      print(res.statusCode);
-      return;
-    }
-    widget.commentUpdateStream.sink.add(true);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Platform.isAndroid
+              ? AlertDialog(
+                  title: Text(AppLocalizations.of(context)!
+                      .mcReal_deleteCommentPopupTitle),
+                  content: Text(AppLocalizations.of(context)!
+                      .mcReal_deleteCommentPopupContent),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel,
+                            style: const TextStyle(color: Colors.white))),
+                    TextButton(
+                        onPressed: () async {
+                          http.Response res = await http.delete(
+                              Uri.parse(
+                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
+                              headers: {
+                                'Authorization':
+                                    'Bearer ${widget.userData['noriskToken']}'
+                              });
+                          if (res.statusCode != 200) {
+                            print(res.statusCode);
+                            return;
+                          }
+                          widget.commentUpdateStream.sink.add(true);
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_delete,
+                            style: const TextStyle(color: Colors.red)))
+                  ],
+                )
+              : CupertinoAlertDialog(
+                  title: Text(AppLocalizations.of(context)!
+                      .mcReal_deleteCommentPopupTitle),
+                  content: Text(AppLocalizations.of(context)!
+                      .mcReal_deleteCommentPopupContent),
+                  actions: [
+                    CupertinoDialogAction(
+                        isDefaultAction: true,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel)),
+                    CupertinoDialogAction(
+                        isDestructiveAction: true,
+                        onPressed: () async {
+                          http.Response res = await http.delete(
+                              Uri.parse(
+                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
+                              headers: {
+                                'Authorization':
+                                    'Bearer ${widget.userData['noriskToken']}'
+                              });
+                          if (res.statusCode != 200) {
+                            print(res.statusCode);
+                            return;
+                          }
+                          widget.commentUpdateStream.sink.add(true);
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_delete))
+                  ],
+                );
+        });
   }
 }

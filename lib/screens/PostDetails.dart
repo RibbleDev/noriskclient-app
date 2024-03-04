@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mcreal/config/Colors.dart';
@@ -9,12 +10,16 @@ import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/McRealComment.dart';
+import 'package:mcreal/widgets/McRealCommentInput.dart';
 import 'package:mcreal/widgets/McRealPost.dart';
 import 'package:mcreal/widgets/NoRiskIconButton.dart';
 
 class PostDetails extends StatefulWidget {
   const PostDetails(
-      {super.key, required this.userData, required this.postData, required this.postUpdateStream});
+      {super.key,
+      required this.userData,
+      required this.postData,
+      required this.postUpdateStream});
 
   final Map<String, dynamic> userData;
   final Map<String, dynamic> postData;
@@ -25,9 +30,10 @@ class PostDetails extends StatefulWidget {
 }
 
 class McRealState extends State<PostDetails> {
+  StreamController<bool> commentUpdateStream = StreamController<bool>();
   int page = 0;
   List<McRealComment> comments = [];
-  StreamController<bool> commentUpdateStream = StreamController<bool>();
+  Widget commentInput = Container();
 
   @override
   void initState() {
@@ -35,6 +41,20 @@ class McRealState extends State<PostDetails> {
     commentUpdateStream.stream.listen((bool data) {
       if (data) {
         loadComments();
+      } else {
+        setState(() {
+          commentInput = commentInput is McRealCommentInput
+              ? Container()
+              : McRealCommentInput(
+                  userData: widget.userData,
+                  postId: widget.postData['_id'],
+                  refresh: () {
+                    loadComments();
+                    setState(() {
+                      commentInput = Container();
+                    });
+                  });
+        });
       }
     });
     super.initState();
@@ -53,10 +73,18 @@ class McRealState extends State<PostDetails> {
                   const SizedBox(height: 335),
                   Padding(
                     padding: const EdgeInsets.all(10),
-                    child: comments.isNotEmpty ? Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: comments) : const Padding(padding: EdgeInsets.only(top: 20), child: LoadingIndicator()),
+                    child: comments.isNotEmpty
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                                commentInput,
+                                ...comments,
+                                const SizedBox(height: 50)
+                              ])
+                        : const Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: LoadingIndicator()),
                   )
                 ],
               ),
@@ -65,30 +93,39 @@ class McRealState extends State<PostDetails> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 65),
-                  Stack(
-                    children: [
-                      Row(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10, top: 7.5),
-                          child: NoRiskIconButton(onTap: () => Navigator.of(context).pop(), icon: NoRiskIcon.back),
-                        )
-                      ]),
+                  Container(height: 65, color: McRealColors.darkerBackground),
+                  Container(
+                    color: McRealColors.darkerBackground,
+                    child: Stack(children: [
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, top: 7.5),
+                              child: NoRiskIconButton(
+                                  onTap: () => Navigator.of(context).pop(),
+                                  icon: NoRiskIcon.back),
+                            )
+                          ]),
                       Center(
-                        child: Text(AppLocalizations.of(context)!.postDetails_title,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold)),
+                        child: Text(
+                            AppLocalizations.of(context)!.postDetails_title,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold)),
                       )
-                    ]
+                    ]),
                   ),
-                  const SizedBox(height: 10),
+                  Container(height: 10, color: McRealColors.darkerBackground),
                   McRealPost(
                       locked: false,
                       userData: widget.userData,
                       postData: widget.postData,
                       postUpdateStream: widget.postUpdateStream,
+                      commentUpdateStream: commentUpdateStream,
                       displayOnly: true),
                 ])
           ],
@@ -111,8 +148,10 @@ class McRealState extends State<PostDetails> {
 
     List<McRealComment> newComments = [];
     for (var commentData in commentsData['comments']) {
-      newComments.add(
-          McRealComment(userData: widget.userData, commentData: commentData, commentUpdateStream: commentUpdateStream));
+      newComments.add(McRealComment(
+          userData: widget.userData,
+          commentData: commentData,
+          commentUpdateStream: commentUpdateStream));
     }
 
     setState(() {

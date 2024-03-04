@@ -67,10 +67,13 @@ class McRealState extends State<McReal> {
                 ],
               ),
               Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 55),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  Stack(children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         GestureDetector(
@@ -89,10 +92,20 @@ class McRealState extends State<McReal> {
                                       ? FontWeight.bold
                                       : FontWeight.w400)),
                         ),
-                        const SizedBox(width: 7.5),
-                        const Text('|', style: TextStyle(fontSize: 20)),
-                        const SizedBox(width: 7.5),
-                        GestureDetector(
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.25),
+                        ]),
+                    const Center(
+                        child: Text('|',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold))),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3),
+                          GestureDetector(
                           onTap: () {
                             if (!friendsOnly) return;
                             setState(() {
@@ -108,7 +121,8 @@ class McRealState extends State<McReal> {
                                       ? FontWeight.w400
                                       : FontWeight.bold)),
                         ),
-                      ]),
+                        ]),
+                  ])
                 ],
               ),
             ],
