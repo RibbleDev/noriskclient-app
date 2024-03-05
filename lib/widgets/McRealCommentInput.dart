@@ -90,7 +90,7 @@ class McRealPostState extends State<McRealCommentInput> {
     http.Response res = await http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&postId=${widget.postId}${widget.parentCommentId != null ? '&parentCommentId=${widget.parentCommentId}' : ''}&text=$content'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;

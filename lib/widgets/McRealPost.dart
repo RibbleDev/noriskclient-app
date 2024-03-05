@@ -365,12 +365,12 @@ class McRealPostState extends State<McRealPost> {
     http.Response primaryRes = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=primary'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
 
     http.Response secondaryRes = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=secondary'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (primaryRes.statusCode != 200 || secondaryRes.statusCode != 200) {
       return;
     }
@@ -467,7 +467,7 @@ class McRealPostState extends State<McRealPost> {
                                   '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post?uuid=${widget.userData['uuid']}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['noriskToken']}'
+                                    'Bearer ${widget.userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
@@ -500,7 +500,7 @@ class McRealPostState extends State<McRealPost> {
                                   '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post?uuid=${widget.userData['uuid']}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['noriskToken']}'
+                                    'Bearer ${widget.userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);

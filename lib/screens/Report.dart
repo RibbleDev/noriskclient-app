@@ -191,7 +191,7 @@ class ProfileState extends State<Report> {
     http.Response res = await http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/${widget.type == ReportType.COMMENT ? 'comment' : 'post'}/${widget.contentId}/report?uuid=${widget.userData['uuid']}$reasons&info=${infoController.text}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;

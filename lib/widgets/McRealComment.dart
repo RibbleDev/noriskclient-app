@@ -205,7 +205,7 @@ class McRealPostState extends State<McRealComment> {
     http.Response res = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&page=$page&postId=${widget.commentData['comment']['postId']}&parentCommentId=${widget.commentData['comment']['_id']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;
@@ -259,7 +259,7 @@ class McRealPostState extends State<McRealComment> {
     http.Response res = await http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=true'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;
@@ -277,7 +277,7 @@ class McRealPostState extends State<McRealComment> {
     http.Response res = await http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=false'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;
@@ -295,7 +295,7 @@ class McRealPostState extends State<McRealComment> {
     http.Response res = await http.delete(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;
@@ -341,7 +341,7 @@ class McRealPostState extends State<McRealComment> {
                                   '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['noriskToken']}'
+                                    'Bearer ${widget.userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
@@ -374,7 +374,7 @@ class McRealPostState extends State<McRealComment> {
                                   '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['noriskToken']}'
+                                    'Bearer ${widget.userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);

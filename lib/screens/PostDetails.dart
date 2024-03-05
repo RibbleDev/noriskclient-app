@@ -139,7 +139,7 @@ class McRealState extends State<PostDetails> {
     http.Response res = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&page=$page&postId=${widget.postData['_id']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;

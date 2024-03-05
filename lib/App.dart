@@ -18,7 +18,7 @@ class McRealAppState extends State<McRealApp> {
   Map<String, dynamic> userData = {
     'uuid': '',
     'experimental': false,
-    'noriskToken': ''
+    'token': ''
   };
   final StreamController<List> updateStream = StreamController<List>();
 
@@ -27,11 +27,12 @@ class McRealAppState extends State<McRealApp> {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     // clearUserData();
-    saveUserData({
-      'uuid': '625dd22b-bad2-4b82-a0bc-e43ba1c1a7fd',
-      'experimental': true,
-      'noriskToken': ''
-    });
+    // saveUserData({
+    //   'uuid': '625dd22b-bad2-4b82-a0bc-e43ba1c1a7fd',
+    //   'experimental': true,
+    //   'token':
+    //       ''
+    // });
     loadUserData();
     updateStream.stream.listen((List data) {
       String event = data[0];
@@ -61,7 +62,7 @@ class McRealAppState extends State<McRealApp> {
       userData = {
         'uuid': prefs.getString('uuid') ?? '',
         'experimental': prefs.getBool('experimental') ?? false,
-        'noriskToken': prefs.getString('noriskToken') ?? ''
+        'token': prefs.getString('token') ?? ''
       };
     });
   }
@@ -70,7 +71,7 @@ class McRealAppState extends State<McRealApp> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('uuid', userData['uuid'] ?? '');
     await prefs.setBool('experimental', userData['experimental'] ?? false);
-    await prefs.setString('noriskToken', userData['noriskToken'] ?? '');
+    await prefs.setString('token', userData['token'] ?? '');
     loadUserData();
   }
 
@@ -78,7 +79,7 @@ class McRealAppState extends State<McRealApp> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('uuid');
     await prefs.remove('experimental');
-    await prefs.remove('noriskToken');
+    await prefs.remove('token');
     loadUserData();
   }
 }

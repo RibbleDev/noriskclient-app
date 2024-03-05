@@ -136,7 +136,7 @@ class McRealState extends State<McReal> {
     http.Response res = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post?uuid=${widget.userData['uuid']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;
@@ -168,7 +168,7 @@ class McRealState extends State<McReal> {
     http.Response res = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/posts?uuid=${widget.userData['uuid']}&page=$page&friendsOnly=$friendsOnly'),
-        headers: {'Authorization': 'Bearer ${widget.userData['noriskToken']}'});
+        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
       return;

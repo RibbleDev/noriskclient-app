@@ -141,14 +141,12 @@ class SignInState extends State<SignIn> {
     }));
   }
 
-// https://qr-generator-putuwaw.vercel.app/api?data={"uuid":"625dd22b-bad2-4b82-a0bc-e43ba1c1a7fd","experimental":true,"noriskToken":""}
-
   Future<void> handleQrCodeResult(
       MobileScannerController controller, String result) async {
     Map<String, dynamic> userData = jsonDecode(result);
     if (userData['uuid'] == null ||
         userData['experimental'] == null ||
-        userData['noriskToken'] == null) {
+        userData['token'] == null) {
       return;
     }
     Vibration.vibrate(duration: 500);
@@ -161,8 +159,8 @@ class SignInState extends State<SignIn> {
 
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'])}/posts?uuid=${userData['uuid']}&page=1&friendsOnly=true'),
-        headers: {'Authorization': 'Bearer ${userData['noriskToken']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'])}/user/validateToken?uuid=${userData['uuid']}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
 
     await Future.delayed(const Duration(seconds: 1));
 
