@@ -51,10 +51,11 @@ class ProfileState extends State<Profile> {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   Center(
-                      child: Image.network(
-                          'https://mineskin.eu/armor/bust/${widget.uuid}/128.png',
-                          height: 175,
-                          width: 175)),
+                    child: Image.network(
+                        'https://mineskin.eu/armor/bust/${widget.uuid}/128.png',
+                        height: 175,
+                        width: 175),
+                  ),
                   const SizedBox(height: 25),
                   Column(
                       children: pinns == null

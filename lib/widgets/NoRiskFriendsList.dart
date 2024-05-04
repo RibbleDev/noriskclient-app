@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/utils/FriendListType.dart';
@@ -38,27 +39,28 @@ class NoRiskFriendsListState extends State<NoRiskFriendsList> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              NoRiskIconButton(
-                  onTap: () => setState(() {
-                        expanded = !expanded;
-                      }),
-                  icon: AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                    child: RotatedBox(
-                        quarterTurns: expanded ? 1 : 0,
-                        child: Image.asset('lib/assets/icons/arrow.png',
-                            height: 12.5, width: 12.5)),
-                  )),
-              const SizedBox(width: 10),
-              Text(widget.title,
-                  style: const TextStyle(
-                      fontSize: 17, fontWeight: FontWeight.w500))
-            ],
+          GestureDetector(
+            onTap: () => setState(() {
+              expanded = !expanded;
+            }),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  child: RotatedBox(
+                      quarterTurns: expanded ? 1 : 0,
+                      child: Image.asset('lib/assets/icons/arrow.png',
+                          height: 12.5, width: 12.5)),
+                ),
+                const SizedBox(width: 10),
+                Text(widget.title,
+                    style: const TextStyle(
+                        fontSize: 17, fontWeight: FontWeight.w500))
+              ],
+            ),
           ),
           if (expanded) const SizedBox(height: 5),
           if (expanded)

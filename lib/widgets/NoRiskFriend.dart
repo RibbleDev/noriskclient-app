@@ -33,7 +33,7 @@ class NoRiskFriendState extends State<NoRiskFriend> {
   void initState() {
     uuid = widget.fiendUserData['uuid'];
     username = widget.fiendUserData['ign'];
-    rank = widget.fiendUserData['rank'];
+    rank = widget.fiendUserData['rank'] ?? 'Default';
     widget.updateStream.sink.add(['loadSkin', uuid]);
     super.initState();
   }
@@ -54,7 +54,7 @@ class NoRiskFriendState extends State<NoRiskFriend> {
                       borderRadius: BorderRadius.circular(3.5),
                       child: widget.cache['skins']?[uuid],
                     )
-                  : const LoadingIndicator(),
+                  : const LoadingIndicator(height: 10, width: 10),
             ),
             const SizedBox(width: 10),
             Text('$username ${rank != 'Default' ? '($rank)' : ''}',

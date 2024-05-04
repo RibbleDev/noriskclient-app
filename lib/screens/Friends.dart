@@ -82,22 +82,22 @@ class FriendsState extends State<Friends> {
                                         title: AppLocalizations.of(context)!
                                             .friends_friends,
                                         type: FriendListType.FRIENDS,
-                                        friends: friends!),
+                                        friends: friends ?? []),
                                     NoRiskFriendsList(
                                         title: AppLocalizations.of(context)!
                                             .friends_incomingRequests,
                                         type: FriendListType.INCOMING_REQUESTS,
-                                        friends: incoming!),
+                                        friends: incoming ?? []),
                                     NoRiskFriendsList(
                                         title: AppLocalizations.of(context)!
                                             .friends_outgoingRequests,
                                         type: FriendListType.OUTGOING_REQUESTS,
-                                        friends: outgoing!),
+                                        friends: outgoing ?? []),
                                     NoRiskFriendsList(
                                         title: AppLocalizations.of(context)!
                                             .friends_blocked,
                                         type: FriendListType.BLOCKED,
-                                        friends: blocked!)
+                                        friends: blocked ?? [])
                                   ]),
                             )
                 ],
@@ -108,6 +108,18 @@ class FriendsState extends State<Friends> {
                 children: [
                   const SizedBox(height: 60),
                   Stack(children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                                AppLocalizations.of(context)!.friends_title,
+                                style: const TextStyle(
+                                    fontSize: 25, fontWeight: FontWeight.w500)),
+                          ),
+                        ]),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.center,
