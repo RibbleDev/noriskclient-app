@@ -159,7 +159,7 @@ class SignInState extends State<SignIn> {
 
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'])}/user/validateToken?uuid=${userData['uuid']}'),
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/validateToken?uuid=${userData['uuid']}'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
 
     await Future.delayed(const Duration(seconds: 1));

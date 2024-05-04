@@ -1,8 +1,8 @@
 class NoRiskApi {
-  static const String baseUrl = 'https://api.norisk.gg/mcreal';
-  static const String baseExperimentalUrl = 'https://api-staging.norisk.gg/mcreal';
+  static const String baseUrl = 'https://api.norisk.gg/';
+  static const String baseExperimentalUrl = 'https://api-staging.norisk.gg/';
 
-  String getBaseUrl(bool experimental) {
-    return experimental ? baseExperimentalUrl : baseUrl;
+  String getBaseUrl(bool experimental, String project) {
+    return (experimental ? baseExperimentalUrl : baseUrl) + project;
   }
 }

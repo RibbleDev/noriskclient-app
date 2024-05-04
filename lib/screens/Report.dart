@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mcreal/config/Colors.dart';
 import 'package:http/http.dart' as http;
 import 'package:mcreal/utils/NoRiskApi.dart';
+import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/utils/ReportTypes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/widgets/NoRiskButton.dart';
@@ -23,13 +26,6 @@ class Report extends StatefulWidget {
 }
 
 class ProfileState extends State<Report> {
-  // OBSCENITY,
-  // HATE_SPEECH,
-  // COPYRIGHT_INFRINGEMENT,
-  // PRIVACY_VIOLATION,
-  // SPAM_OR_FRAUD,
-  // INAPPROPRIATE_FOR_MINORS,
-  // OTHER
   bool obscenity = false;
   bool hateSpeech = false;
   bool copyrightInfringement = false;
@@ -45,29 +41,47 @@ class ProfileState extends State<Report> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: McRealColors.background,
         body: Padding(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: ListView(
               children: [
-                Text(
-                    widget.type == ReportType.POST
-                        ? AppLocalizations.of(context)!.mcRealReport_title_post
-                        : AppLocalizations.of(context)!
-                            .mcRealReport_title_comment,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold)),
-                const SizedBox(height: 20),
+                Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                          widget.type == ReportType.POST
+                              ? AppLocalizations.of(context)!
+                                  .mcRealReport_title_post
+                              : AppLocalizations.of(context)!
+                                  .mcRealReport_title_comment,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, left: 5),
+                            child: GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: NoRiskIcon.back),
+                          )
+                        ])
+                  ],
+                ),
+                const SizedBox(height: 15),
                 Text(AppLocalizations.of(context)!.mcRealReport_whatHappened,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17.5,
                         fontWeight: FontWeight.w500)),
-                const SizedBox(height: 40),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                 NoRiskCheckbox(
                     onChanged: (value) => setState(() {
                           obscenity = value;
@@ -116,7 +130,7 @@ class ProfileState extends State<Report> {
                         }),
                     name: AppLocalizations.of(context)!
                         .mcRealReport_reason_other),
-                const SizedBox(height: 40),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: 100,
@@ -176,21 +190,27 @@ class ProfileState extends State<Report> {
 
   Future<void> report() async {
     String reasons = '';
-    if (obscenity) reasons += '&reasons=OBSCENITY';
-    if (hateSpeech) reasons += '&reasons=HATE_SPEECH';
+    if (obscenity) reasons += '&reasons=${ReportReason.OBSCENITY.toString()}';
+    if (hateSpeech) {
+      reasons += '&reasons=${ReportReason.HATE_SPEECH.toString()}';
+    }
     if (copyrightInfringement) {
-      reasons += '&reasons=COPYRIGHT_INFRINGEMENT';
+      reasons += '&reasons=${ReportReason.COPYRIGHT_INFRINGEMENT.toString()}';
     }
-    if (privacyViolation) reasons += '&reasons=PRIVACY_VIOLATION';
-    if (spamOrFraud) reasons += '&reasons=SPAM_OR_FRAUD';
+    if (privacyViolation) {
+      reasons += '&reasons=${ReportReason.PRIVACY_VIOLATION.toString()}';
+    }
+    if (spamOrFraud) {
+      reasons += '&reasons=${ReportReason.SPAM_OR_FRAUD.toString()}';
+    }
     if (inappropriateForMinors) {
-      reasons += '&reasons=INAPPROPRIATE_FOR_MINORS';
+      reasons += '&reasons=${ReportReason.INAPPROPRIATE_FOR_MINORS.toString()}';
     }
-    if (other) reasons += '&reasons=OTHER';
+    if (other) reasons += '&reasons=${ReportReason.OTHER.toString()}';
 
     http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/${widget.type == ReportType.COMMENT ? 'comment' : 'post'}/${widget.contentId}/report?uuid=${widget.userData['uuid']}$reasons&info=${infoController.text}'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/${widget.type == ReportType.COMMENT ? 'comment' : 'post'}/${widget.contentId}/report?uuid=${widget.userData['uuid']}$reasons&info=${infoController.text}'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);

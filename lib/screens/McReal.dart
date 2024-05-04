@@ -5,14 +5,22 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/screens/Friends.dart';
+import 'package:mcreal/screens/Profile.dart';
 import 'package:mcreal/utils/McRealStatus.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
+import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/McRealPost.dart';
 
 class McReal extends StatefulWidget {
-  const McReal({super.key, required this.userData, required this.updateStream});
+  const McReal(
+      {super.key,
+      required this.userData,
+      required this.cache,
+      required this.updateStream});
 
   final Map<String, dynamic> userData;
+  final Map<String, dynamic> cache;
   final StreamController<List> updateStream;
 
   @override
@@ -28,6 +36,7 @@ class McRealState extends State<McReal> {
 
   @override
   void initState() {
+    widget.updateStream.sink.add(['loadSkin', widget.userData['uuid']]);
     loadPosts(true);
     postUpdateStream.stream.listen((bool data) {
       if (data) {
@@ -47,13 +56,17 @@ class McRealState extends State<McReal> {
             children: [
               ListView(
                 children: [
-                  SizedBox(height: Platform.isAndroid ? 50 : 25),
+                  SizedBox(height: Platform.isAndroid ? 60 : 35),
                   posts.isEmpty && post == null
                       ? Padding(
-                        padding: const EdgeInsets.only(top: 35),
-                        child: Text(widget.userData['mcRealStatus'] == null ? AppLocalizations.of(context)!.mcReal_noPosts : AppLocalizations.of(context)!.mcReal_noPostsPlain,
-                            textAlign: TextAlign.center),
-                      )
+                          padding: const EdgeInsets.only(top: 35),
+                          child: Text(
+                              widget.userData['mcRealStatus'] == null
+                                  ? AppLocalizations.of(context)!.mcReal_noPosts
+                                  : AppLocalizations.of(context)!
+                                      .mcReal_noPostsPlain,
+                              textAlign: TextAlign.center),
+                        )
                       : Padding(
                           padding: const EdgeInsets.all(10),
                           child: Column(
@@ -70,28 +83,45 @@ class McRealState extends State<McReal> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 55),
+                  const SizedBox(height: 60),
                   Stack(children: [
                     Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: GestureDetector(
+                              onTap: () => Navigator.of(context).pop(),
+                              child: GestureDetector(
+                                onTap: openFriendsPage,
+                                child: const Icon(Icons.person_rounded,
+                                    color: Colors.white, size: 35),
+                              ),
+                            ),
+                          ),
+                        ]),
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (friendsOnly) return;
-                            setState(() {
-                              friendsOnly = true;
-                            });
-                            loadPosts(false);
-                          },
-                          child: Text(
-                              AppLocalizations.of(context)!.mcReal_friendsOnly,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: friendsOnly
-                                      ? FontWeight.bold
-                                      : FontWeight.w400)),
-                        ),
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (friendsOnly) return;
+                              setState(() {
+                                friendsOnly = true;
+                              });
+                              loadPosts(false);
+                            },
+                            child: Text(
+                                AppLocalizations.of(context)!
+                                    .mcReal_friendsOnly,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: friendsOnly
+                                        ? FontWeight.bold
+                                        : FontWeight.w400)),
+                          ),
                           SizedBox(
                               width: MediaQuery.of(context).size.width * 0.25),
                         ]),
@@ -106,22 +136,45 @@ class McRealState extends State<McReal> {
                           SizedBox(
                               width: MediaQuery.of(context).size.width * 0.3),
                           GestureDetector(
-                          onTap: () {
-                            if (!friendsOnly) return;
-                            setState(() {
-                              friendsOnly = false;
-                            });
-                            loadPosts(false);
-                          },
-                          child: Text(
-                              AppLocalizations.of(context)!.mcReal_discovery,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: friendsOnly
-                                      ? FontWeight.w400
-                                      : FontWeight.bold)),
-                        ),
+                            onTap: () {
+                              if (!friendsOnly) return;
+                              setState(() {
+                                friendsOnly = false;
+                              });
+                              loadPosts(false);
+                            },
+                            child: Text(
+                                AppLocalizations.of(context)!.mcReal_discovery,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: friendsOnly
+                                        ? FontWeight.w400
+                                        : FontWeight.bold)),
+                          ),
                         ]),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 15),
+                            child: GestureDetector(
+                              onTap: () => Navigator.of(context).pop(),
+                              child: GestureDetector(
+                                onTap: openProfilePage,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(5),
+                                  child: widget.cache['skins']
+                                          [widget.userData['uuid']] ??
+                                      const SizedBox(
+                                          height: 32,
+                                          width: 32,
+                                          child: LoadingIndicator()),
+                                ),
+                              ),
+                            ),
+                          )
+                        ])
                   ])
                 ],
               ),
@@ -135,7 +188,7 @@ class McRealState extends State<McReal> {
     widget.userData.remove('mcRealStatusInfo');
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post?uuid=${widget.userData['uuid']}'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post?uuid=${widget.userData['uuid']}'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
@@ -157,17 +210,17 @@ class McRealState extends State<McReal> {
           locked: false,
           postData: postData,
           userData: widget.userData,
+          cache: widget.cache,
+          updateStream: widget.updateStream,
           postUpdateStream: postUpdateStream);
     });
   }
 
   Future<void> loadPosts(bool fullReload) async {
-    if (post == null || fullReload) {
-      await loadPlayerPost();
-    }
+    await loadPlayerPost();
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/posts?uuid=${widget.userData['uuid']}&page=$page&friendsOnly=$friendsOnly'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/posts?uuid=${widget.userData['uuid']}&page=$page&friendsOnly=$friendsOnly'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
@@ -191,11 +244,30 @@ class McRealState extends State<McReal> {
           lockedReason: lockedReason,
           postData: postData,
           userData: widget.userData,
+          cache: widget.cache,
+          updateStream: widget.updateStream,
           postUpdateStream: postUpdateStream));
     }
 
     setState(() {
       posts = newPosts;
     });
+  }
+
+  void openProfilePage() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => Profile(
+            uuid: widget.userData['uuid'],
+            userData: widget.userData,
+            cache: widget.cache,
+            updateStream: widget.updateStream)));
+  }
+
+  void openFriendsPage() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => Friends(
+            userData: widget.userData,
+            cache: widget.cache,
+            updateStream: widget.updateStream)));
   }
 }

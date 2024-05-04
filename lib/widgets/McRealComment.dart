@@ -11,6 +11,7 @@ import 'package:mcreal/screens/Report.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/utils/ReportTypes.dart';
+import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/McRealCommentInput.dart';
 import 'package:mcreal/widgets/NoRiskIconButton.dart';
 
@@ -19,11 +20,15 @@ class McRealComment extends StatefulWidget {
       {super.key,
       required this.userData,
       required this.commentData,
+      required this.cache,
+      required this.updateStream,
       required this.commentUpdateStream,
       this.parentId = ''});
 
   final Map<String, dynamic> userData;
   final Map<String, dynamic> commentData;
+  final Map<String, dynamic> cache;
+  final StreamController<List> updateStream;
   final StreamController<bool> commentUpdateStream;
   final String parentId;
 
@@ -34,7 +39,6 @@ class McRealComment extends StatefulWidget {
 class McRealPostState extends State<McRealComment> {
   int page = 0;
   bool ownComment = false;
-  String username = '';
   int likes = 0;
   int dislikes = 0;
   bool? ownRating;
@@ -44,10 +48,13 @@ class McRealPostState extends State<McRealComment> {
 
   @override
   void initState() {
+    widget.updateStream.sink
+        .add(['loadSkin', widget.commentData['comment']['author']]);
     ownComment =
         widget.userData['uuid'] == widget.commentData['comment']['author'];
     if (!ownComment) {
-      getUsername();
+      widget.updateStream.sink
+          .add(['loadUsername', widget.commentData['comment']['author']]);
     }
     likes = widget.commentData['likes'];
     dislikes = widget.commentData['dislikes'];
@@ -76,10 +83,10 @@ class McRealPostState extends State<McRealComment> {
                   onTap: openProfilePage,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(2.5),
-                    child: Image.network(
-                        'https://mineskin.eu/helm/${widget.commentData['comment']['author']}/64',
-                        height: 32,
-                        width: 32),
+                    child: widget.cache['skins']
+                            [widget.commentData['comment']['author']] ??
+                        const SizedBox(
+                            height: 32, width: 32, child: LoadingIndicator()),
                   ),
                 ),
                 const SizedBox(width: 5),
@@ -94,7 +101,10 @@ class McRealPostState extends State<McRealComment> {
                                 ownComment
                                     ? AppLocalizations.of(context)!
                                         .mcRealComment_you
-                                    : username,
+                                    : widget.cache['usernames'][
+                                            widget.commentData['comment']
+                                                ['author']] ??
+                                        '',
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
@@ -204,7 +214,7 @@ class McRealPostState extends State<McRealComment> {
   Future<void> loadReplys() async {
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&page=$page&postId=${widget.commentData['comment']['postId']}&parentCommentId=${widget.commentData['comment']['_id']}'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/?uuid=${widget.userData['uuid']}&page=$page&postId=${widget.commentData['comment']['postId']}&parentCommentId=${widget.commentData['comment']['_id']}'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
@@ -217,6 +227,8 @@ class McRealPostState extends State<McRealComment> {
       newReplys.add(McRealComment(
           userData: widget.userData,
           commentData: commentData,
+          cache: widget.cache,
+          updateStream: widget.updateStream,
           commentUpdateStream: widget.commentUpdateStream,
           parentId: widget.commentData['comment']['_id']));
     }
@@ -226,21 +238,14 @@ class McRealPostState extends State<McRealComment> {
     });
   }
 
-  Future<void> getUsername() async {
-    http.Response res = await http.get(Uri.parse(
-        'https://sessionserver.mojang.com/session/minecraft/profile/${widget.commentData['comment']['author']}'));
-    if (res.statusCode != 200) {
-      return;
-    }
-    setState(() {
-      username = jsonDecode(res.body)['name'];
-    });
-  }
-
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
-            Profile(uuid: widget.commentData['comment']['author'])));
+            Profile(
+            uuid: widget.commentData['comment']['author'],
+            userData: widget.userData,
+            cache: widget.cache,
+            updateStream: widget.updateStream)));
   }
 
   Future<void> reply() async {
@@ -258,7 +263,7 @@ class McRealPostState extends State<McRealComment> {
   Future<void> upvote() async {
     http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=true'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=true'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
@@ -276,7 +281,7 @@ class McRealPostState extends State<McRealComment> {
   Future<void> downvote() async {
     http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=false'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=false'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
@@ -294,7 +299,7 @@ class McRealPostState extends State<McRealComment> {
   Future<void> deleteRating() async {
     http.Response res = await http.delete(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/rating?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
@@ -328,17 +333,18 @@ class McRealPostState extends State<McRealComment> {
                       .mcReal_deleteCommentPopupTitle),
                   content: Text(AppLocalizations.of(context)!
                       .mcReal_deleteCommentPopupContent),
+                  backgroundColor: McRealColors.darkerBackground,
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_cancel,
-                            style: const TextStyle(color: Colors.white))),
+                            style: const TextStyle(color: McRealColors.blue))),
                     TextButton(
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
+                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
                               headers: {
                                 'Authorization':
                                     'Bearer ${widget.userData['token']}'
@@ -365,13 +371,15 @@ class McRealPostState extends State<McRealComment> {
                         isDefaultAction: true,
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
-                            AppLocalizations.of(context)!.mcReal_popup_cancel)),
+                            AppLocalizations.of(context)!.mcReal_popup_cancel,
+                            style: const TextStyle(
+                                color: CupertinoColors.activeBlue))),
                     CupertinoDialogAction(
                         isDestructiveAction: true,
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
+                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/?uuid=${widget.userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
                               headers: {
                                 'Authorization':
                                     'Bearer ${widget.userData['token']}'

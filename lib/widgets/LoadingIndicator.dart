@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 class LoadingIndicator extends StatelessWidget {
   const LoadingIndicator(
       {super.key,
-      this.height = 10,
-      this.width = 10,
+      this.height = 15,
+      this.width = 15,
       this.color = Colors.white});
 
   final double height;
@@ -21,7 +21,7 @@ class LoadingIndicator extends StatelessWidget {
             height: height,
             width: width,
             child: Center(
-              child: CircularProgressIndicator(strokeWidth: 2, color: color),
+              child: CircularProgressIndicator(strokeWidth: 1.5, color: color),
             ),
           )
         : const Center(child: CupertinoActivityIndicator());

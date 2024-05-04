@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
@@ -25,6 +24,8 @@ class McRealPost extends StatefulWidget {
       this.lockedReason = '',
       required this.userData,
       required this.postData,
+      required this.cache,
+      required this.updateStream,
       required this.postUpdateStream,
       this.commentUpdateStream,
       this.displayOnly = false});
@@ -33,6 +34,8 @@ class McRealPost extends StatefulWidget {
   final String lockedReason;
   final Map<String, dynamic> userData;
   final Map<String, dynamic> postData;
+  final Map<String, dynamic> cache;
+  final StreamController<List> updateStream;
   final StreamController<bool> postUpdateStream;
   final StreamController<bool>? commentUpdateStream;
   final bool displayOnly;
@@ -43,7 +46,6 @@ class McRealPost extends StatefulWidget {
 
 class McRealPostState extends State<McRealPost> {
   bool ownPost = false;
-  String username = '';
   Widget primary = Container();
   Widget secondary = Container();
   bool swapped = false;
@@ -51,20 +53,10 @@ class McRealPostState extends State<McRealPost> {
 
   @override
   void initState() {
+    widget.updateStream.sink.add(['loadSkin', widget.postData['author']]);
     ownPost = widget.userData['uuid'] == widget.postData['author'];
     primary = Container(
         height: 200,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: widget.displayOnly
-              ? McRealColors.background
-              : McRealColors.darkerBackground,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: const Center(child: LoadingIndicator()));
-    secondary = Container(
-        height: 200,
-        width: double.infinity,
         decoration: BoxDecoration(
           color: widget.displayOnly
               ? McRealColors.background
@@ -73,9 +65,8 @@ class McRealPostState extends State<McRealPost> {
         ),
         child: const Center(child: LoadingIndicator()));
     if (!ownPost) {
-      getUsername();
+      widget.updateStream.sink.add(['loadUsername', widget.postData['author']]);
     }
-    // getPostTime();
     loadImages();
     super.initState();
   }
@@ -144,10 +135,12 @@ class McRealPostState extends State<McRealPost> {
                                   onTap: openProfilePage,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(2.5),
-                                    child: Image.network(
-                                        'https://mineskin.eu/helm/${widget.postData['author']}/64',
-                                        height: 32,
-                                        width: 32),
+                                    child: widget.cache['skins']
+                                            [widget.postData['author']] ??
+                                        const SizedBox(
+                                            height: 32,
+                                            width: 32,
+                                            child: LoadingIndicator()),
                                   ),
                                 ),
                                 const SizedBox(width: 7.5),
@@ -162,7 +155,10 @@ class McRealPostState extends State<McRealPost> {
                                             ownPost
                                                 ? AppLocalizations.of(context)!
                                                     .mcReal_yourMcReal
-                                                : username,
+                                                : widget.cache['usernames'][
+                                                        widget.postData[
+                                                            'author']] ??
+                                                    '',
                                             style: TextStyle(
                                                 fontSize: 17,
                                                 fontWeight: FontWeight.bold,
@@ -192,7 +188,7 @@ class McRealPostState extends State<McRealPost> {
                         const SizedBox(height: 5),
                         Stack(children: [
                           SizedBox(
-                            height: 210,
+                            height: MediaQuery.of(context).size.width * 0.5,
                             child: Center(
                               child: GestureDetector(
                                 onLongPress: widget.locked
@@ -205,64 +201,74 @@ class McRealPostState extends State<McRealPost> {
                                     : (_) => setState(() {
                                           holdingMainImage = false;
                                         }),
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(5),
-                                    child: Stack(
+                                child: Stack(
+                                  children: [
+                                    Stack(
                                       children: [
-                                        Stack(
-                                          children: [
-                                            swapped ? secondary : primary,
-                                            if (!holdingMainImage)
-                                              Positioned(
-                                                  top: 10,
-                                                  left: 10,
-                                                  child: GestureDetector(
-                                                      onTap: widget.locked
-                                                          ? () {}
-                                                          : () => setState(() {
-                                                                swapped =
-                                                                    !swapped;
-                                                              }),
-                                                      child: SizedBox(
-                                                          height: 75,
-                                                          child: ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5),
-                                                              child: swapped
-                                                                  ? primary
-                                                                  : secondary)))),
-                                          ],
-                                        ),
-                                        if (!(primary is Container ||
-                                            secondary is Container))
+                                        Container(
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  McRealColors.darkerBackground,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                child: swapped
+                                                    ? secondary
+                                                    : primary)),
+                                        if (!holdingMainImage)
                                           Positioned(
-                                              bottom: ownPost ? 10 : 45,
-                                              right: 10,
-                                              child: NoRiskIconButton(
-                                                  onTap: widget.displayOnly
-                                                      ? openCommentBox
-                                                      : openDetailsPage,
-                                                  icon: NoRiskIcon.comment)),
-                                        if (!ownPost &&
-                                            !(primary is Container ||
-                                                secondary is Container))
-                                          Positioned(
-                                              bottom: 10,
-                                              right: 10,
-                                              child: NoRiskIconButton(
-                                                  onTap: openReportPage,
-                                                  icon: NoRiskIcon.report))
+                                              top: 10,
+                                              left: 10,
+                                              child: GestureDetector(
+                                                  onTap: widget.locked
+                                                      ? () {}
+                                                      : () => setState(() {
+                                                            swapped = !swapped;
+                                                          }),
+                                                  child: SizedBox(
+                                                      height: 75,
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
+                                                        child: swapped
+                                                            ? primary
+                                                            : secondary,
+                                                      )))),
                                       ],
-                                    )),
+                                    ),
+                                    if (!(primary is Container ||
+                                        secondary is Container))
+                                      Positioned(
+                                          bottom: ownPost ? 10 : 45,
+                                          right: 10,
+                                          child: NoRiskIconButton(
+                                              onTap: widget.displayOnly
+                                                  ? openCommentBox
+                                                  : openDetailsPage,
+                                              icon: NoRiskIcon.comment)),
+                                    if (!ownPost &&
+                                        !(primary is Container ||
+                                            secondary is Container))
+                                      Positioned(
+                                          bottom: 10,
+                                          right: 10,
+                                          child: NoRiskIconButton(
+                                              onTap: openReportPage,
+                                              icon: NoRiskIcon.report))
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                           if (widget.locked)
                             ClipRect(
                                 child: SizedBox(
-                              height: 210,
+                              height: MediaQuery.of(context).size.width * 0.5,
                               child: BackdropFilter(
                                   filter:
                                       ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -281,20 +287,6 @@ class McRealPostState extends State<McRealPost> {
                                     ],
                                   ))),
                             )),
-                          if (widget.locked &&
-                              widget.userData['mcRealStatus'] ==
-                                  McRealStatus.REMOVED)
-                            GestureDetector(
-                              onTap: openPostRemovedPopup,
-                              child: SizedBox(
-                                height: 210,
-                                width: double.infinity,
-                                child: Container(
-                                    height: 210,
-                                    width: double.infinity,
-                                    color: Colors.transparent),
-                              ),
-                            )
                         ]),
                         const SizedBox(height: 5),
                         Text(widget.postData['title'],
@@ -350,41 +342,34 @@ class McRealPostState extends State<McRealPost> {
     return postTime;
   }
 
-  Future<void> getUsername() async {
-    http.Response res = await http.get(Uri.parse(
-        'https://sessionserver.mojang.com/session/minecraft/profile/${widget.postData['author']}'));
-    if (res.statusCode != 200) {
-      return;
-    }
-    setState(() {
-      username = jsonDecode(res.body)['name'];
-    });
-  }
-
   Future<void> loadImages() async {
     http.Response primaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=primary'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=primary'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
 
     http.Response secondaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=secondary'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=secondary'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (primaryRes.statusCode != 200 || secondaryRes.statusCode != 200) {
       return;
     }
 
     setState(() {
-      primary = Image.memory(primaryRes.bodyBytes, fit: BoxFit.fitHeight);
-      secondary = Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fitHeight);
+      primary = Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill);
+      secondary = Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill);
     });
   }
 
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
-            Profile(uuid: widget.postData['author'])));
+            Profile(
+            uuid: widget.postData['author'],
+            userData: widget.userData,
+            cache: widget.cache,
+            updateStream: widget.updateStream)));
   }
 
   void openDetailsPage() {
@@ -393,6 +378,8 @@ class McRealPostState extends State<McRealPost> {
         builder: (BuildContext context) => PostDetails(
             userData: widget.userData,
             postData: widget.postData,
+            cache: widget.cache,
+            updateStream: widget.updateStream,
             postUpdateStream: widget.postUpdateStream)));
   }
 
@@ -454,17 +441,18 @@ class McRealPostState extends State<McRealPost> {
                       .mcReal_deletePostPopupTitle),
                   content: Text(AppLocalizations.of(context)!
                       .mcReal_deletePostPopupContent),
+                  backgroundColor: McRealColors.darkerBackground,
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_cancel,
-                            style: const TextStyle(color: Colors.white))),
+                            style: const TextStyle(color: McRealColors.blue))),
                     TextButton(
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post?uuid=${widget.userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post?uuid=${widget.userData['uuid']}'),
                               headers: {
                                 'Authorization':
                                     'Bearer ${widget.userData['token']}'
@@ -491,13 +479,15 @@ class McRealPostState extends State<McRealPost> {
                         isDefaultAction: true,
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
-                            AppLocalizations.of(context)!.mcReal_popup_cancel)),
+                            AppLocalizations.of(context)!.mcReal_popup_cancel,
+                            style: const TextStyle(
+                                color: CupertinoColors.activeBlue))),
                     CupertinoDialogAction(
                         isDestructiveAction: true,
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'])}/post?uuid=${widget.userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post?uuid=${widget.userData['uuid']}'),
                               headers: {
                                 'Authorization':
                                     'Bearer ${widget.userData['token']}'
