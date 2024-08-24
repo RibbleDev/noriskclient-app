@@ -75,9 +75,7 @@ class McRealState extends State<PostDetails> {
               child: ListView(
                 children: [
                   SizedBox(
-                      height: Platform.isAndroid
-                          ? MediaQuery.of(context).size.width * 0.11
-                          : MediaQuery.of(context).size.width * 0.9),
+                      height: MediaQuery.of(context).size.width * 0.9),
                   Padding(
                     padding: const EdgeInsets.all(10),
                     child: comments != null
