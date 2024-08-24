@@ -55,7 +55,7 @@
   "postDetails_yourMcReal": "Your McReal",
   "settings_signOut": "Sign Out",
   "settings_title": "Settings",
-  "signIn_explanation": "To sign in just scan the QR-Code from the NoRiskClient Launcher under the menu option \"McReal App\".",
+  "signIn_explanation": "To sign in just scan the QR-Code from the NoRiskClient Launcher under the menu option \"McReal App\" in the settings tab.",
   "signIn_scanQrCode": "Scan QR Code",
   "signIn_signIn": "SignIn",
   "signIn_signingIn": "Signing In..."
