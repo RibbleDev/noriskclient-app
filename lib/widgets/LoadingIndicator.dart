@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,11 +7,11 @@ class LoadingIndicator extends StatelessWidget {
       {super.key,
       this.height = 15,
       this.width = 15,
-      this.color = Colors.white});
+      this.color});
 
   final double height;
   final double width;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +20,10 @@ class LoadingIndicator extends StatelessWidget {
             height: height,
             width: width,
             child: Center(
-              child: CircularProgressIndicator(strokeWidth: 1.5, color: color),
+              child: CircularProgressIndicator(
+                  strokeWidth: 1.5, color: color ?? Colors.white),
             ),
           )
-        : const Center(child: CupertinoActivityIndicator());
+        : Center(child: CupertinoActivityIndicator(color: color));
   }
 }

@@ -7,9 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
 import 'package:mcreal/config/Config.dart';
+import 'package:mcreal/main.dart';
 import 'package:mcreal/screens/PostDetails.dart';
 import 'package:mcreal/screens/Profile.dart';
-import 'package:mcreal/screens/Report.dart';
+import 'package:mcreal/screens/ReportMcReal.dart';
 import 'package:mcreal/utils/McRealStatus.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
@@ -22,20 +23,14 @@ class McRealPost extends StatefulWidget {
       {super.key,
       required this.locked,
       this.lockedReason = '',
-      required this.userData,
       required this.postData,
-      required this.cache,
-      required this.updateStream,
       required this.postUpdateStream,
       this.commentUpdateStream,
       this.displayOnly = false});
 
   final bool locked;
   final String lockedReason;
-  final Map<String, dynamic> userData;
   final Map<String, dynamic> postData;
-  final Map<String, dynamic> cache;
-  final StreamController<List> updateStream;
   final StreamController<bool> postUpdateStream;
   final StreamController<bool>? commentUpdateStream;
   final bool displayOnly;
@@ -50,22 +45,36 @@ class McRealPostState extends State<McRealPost> {
   Widget secondary = Container();
   bool swapped = false;
   bool holdingMainImage = false;
+  Map<String, dynamic> userData = getUserData;
+  Map<String, Map<String, dynamic>> cache = {};
 
   @override
   void initState() {
-    widget.updateStream.sink.add(['loadSkin', widget.postData['author']]);
-    ownPost = widget.userData['uuid'] == widget.postData['author'];
+    getUpdateStream.sink.add([
+      'loadSkin',
+      widget.postData['author'],
+      () => setState(() {
+            cache = getCache;
+          })
+    ]);
+    ownPost = userData['uuid'] == widget.postData['author'];
     primary = Container(
         height: 200,
         decoration: BoxDecoration(
           color: widget.displayOnly
-              ? McRealColors.background
-              : McRealColors.darkerBackground,
+              ? NoRiskClientColors.background
+              : NoRiskClientColors.darkerBackground,
           borderRadius: BorderRadius.circular(5),
         ),
         child: const Center(child: LoadingIndicator()));
     if (!ownPost) {
-      widget.updateStream.sink.add(['loadUsername', widget.postData['author']]);
+      getUpdateStream.sink.add([
+        'loadUsername',
+        widget.postData['author'],
+        () => setState(() {
+              cache = getCache;
+            })
+      ]);
     }
     loadImages();
     super.initState();
@@ -77,25 +86,25 @@ class McRealPostState extends State<McRealPost> {
       padding: const EdgeInsets.only(bottom: 15),
       child: GestureDetector(
         onTap:
-            ownPost && widget.userData['mcRealStatus'] == McRealStatus.REMOVED
+            ownPost && userData['mcRealStatus'] == McRealStatus.REMOVED
                 ? openPostRemovedPopup
                 : () {},
         child: Container(
           padding: EdgeInsets.only(
-              top: ownPost && widget.userData['mcRealStatus'] != McRealStatus.OK
+              top: ownPost && userData['mcRealStatus'] != McRealStatus.OK
                   ? 12
                   : 5,
               left: 12,
               right: 12,
               bottom:
-                  ownPost && widget.userData['mcRealStatus'] != McRealStatus.OK
+                  ownPost && userData['mcRealStatus'] != McRealStatus.OK
                       ? 12
                       : 0),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: McRealColors.darkerBackground),
+              color: NoRiskClientColors.darkerBackground),
           child: ownPost &&
-                  widget.userData['mcRealStatus'] == McRealStatus.REMOVED
+                  userData['mcRealStatus'] == McRealStatus.REMOVED
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -104,22 +113,26 @@ class McRealPostState extends State<McRealPost> {
                       const SizedBox(width: 10),
                       Text(AppLocalizations.of(context)!.mcReal_removedPost,
                           style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w500)),
+                              fontSize: 15,
+                              color: NoRiskClientColors.text,
+                              fontWeight: FontWeight.w500)),
                     ])
               : ownPost &&
-                      widget.userData['mcRealStatus'] == McRealStatus.DELETED
+                      userData['mcRealStatus'] == McRealStatus.DELETED
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                           const Icon(Icons.info,
-                              color: McRealColors.blue, size: 25),
+                              color: NoRiskClientColors.blue, size: 25),
                           const SizedBox(width: 10),
                           Text(
                               AppLocalizations.of(context)!
                                   .mcReal_status_deleted,
                               style: const TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w500)),
+                                  fontSize: 15,
+                                  color: NoRiskClientColors.text,
+                                  fontWeight: FontWeight.w500)),
                         ])
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -135,8 +148,8 @@ class McRealPostState extends State<McRealPost> {
                                   onTap: openProfilePage,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(2.5),
-                                    child: widget.cache['skins']
-                                            [widget.postData['author']] ??
+                                    child: cache['skins']
+                                            ?[widget.postData['author']] ??
                                         const SizedBox(
                                             height: 32,
                                             width: 32,
@@ -155,7 +168,7 @@ class McRealPostState extends State<McRealPost> {
                                             ownPost
                                                 ? AppLocalizations.of(context)!
                                                     .mcReal_yourMcReal
-                                                : widget.cache['usernames'][
+                                                : cache['usernames']?[
                                                         widget.postData[
                                                             'author']] ??
                                                     '',
@@ -163,7 +176,7 @@ class McRealPostState extends State<McRealPost> {
                                                 fontSize: 17,
                                                 fontWeight: FontWeight.bold,
                                                 color: ownPost
-                                                    ? McRealColors.blue
+                                                    ? NoRiskClientColors.blue
                                                     : Colors.white))
                                       ]),
                                   Column(
@@ -209,7 +222,8 @@ class McRealPostState extends State<McRealPost> {
                                             width: double.infinity,
                                             decoration: BoxDecoration(
                                               color:
-                                                  McRealColors.darkerBackground,
+                                                  NoRiskClientColors
+                                                  .darkerBackground,
                                               borderRadius:
                                                   BorderRadius.circular(5),
                                             ),
@@ -283,6 +297,7 @@ class McRealPostState extends State<McRealPost> {
                                       Text(widget.lockedReason,
                                           style: const TextStyle(
                                               fontSize: 15,
+                                              color: NoRiskClientColors.text,
                                               fontWeight: FontWeight.w500)),
                                     ],
                                   ))),
@@ -291,7 +306,9 @@ class McRealPostState extends State<McRealPost> {
                         const SizedBox(height: 5),
                         Text(widget.postData['title'],
                             style: const TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w500)),
+                                fontSize: 15,
+                                color: NoRiskClientColors.text,
+                                fontWeight: FontWeight.w500)),
                         const SizedBox(height: 5),
                       ],
                     ),
@@ -345,14 +362,20 @@ class McRealPostState extends State<McRealPost> {
   Future<void> loadImages() async {
     http.Response primaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=primary'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${userData['uuid']}&type=primary'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
 
     http.Response secondaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${widget.userData['uuid']}&type=secondary'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${userData['uuid']}&type=secondary'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (primaryRes.statusCode != 200 || secondaryRes.statusCode != 200) {
+      if (primaryRes.statusCode == 401 || secondaryRes.statusCode == 401) {
+        if (widget.commentUpdateStream != null) {
+          Navigator.of(context).pop();
+        }
+        getUpdateStream.sink.add(['signOut']);
+      }
       return;
     }
 
@@ -365,21 +388,14 @@ class McRealPostState extends State<McRealPost> {
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
-            Profile(
-            uuid: widget.postData['author'],
-            userData: widget.userData,
-            cache: widget.cache,
-            updateStream: widget.updateStream)));
+            Profile(uuid: widget.postData['author'])));
   }
 
   void openDetailsPage() {
     if (widget.locked) return;
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => PostDetails(
-            userData: widget.userData,
             postData: widget.postData,
-            cache: widget.cache,
-            updateStream: widget.updateStream,
             postUpdateStream: widget.postUpdateStream)));
   }
 
@@ -391,10 +407,9 @@ class McRealPostState extends State<McRealPost> {
   void openReportPage() {
     if (widget.locked) return;
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => Report(
+        builder: (BuildContext context) => ReportMcReal(
             type: ReportType.POST,
-            contentId: widget.postData['_id'],
-            userData: widget.userData)));
+            contentId: widget.postData['_id'])));
   }
 
   void openPostRemovedPopup() {
@@ -419,7 +434,7 @@ class McRealPostState extends State<McRealPost> {
                   title: Text(AppLocalizations.of(context)!
                       .mcReal_removedPostPopupTitle),
                   content: Text(
-                      '${AppLocalizations.of(context)!.mcReal_removedPostReason}: ${widget.userData['mcRealStatusInfo']}'),
+                      '${AppLocalizations.of(context)!.mcReal_removedPostReason}: ${userData['mcRealStatusInfo']}'),
                   actions: [
                     CupertinoDialogAction(
                         isDefaultAction: true,
@@ -441,24 +456,31 @@ class McRealPostState extends State<McRealPost> {
                       .mcReal_deletePostPopupTitle),
                   content: Text(AppLocalizations.of(context)!
                       .mcReal_deletePostPopupContent),
-                  backgroundColor: McRealColors.darkerBackground,
+                  backgroundColor: NoRiskClientColors.darkerBackground,
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_cancel,
-                            style: const TextStyle(color: McRealColors.blue))),
+                            style: const TextStyle(
+                                color: NoRiskClientColors.blue))),
                     TextButton(
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post?uuid=${widget.userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post?uuid=${userData['uuid']}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['token']}'
+                                    'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
+                            if (res.statusCode == 401) {
+                              if (widget.commentUpdateStream != null) {
+                                Navigator.of(context).pop();
+                              }
+                              getUpdateStream.sink.add(['signOut']);
+                            }
                             return;
                           }
                           widget.postUpdateStream.sink.add(true);
@@ -487,13 +509,19 @@ class McRealPostState extends State<McRealPost> {
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post?uuid=${widget.userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post?uuid=${userData['uuid']}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['token']}'
+                                    'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
+                            if (res.statusCode == 401) {
+                              if (widget.commentUpdateStream != null) {
+                                Navigator.of(context).pop();
+                              }
+                              getUpdateStream.sink.add(['signOut']);
+                            }
                             return;
                           }
                           widget.postUpdateStream.sink.add(true);

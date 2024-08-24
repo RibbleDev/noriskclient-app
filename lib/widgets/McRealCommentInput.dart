@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mcreal/config/Colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/main.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 
 class McRealCommentInput extends StatefulWidget {
@@ -54,8 +55,8 @@ class McRealPostState extends State<McRealCommentInput> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(7.5),
                         borderSide: const BorderSide(
-                            color: McRealColors.light, width: 2)),
-                    fillColor: McRealColors.background,
+                            color: NoRiskClientColors.light, width: 2)),
+                    fillColor: NoRiskClientColors.background,
                     // hintText: ,
                     labelText:
                         AppLocalizations.of(context)!.mcReal_comment_hint,
@@ -89,10 +90,14 @@ class McRealPostState extends State<McRealCommentInput> {
   Future<void> create(String content) async {
     http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/?uuid=${widget.userData['uuid']}&postId=${widget.postId}${widget.parentCommentId != null ? '&parentCommentId=${widget.parentCommentId}' : ''}&text=$content'),
+            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments?uuid=${widget.userData['uuid']}&postId=${widget.postId}${widget.parentCommentId != null ? '&parentCommentId=${widget.parentCommentId}' : ''}&text=$content'),
         headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
     if (res.statusCode != 200) {
-      print(res.statusCode);
+      print("Create comment: ${res.statusCode}");
+      if (res.statusCode == 401) {
+        Navigator.of(context).pop();
+        getUpdateStream.sink.add(['signOut']);
+      }
       return;
     }
     widget.refresh();

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mcreal/config/Colors.dart';
 
 class NoRiskCheckbox extends StatefulWidget {
   NoRiskCheckbox(
@@ -48,7 +49,9 @@ class McRealPostState extends State<NoRiskCheckbox> {
           if (widget.name.isNotEmpty)
             Text(widget.name,
                 style: const TextStyle(
-                    fontSize: 17.5, fontWeight: FontWeight.bold)),
+                    fontSize: 17.5,
+                    color: NoRiskClientColors.text,
+                    fontWeight: FontWeight.bold)),
         ],
       ),
     );

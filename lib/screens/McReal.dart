@@ -1,27 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/screens/Friends.dart';
+import 'package:mcreal/config/Config.dart';
+import 'package:mcreal/main.dart';
+import 'package:mcreal/provider/localeProvider.dart';
 import 'package:mcreal/screens/Profile.dart';
 import 'package:mcreal/utils/McRealStatus.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/McRealPost.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class McReal extends StatefulWidget {
-  const McReal(
-      {super.key,
-      required this.userData,
-      required this.cache,
-      required this.updateStream});
-
-  final Map<String, dynamic> userData;
-  final Map<String, dynamic> cache;
-  final StreamController<List> updateStream;
+  const McReal({super.key});
 
   @override
   State<McReal> createState() => McRealState();
@@ -33,10 +30,19 @@ class McRealState extends State<McReal> {
   int page = 0;
   McRealPost? post;
   List<McRealPost> posts = [];
+  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, dynamic> userData = getUserData;
 
   @override
   void initState() {
-    widget.updateStream.sink.add(['loadSkin', widget.userData['uuid']]);
+    loadLanguage();
+    getUpdateStream.sink.add([
+      'loadSkin',
+      userData['uuid'],
+      () => setState(() {
+            cache = getCache;
+          })
+    ]);
     loadPosts(true);
     postUpdateStream.stream.listen((bool data) {
       if (data) {
@@ -49,7 +55,7 @@ class McRealState extends State<McReal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: McRealColors.background,
+        backgroundColor: NoRiskClientColors.background,
         body: RefreshIndicator(
           onRefresh: () => loadPosts(true),
           child: Stack(
@@ -61,11 +67,13 @@ class McRealState extends State<McReal> {
                       ? Padding(
                           padding: const EdgeInsets.only(top: 35),
                           child: Text(
-                              widget.userData['mcRealStatus'] == null
+                              userData['mcRealStatus'] == null
                                   ? AppLocalizations.of(context)!.mcReal_noPosts
                                   : AppLocalizations.of(context)!
                                       .mcReal_noPostsPlain,
-                              textAlign: TextAlign.center),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  color: NoRiskClientColors.textLight)),
                         )
                       : Padding(
                           padding: const EdgeInsets.all(10),
@@ -73,6 +81,7 @@ class McRealState extends State<McReal> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                const SizedBox(height: 10),
                                 post ?? const SizedBox(height: 0, width: 0),
                                 ...posts
                               ]),
@@ -86,25 +95,10 @@ class McRealState extends State<McReal> {
                   const SizedBox(height: 60),
                   Stack(children: [
                     Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: GestureDetector(
-                              onTap: () => Navigator.of(context).pop(),
-                              child: GestureDetector(
-                                onTap: openFriendsPage,
-                                child: const Icon(Icons.person_rounded,
-                                    color: Colors.white, size: 35),
-                              ),
-                            ),
-                          ),
-                        ]),
-                    Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          const SizedBox(width: 5),
                           GestureDetector(
                             onTap: () {
                               if (friendsOnly) return;
@@ -118,23 +112,26 @@ class McRealState extends State<McReal> {
                                     .mcReal_friendsOnly,
                                 style: TextStyle(
                                     fontSize: 20,
+                                    color: NoRiskClientColors.text,
                                     fontWeight: friendsOnly
                                         ? FontWeight.bold
                                         : FontWeight.w400)),
                           ),
                           SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.25),
+                              width: MediaQuery.of(context).size.width * 0.3),
                         ]),
                     const Center(
                         child: Text('|',
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold))),
+                                fontSize: 20,
+                                color: NoRiskClientColors.text,
+                                fontWeight: FontWeight.bold))),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.3),
+                              width: MediaQuery.of(context).size.width * 0.35),
                           GestureDetector(
                             onTap: () {
                               if (!friendsOnly) return;
@@ -147,6 +144,7 @@ class McRealState extends State<McReal> {
                                 AppLocalizations.of(context)!.mcReal_discovery,
                                 style: TextStyle(
                                     fontSize: 20,
+                                    color: NoRiskClientColors.text,
                                     fontWeight: friendsOnly
                                         ? FontWeight.w400
                                         : FontWeight.bold)),
@@ -164,8 +162,7 @@ class McRealState extends State<McReal> {
                                 onTap: openProfilePage,
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(5),
-                                  child: widget.cache['skins']
-                                          [widget.userData['uuid']] ??
+                                  child: cache['skins']?[userData['uuid']] ??
                                       const SizedBox(
                                           height: 32,
                                           width: 32,
@@ -183,25 +180,50 @@ class McRealState extends State<McReal> {
         ));
   }
 
+  Future<void> loadLanguage() async {
+    // Ich schäme mich dafür aber juckt jz grad :skull:
+    await Future.delayed(const Duration(seconds: 1));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String language = prefs.getString('language') ??
+        (Config.availableLanguages
+                .contains(PlatformDispatcher.instance.locale.languageCode)
+            ? PlatformDispatcher.instance.locale.languageCode
+            : Config.fallbackLangauge);
+    if (!mounted) return;
+    final provider = Provider.of<LocaleProvider>(context, listen: false);
+    provider.setLocale(language);
+
+    if (prefs.getString('language') == null) {
+      await prefs.setString('language', language);
+    }
+  }
+
   Future<void> loadPlayerPost() async {
-    widget.userData.remove('mcRealStatus');
-    widget.userData.remove('mcRealStatusInfo');
+    userData.remove('mcRealStatus');
+    userData.remove('mcRealStatusInfo');
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/post?uuid=${widget.userData['uuid']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post?uuid=${userData['uuid']}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
-      print(res.statusCode);
+      print("Load player post: ${res.statusCode}");
+      if (res.statusCode == 403) {
+        setState(() {
+          post = null;
+        });
+      } else if (res.statusCode == 401) {
+        getUpdateStream.sink.add(['signOut']);
+      }
       return;
     }
     Map<String, dynamic> postData = jsonDecode(utf8.decode(res.bodyBytes));
 
     if (postData['status'] != null) {
       if (postData['status'] == McRealStatus.REMOVED) {
-        widget.userData['mcRealStatus'] = McRealStatus.REMOVED;
-        widget.userData['mcRealStatusInfo'] = postData['statusInfo'];
+        userData['mcRealStatus'] = McRealStatus.REMOVED;
+        userData['mcRealStatusInfo'] = postData['statusInfo'];
       } else if (postData['status'] == McRealStatus.DELETED) {
-        widget.userData['mcRealStatus'] = McRealStatus.DELETED;
+        userData['mcRealStatus'] = McRealStatus.DELETED;
       }
     }
 
@@ -209,9 +231,6 @@ class McRealState extends State<McReal> {
       post = McRealPost(
           locked: false,
           postData: postData,
-          userData: widget.userData,
-          cache: widget.cache,
-          updateStream: widget.updateStream,
           postUpdateStream: postUpdateStream);
     });
   }
@@ -220,18 +239,21 @@ class McRealState extends State<McReal> {
     await loadPlayerPost();
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/posts?uuid=${widget.userData['uuid']}&page=$page&friendsOnly=$friendsOnly'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/posts?uuid=${userData['uuid']}&page=$page&friendsOnly=$friendsOnly'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
-      print(res.statusCode);
+      print("Load posts: ${res.statusCode}");
+      if (res.statusCode == 401) {
+        getUpdateStream.sink.add(['signOut']);
+      }
       return;
     }
     List postsData = jsonDecode(utf8.decode(res.bodyBytes));
 
     String lockedReason = '';
-    if (widget.userData['mcRealStatus'] == McRealStatus.REMOVED) {
+    if (userData['mcRealStatus'] == McRealStatus.REMOVED) {
       lockedReason = AppLocalizations.of(context)!.mcReal_status_removed;
-    } else if (widget.userData['mcRealStatus'] == McRealStatus.DELETED) {
+    } else if (userData['mcRealStatus'] == McRealStatus.DELETED) {
       lockedReason = AppLocalizations.of(context)!.mcReal_status_deleted;
     } else if (post == null) {
       lockedReason = AppLocalizations.of(context)!.mcReal_status_noPost;
@@ -243,9 +265,6 @@ class McRealState extends State<McReal> {
           locked: post == null || lockedReason != '',
           lockedReason: lockedReason,
           postData: postData,
-          userData: widget.userData,
-          cache: widget.cache,
-          updateStream: widget.updateStream,
           postUpdateStream: postUpdateStream));
     }
 
@@ -256,18 +275,7 @@ class McRealState extends State<McReal> {
 
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => Profile(
-            uuid: widget.userData['uuid'],
-            userData: widget.userData,
-            cache: widget.cache,
-            updateStream: widget.updateStream)));
-  }
-
-  void openFriendsPage() {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => Friends(
-            userData: widget.userData,
-            cache: widget.cache,
-            updateStream: widget.updateStream)));
+        builder: (BuildContext context) =>
+            Profile(uuid: userData['uuid'], isSettings: true)));
   }
 }

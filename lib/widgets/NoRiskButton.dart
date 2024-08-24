@@ -22,7 +22,7 @@ class NoRiskButton extends StatelessWidget {
         height: height,
         width: width,
         decoration: BoxDecoration(
-          color: McRealColors.darkerBackground,
+          color: NoRiskClientColors.darkerBackground,
           borderRadius: const BorderRadius.all(Radius.circular(5)),
           border: Border.all(color: Colors.black, width: 1.5),
         ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/main.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
@@ -13,13 +14,11 @@ import 'package:mcreal/widgets/NoRiskIconButton.dart';
 class PinndedMcRealPost extends StatefulWidget {
   const PinndedMcRealPost(
       {super.key,
-      required this.userData,
       required this.postData,
       required this.pinnedIndex,
       required this.pinnedUuid});
 
   final int pinnedIndex;
-  final Map<String, dynamic> userData;
   final Map<String, dynamic>? postData;
   final String pinnedUuid;
 
@@ -32,13 +31,14 @@ class McRealPostState extends State<PinndedMcRealPost> {
   Widget secondary = Container();
   bool swapped = false;
   bool holdingMainImage = false;
+  Map<String, dynamic> userData = getUserData;
 
   @override
   void initState() {
     primary = Container(
         height: 200,
         decoration: BoxDecoration(
-          color: McRealColors.darkerBackground,
+          color: NoRiskClientColors.darkerBackground,
           borderRadius: BorderRadius.circular(5),
         ),
         child: const Center(child: LoadingIndicator()));
@@ -56,15 +56,17 @@ class McRealPostState extends State<PinndedMcRealPost> {
           ? Container(
               height: MediaQuery.of(context).size.width * 0.5,
               decoration: BoxDecoration(
-                color: McRealColors.darkerBackground,
+                color: NoRiskClientColors.darkerBackground,
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Center(
-                  child: widget.pinnedUuid == widget.userData['uuid']
+                  child: widget.pinnedUuid == userData['uuid']
                       ? NoRiskIconButton(onTap: pin, icon: NoRiskIcon.lock)
                       : const Text('?',
                           style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold))),
+                              fontSize: 30,
+                              color: NoRiskClientColors.textLight,
+                              fontWeight: FontWeight.bold))),
             )
           : Stack(children: [
               SizedBox(
@@ -86,7 +88,8 @@ class McRealPostState extends State<PinndedMcRealPost> {
                                 Container(
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: McRealColors.darkerBackground,
+                                      color:
+                                          NoRiskClientColors.darkerBackground,
                                       borderRadius: BorderRadius.circular(5),
                                     ),
                                     child: swapped ? secondary : primary),
@@ -120,7 +123,7 @@ class McRealPostState extends State<PinndedMcRealPost> {
                                           fontWeight: FontWeight.w500))),
                             if (!(primary is Container ||
                                     secondary is Container) &&
-                                widget.pinnedUuid == widget.userData['uuid'])
+                                widget.pinnedUuid == userData['uuid'])
                               Positioned(
                                   top: 10,
                                   right: 10,
@@ -141,7 +144,7 @@ class McRealPostState extends State<PinndedMcRealPost> {
         widget.postData!['uploadTime'].toString().split('.')[0]);
 
     String postTime =
-        '${uploadTime.hour}:${uploadTime.minute}:${uploadTime.second}';
+        '${uploadTime.hour < 9 ? '0' : ''}${uploadTime.hour}:${uploadTime.minute < 9 ? '0' : ''}${uploadTime.minute}:${uploadTime.second < 9 ? '0' : ''}${uploadTime.second}';
 
     return postTime;
   }
@@ -149,14 +152,18 @@ class McRealPostState extends State<PinndedMcRealPost> {
   Future<void> loadImages() async {
     http.Response primaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/user/${widget.postData!['author']}/pinned/${widget.pinnedIndex}}?uuid=${widget.userData['uuid']}&type=primary&index=${widget.pinnedIndex}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/${widget.postData!['author']}/pinned/${widget.pinnedIndex}}?uuid=${userData['uuid']}&type=primary&index=${widget.pinnedIndex}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
 
     http.Response secondaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/user/${widget.postData!['author']}/pinned/${widget.pinnedIndex}}?uuid=${widget.userData['uuid']}&type=secondary&index=${widget.pinnedIndex}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/${widget.postData!['author']}/pinned/${widget.pinnedIndex}}?uuid=${userData['uuid']}&type=secondary&index=${widget.pinnedIndex}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (primaryRes.statusCode != 200 || secondaryRes.statusCode != 200) {
+      if (primaryRes.statusCode == 401 || secondaryRes.statusCode == 401) {
+        Navigator.of(context).pop();
+        getUpdateStream.sink.add(['signOut']);
+      }
       return;
     }
 
@@ -169,10 +176,14 @@ class McRealPostState extends State<PinndedMcRealPost> {
   Future<void> pin() async {
     http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${widget.userData['uuid']}&index=${widget.pinnedIndex}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
+      if (res.statusCode == 401) {
+        Navigator.of(context).pop();
+        getUpdateStream.sink.add(['signOut']);
+      }
       return;
     }
   }
@@ -184,41 +195,46 @@ class McRealPostState extends State<PinndedMcRealPost> {
           return Platform.isAndroid
               ? AlertDialog(
                   title: Text(AppLocalizations.of(context)!
-                      .mcReal_deletePostPopupTitle),
+                      .mcReal_unpinPostPopupTitle),
                   content: Text(AppLocalizations.of(context)!
-                      .mcReal_deletePostPopupContent),
-                  backgroundColor: McRealColors.darkerBackground,
+                      .mcReal_unpinPostPopupContent),
+                  backgroundColor: NoRiskClientColors.darkerBackground,
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_cancel,
-                            style: const TextStyle(color: McRealColors.blue))),
+                            style: const TextStyle(
+                                color: NoRiskClientColors.blue))),
                     TextButton(
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${widget.userData['uuid']}&index=${widget.pinnedIndex}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['token']}'
+                                    'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
+                            if (res.statusCode == 401) {
+                              Navigator.of(context).pop();
+                              getUpdateStream.sink.add(['signOut']);
+                            }
                             return;
                           }
                           Navigator.of(context).pop();
                         },
                         child: Text(
-                            AppLocalizations.of(context)!.mcReal_popup_delete,
+                            AppLocalizations.of(context)!.mcReal_popup_unpin,
                             style: const TextStyle(color: Colors.red)))
                   ],
                 )
               : CupertinoAlertDialog(
                   title: Text(AppLocalizations.of(context)!
-                      .mcReal_deletePostPopupTitle),
+                      .mcReal_unpinPostPopupTitle),
                   content: Text(AppLocalizations.of(context)!
-                      .mcReal_deletePostPopupContent),
+                      .mcReal_unpinPostPopupContent),
                   actions: [
                     CupertinoDialogAction(
                         isDefaultAction: true,
@@ -232,19 +248,23 @@ class McRealPostState extends State<PinndedMcRealPost> {
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${widget.userData['uuid']}&index=${widget.pinnedIndex}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
                               headers: {
                                 'Authorization':
-                                    'Bearer ${widget.userData['token']}'
+                                    'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
+                            if (res.statusCode == 401) {
+                              Navigator.of(context).pop();
+                              getUpdateStream.sink.add(['signOut']);
+                            }
                             return;
                           }
                           Navigator.of(context).pop();
                         },
                         child: Text(
-                            AppLocalizations.of(context)!.mcReal_popup_delete))
+                            AppLocalizations.of(context)!.mcReal_popup_unpin))
                   ],
                 );
         });

@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:mcreal/config/Colors.dart';
 import 'package:http/http.dart' as http;
+import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/main.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/utils/ReportTypes.dart';
@@ -10,22 +9,17 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/widgets/NoRiskButton.dart';
 import 'package:mcreal/widgets/NoRiskCheckbox.dart';
 
-class Report extends StatefulWidget {
-  const Report(
-      {super.key,
-      required this.type,
-      required this.contentId,
-      required this.userData});
+class ReportMcReal extends StatefulWidget {
+  const ReportMcReal({super.key, required this.type, required this.contentId});
 
   final ReportType type;
   final String contentId;
-  final Map<String, dynamic> userData;
 
   @override
-  State<Report> createState() => ProfileState();
+  State<ReportMcReal> createState() => ReportMcRealState();
 }
 
-class ProfileState extends State<Report> {
+class ReportMcRealState extends State<ReportMcReal> {
   bool obscenity = false;
   bool hateSpeech = false;
   bool copyrightInfringement = false;
@@ -33,6 +27,7 @@ class ProfileState extends State<Report> {
   bool spamOrFraud = false;
   bool inappropriateForMinors = false;
   bool other = false;
+  Map<String, dynamic> userData = getUserData;
 
   final TextEditingController infoController = TextEditingController();
   final FocusNode infoFocus = FocusNode();
@@ -42,7 +37,7 @@ class ProfileState extends State<Report> {
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: true,
-        backgroundColor: McRealColors.background,
+        backgroundColor: NoRiskClientColors.background,
         body: Padding(
             padding: const EdgeInsets.all(20),
             child: ListView(
@@ -140,7 +135,7 @@ class ProfileState extends State<Report> {
                           borderRadius: BorderRadius.circular(7.5),
                           borderSide:
                               const BorderSide(color: Colors.red, width: 2)),
-                      fillColor: McRealColors.darkerBackground,
+                      fillColor: NoRiskClientColors.darkerBackground,
                       // hintText: ,
                       labelText:
                           AppLocalizations.of(context)!.mcRealReport_info_hint,
@@ -149,12 +144,12 @@ class ProfileState extends State<Report> {
                           borderRadius: BorderRadius.circular(7.5),
                           gapPadding: 3.5,
                           borderSide: const BorderSide(
-                              color: McRealColors.light, width: 2)),
+                              color: NoRiskClientColors.light, width: 2)),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(7.5),
                           gapPadding: 3.5,
                           borderSide: const BorderSide(
-                              color: McRealColors.light, width: 2)),
+                              color: NoRiskClientColors.light, width: 2)),
                       filled: true,
                       isDense: true,
                     ),
@@ -190,29 +185,41 @@ class ProfileState extends State<Report> {
 
   Future<void> report() async {
     String reasons = '';
-    if (obscenity) reasons += '&reasons=${ReportReason.OBSCENITY.toString()}';
+    if (obscenity)
+      reasons +=
+          '&reasons=${ReportReason.OBSCENITY.toString().split('.').last}';
     if (hateSpeech) {
-      reasons += '&reasons=${ReportReason.HATE_SPEECH.toString()}';
+      reasons +=
+          '&reasons=${ReportReason.HATE_SPEECH.toString().split('.').last}';
     }
     if (copyrightInfringement) {
-      reasons += '&reasons=${ReportReason.COPYRIGHT_INFRINGEMENT.toString()}';
+      reasons +=
+          '&reasons=${ReportReason.COPYRIGHT_INFRINGEMENT.toString().split('.').last}';
     }
     if (privacyViolation) {
-      reasons += '&reasons=${ReportReason.PRIVACY_VIOLATION.toString()}';
+      reasons +=
+          '&reasons=${ReportReason.PRIVACY_VIOLATION.toString().split('.').last}';
     }
     if (spamOrFraud) {
-      reasons += '&reasons=${ReportReason.SPAM_OR_FRAUD.toString()}';
+      reasons +=
+          '&reasons=${ReportReason.SPAM_OR_FRAUD.toString().split('.').last}';
     }
     if (inappropriateForMinors) {
-      reasons += '&reasons=${ReportReason.INAPPROPRIATE_FOR_MINORS.toString()}';
+      reasons +=
+          '&reasons=${ReportReason.INAPPROPRIATE_FOR_MINORS.toString().split('.').last}';
     }
-    if (other) reasons += '&reasons=${ReportReason.OTHER.toString()}';
+    if (other)
+      reasons += '&reasons=${ReportReason.OTHER.toString().split('.').last}';
 
     http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/${widget.type == ReportType.COMMENT ? 'comment' : 'post'}/${widget.contentId}/report?uuid=${widget.userData['uuid']}$reasons&info=${infoController.text}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/${widget.type == ReportType.COMMENT ? 'comment' : 'post'}/${widget.contentId}/report?uuid=${userData['uuid']}$reasons&info=${infoController.text}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
+      if (res.statusCode == 401) {
+        Navigator.of(context).pop();
+        getUpdateStream.sink.add(['signOut']);
+      }
       print(res.statusCode);
       return;
     }

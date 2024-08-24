@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/main.dart';
+import 'package:mcreal/screens/Settings.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/PinnedMcRealPost.dart';
@@ -12,14 +15,10 @@ class Profile extends StatefulWidget {
   const Profile(
       {super.key,
       required this.uuid,
-      required this.userData,
-      required this.cache,
-      required this.updateStream});
+      this.isSettings = false});
 
   final String uuid;
-  final Map<String, dynamic> userData;
-  final Map<String, dynamic> cache;
-  final StreamController<List> updateStream;
+  final bool isSettings;
 
   @override
   State<Profile> createState() => ProfileState();
@@ -27,47 +26,97 @@ class Profile extends StatefulWidget {
 
 class ProfileState extends State<Profile> {
   List<PinndedMcRealPost>? pinns;
+  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, dynamic> userData = getUserData;
 
   @override
   void initState() {
     loadPinnedPosts();
-    widget.updateStream.sink.add(['loadUsername', widget.uuid]);
+    getUpdateStream.sink.add([
+      'loadUsername',
+      widget.uuid,
+      () => setState(() {
+            cache = getCache;
+          })
+    ]);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: McRealColors.background,
+        backgroundColor: NoRiskClientColors.background,
         body: Padding(
             padding: const EdgeInsets.all(15),
-            child: RefreshIndicator(
-              onRefresh: loadPinnedPosts,
-              child: ListView(
-                children: [
-                  const SizedBox(height: 10),
-                  Text(widget.cache['usernames']?[widget.uuid] ?? '',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                  Center(
-                    child: Image.network(
-                        'https://mineskin.eu/armor/bust/${widget.uuid}/128.png',
-                        height: 175,
-                        width: 175),
+            child: Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: loadPinnedPosts,
+                  child: ListView(
+                    children: [
+                      const SizedBox(height: 20),
+                      Text(cache['usernames']?[widget.uuid] ?? '',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: NoRiskClientColors.text,
+                              fontWeight: FontWeight.bold)),
+                      Center(
+                          child: cache['armorSkins']?[widget.uuid] ??
+                              const SizedBox()),
+                      const SizedBox(height: 25),
+                      Column(
+                          children: pinns == null
+                              ? [const LoadingIndicator()]
+                              : pinns!.isEmpty
+                                  ? [
+                                      Text(
+                                          AppLocalizations.of(context)!
+                                              .mcRealProfile_notPosted,
+                                          style: const TextStyle(
+                                              color: NoRiskClientColors.text))
+                                    ]
+                                  : pinns!),
+                    ],
                   ),
-                  const SizedBox(height: 25),
-                  Column(
-                      children: pinns == null
-                          ? [const LoadingIndicator()]
-                          : pinns!.isEmpty
-                              ? [
-                                  Text(AppLocalizations.of(context)!
-                                      .mcRealProfile_notPosted)
-                                ]
-                              : pinns!),
-                ],
-              ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 67.5),
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: SizedBox(
+                          height: 30,
+                          width: 30,
+                          child: Icon(
+                              isIOS ? CupertinoIcons.back : Icons.arrow_back,
+                              color: NoRiskClientColors.text,
+                              size: 30),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (widget.isSettings)
+                  Positioned(
+                      top: 70,
+                      right: 5,
+                      child: GestureDetector(
+                          onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      const Settings())),
+                          child: const SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: Center(
+                                child: Icon(Icons.settings,
+                                    color: NoRiskClientColors.text, size: 30),
+                              ))))
+              ],
             )));
   }
 
@@ -77,15 +126,19 @@ class ProfileState extends State<Profile> {
     });
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/user/${widget.uuid}/pinned?uuid=${widget.userData['uuid']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/${widget.uuid}/pinned?uuid=${userData['uuid']}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
+      print(res.statusCode);
+      if (res.statusCode == 401) {
+        Navigator.of(context).pop();
+        getUpdateStream.sink.add(['signOut']);
+      }
       if (res.body.contains('hochladen')) {
         setState(() {
           pinns = [];
         });
       }
-      print(res.statusCode);
       return;
     }
     List pinnedPostsData = jsonDecode(utf8.decode(res.bodyBytes));
@@ -94,7 +147,6 @@ class ProfileState extends State<Profile> {
     int index = 0;
     for (var pinnedPostData in pinnedPostsData) {
       newPinnedPosts.add(PinndedMcRealPost(
-          userData: widget.userData,
           postData: pinnedPostData,
           pinnedIndex: index,
           pinnedUuid: widget.uuid));

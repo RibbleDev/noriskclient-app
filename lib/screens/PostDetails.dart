@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:mcreal/config/Colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/main.dart';
 import 'package:mcreal/screens/Profile.dart';
+import 'package:mcreal/screens/ReportMcReal.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
+import 'package:mcreal/utils/ReportTypes.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/McRealComment.dart';
 import 'package:mcreal/widgets/McRealCommentInput.dart';
@@ -17,16 +20,10 @@ import 'package:mcreal/widgets/NoRiskIconButton.dart';
 class PostDetails extends StatefulWidget {
   const PostDetails(
       {super.key,
-      required this.userData,
       required this.postData,
-      required this.cache,
-      required this.updateStream,
       required this.postUpdateStream});
 
-  final Map<String, dynamic> userData;
   final Map<String, dynamic> postData;
-  final Map<String, dynamic> cache;
-  final StreamController<List> updateStream;
   final StreamController<bool> postUpdateStream;
 
   @override
@@ -38,6 +35,8 @@ class McRealState extends State<PostDetails> {
   int page = 0;
   List<McRealComment>? comments;
   Widget commentInput = Container();
+  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, dynamic> userData = getUserData;
 
   @override
   void initState() {
@@ -50,7 +49,7 @@ class McRealState extends State<PostDetails> {
           commentInput = commentInput is McRealCommentInput
               ? Container()
               : McRealCommentInput(
-                  userData: widget.userData,
+                  userData: userData,
                   postId: widget.postData['_id'],
                   refresh: () {
                     loadComments();
@@ -67,7 +66,7 @@ class McRealState extends State<PostDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: McRealColors.darkerBackground,
+        backgroundColor: NoRiskClientColors.darkerBackground,
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: [
@@ -77,8 +76,8 @@ class McRealState extends State<PostDetails> {
                 children: [
                   SizedBox(
                       height: Platform.isAndroid
-                          ? MediaQuery.of(context).size.width * 0.9
-                          : MediaQuery.of(context).size.width * 0.8),
+                          ? MediaQuery.of(context).size.width * 0.11
+                          : MediaQuery.of(context).size.width * 0.9),
                   Padding(
                     padding: const EdgeInsets.all(10),
                     child: comments != null
@@ -95,7 +94,9 @@ class McRealState extends State<PostDetails> {
                                     child: Text(
                                         AppLocalizations.of(context)!
                                             .mcReal_noComments,
-                                        textAlign: TextAlign.center),
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            color: NoRiskClientColors.text)),
                                   ),
                                 const SizedBox(height: 50)
                               ])
@@ -112,9 +113,10 @@ class McRealState extends State<PostDetails> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(height: 65, color: McRealColors.darkerBackground),
                   Container(
-                    color: McRealColors.darkerBackground,
+                      height: 65, color: NoRiskClientColors.darkerBackground),
+                  Container(
+                    color: NoRiskClientColors.darkerBackground,
                     child: Stack(children: [
                       Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -138,13 +140,11 @@ class McRealState extends State<PostDetails> {
                       )
                     ]),
                   ),
-                  Container(height: 10, color: McRealColors.darkerBackground),
+                  Container(
+                      height: 10, color: NoRiskClientColors.darkerBackground),
                   McRealPost(
                       locked: false,
-                      userData: widget.userData,
                       postData: widget.postData,
-                      cache: widget.cache,
-                      updateStream: widget.updateStream,
                       postUpdateStream: widget.postUpdateStream,
                       commentUpdateStream: commentUpdateStream,
                       displayOnly: true),
@@ -159,10 +159,14 @@ class McRealState extends State<PostDetails> {
     });
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments/?uuid=${widget.userData['uuid']}&page=$page&postId=${widget.postData['_id']}'),
-        headers: {'Authorization': 'Bearer ${widget.userData['token']}'});
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments?uuid=${userData['uuid']}&page=$page&postId=${widget.postData['_id']}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
+      if (res.statusCode == 401) {
+        Navigator.of(context).pop();
+        getUpdateStream.sink.add(['signOut']);
+      }
       if (res.body.contains('hochladen')) {
         Navigator.of(context).pop();
         widget.postUpdateStream.sink.add(true);
@@ -174,10 +178,7 @@ class McRealState extends State<PostDetails> {
     List<McRealComment> newComments = [];
     for (var commentData in commentsData['comments']) {
       newComments.add(McRealComment(
-          userData: widget.userData,
           commentData: commentData,
-          cache: widget.cache,
-          updateStream: widget.updateStream,
           commentUpdateStream: commentUpdateStream));
     }
 
@@ -188,19 +189,12 @@ class McRealState extends State<PostDetails> {
 
   void openProfilePage(String uuid) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => Profile(
-            uuid: uuid,
-            userData: widget.userData,
-            cache: widget.cache,
-            updateStream: widget.updateStream)));
+        builder: (BuildContext context) => Profile(uuid: uuid)));
   }
 
   void openReportPage(String uuid) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => Profile(
-            uuid: uuid,
-            userData: widget.userData,
-            cache: widget.cache,
-            updateStream: widget.updateStream)));
+        builder: (BuildContext context) => ReportMcReal(
+            type: ReportType.POST, contentId: widget.postData['_id'])));
   }
 }
