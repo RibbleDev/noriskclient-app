@@ -110,7 +110,7 @@ class AppState extends State<App> {
           builder: (context, child) {
             final provider = Provider.of<LocaleProvider>(context);
             return MaterialApp(
-              title: 'NoRiskClient',
+              title: 'McReal.',
               debugShowCheckedModeBanner: false,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
@@ -136,7 +136,7 @@ class AppState extends State<App> {
           builder: (context, child) {
             final provider = Provider.of<LocaleProvider>(context);
             return CupertinoApp(
-                title: 'NoRiskClient',
+                title: 'McReal.',
                 debugShowCheckedModeBanner: false,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
