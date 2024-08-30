@@ -211,9 +211,7 @@ class SignInState extends State<SignIn> {
       return;
     }
     Vibration.vibrate(duration: 500);
-    setState(() {
-      isProcessingResult = true;
-    });
+    
     controller.stop();
     controller.dispose();
     Navigator.of(context).pop();
@@ -295,6 +293,10 @@ class SignInState extends State<SignIn> {
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/validateToken?uuid=${userData['uuid']}'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
+
+    setState(() {
+      isProcessingResult = true;
+    });
 
     await Future.delayed(const Duration(seconds: 1));
 
