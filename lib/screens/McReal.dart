@@ -30,7 +30,7 @@ class McRealState extends State<McReal> {
   int page = 0;
   McRealPost? post;
   List<McRealPost> posts = [];
-  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
 
   @override

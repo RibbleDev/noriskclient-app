@@ -40,7 +40,7 @@ class McRealPostState extends State<McRealComment> {
   List<McRealComment> replys = [];
   bool showReplys = false;
   Widget commentInput = Container();
-  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
 
   @override

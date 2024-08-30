@@ -35,7 +35,7 @@ class McRealState extends State<PostDetails> {
   int page = 0;
   List<McRealComment>? comments;
   Widget commentInput = Container();
-  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
 
   @override

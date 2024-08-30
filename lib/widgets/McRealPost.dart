@@ -46,7 +46,7 @@ class McRealPostState extends State<McRealPost> {
   bool swapped = false;
   bool holdingMainImage = false;
   Map<String, dynamic> userData = getUserData;
-  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, Map<String, dynamic>> cache = getCache;
 
   @override
   void initState() {

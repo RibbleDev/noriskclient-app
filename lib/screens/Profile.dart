@@ -27,7 +27,7 @@ class Profile extends StatefulWidget {
 class ProfileState extends State<Profile> {
   List<PinndedMcRealPost>? pinns;
   StreamController<bool> pinnedPostsUpdateStream = StreamController<bool>();
-  Map<String, Map<String, dynamic>> cache = {};
+  Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
 
   @override

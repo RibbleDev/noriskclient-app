@@ -80,14 +80,19 @@ class AppState extends State<App> {
         print('Signing out');
         saveUserData({});
       } else if (event == 'loadSkin') {
-        print('Loading skin for ${data[1]}');
-        loadSkin(data[1]);
+        if (cache['skins']?[data[1]] == null ||
+            cache['armorSkins']?[data[1]] == null) {
+          print('Loading skin for ${data[1]}');
+          loadSkin(data[1]);
+        }
         if (data.length > 2) {
           data[2]();
         }
       } else if (event == 'loadUsername') {
-        print('Loading username for ${data[1]}');
-        await loadUsername(data[1]);
+        if (cache['usernames']?[data[1]] == null) {
+          print('Loading username for ${data[1]}');
+          await loadUsername(data[1]);
+        }
         if (data.length > 2) {
           data[2]();
         }
