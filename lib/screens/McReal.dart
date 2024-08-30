@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -44,10 +43,10 @@ class McRealState extends State<McReal> {
             cache = getCache;
           })
     ]);
-    loadPosts(true);
+    loadPosts();
     postUpdateStream.stream.listen((bool data) {
       if (data) {
-        loadPosts(true);
+        loadPosts();
       }
     });
 
@@ -59,7 +58,7 @@ class McRealState extends State<McReal> {
     return Scaffold(
         backgroundColor: NoRiskClientColors.background,
         body: RefreshIndicator(
-          onRefresh: () => loadPosts(true),
+          onRefresh: () => loadPosts(),
           child: Stack(
             children: [
               ListView(
@@ -113,7 +112,7 @@ class McRealState extends State<McReal> {
                                     setState(() {
                                       friendsOnly = true;
                                     });
-                                    loadPosts(false);
+                                    loadPosts();
                                   },
                                   child: Text(
                                       AppLocalizations.of(context)!
@@ -148,7 +147,7 @@ class McRealState extends State<McReal> {
                                     setState(() {
                                       friendsOnly = false;
                                     });
-                                    loadPosts(false);
+                                    loadPosts();
                                   },
                                   child: Text(
                                       AppLocalizations.of(context)!
@@ -250,7 +249,7 @@ class McRealState extends State<McReal> {
     });
   }
 
-  Future<void> loadPosts(bool fullReload) async {
+  Future<void> loadPosts() async {
     await loadPlayerPost();
     http.Response res = await http.get(
         Uri.parse(
@@ -284,8 +283,13 @@ class McRealState extends State<McReal> {
     }
 
     setState(() {
+      posts = [];
+    });
+    await Future.delayed(const Duration(milliseconds: 10));
+    setState(() {
       posts = newPosts;
     });
+    print('New posts: ${posts.map((p) => p.postData['_id'])}');
   }
 
   void openProfilePage() {
