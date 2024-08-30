@@ -26,6 +26,7 @@ class Profile extends StatefulWidget {
 
 class ProfileState extends State<Profile> {
   List<PinndedMcRealPost>? pinns;
+  StreamController<bool> pinnedPostsUpdateStream = StreamController<bool>();
   Map<String, Map<String, dynamic>> cache = {};
   Map<String, dynamic> userData = getUserData;
 
@@ -39,6 +40,8 @@ class ProfileState extends State<Profile> {
             cache = getCache;
           })
     ]);
+
+    pinnedPostsUpdateStream.stream.listen((_) => loadPinnedPosts());
     super.initState();
   }
 
@@ -149,10 +152,14 @@ class ProfileState extends State<Profile> {
       newPinnedPosts.add(PinndedMcRealPost(
           postData: pinnedPostData,
           pinnedIndex: index,
-          pinnedUuid: widget.uuid));
+          pinnedUuid: widget.uuid,
+          pinnedPostsUpdateStream: pinnedPostsUpdateStream));
       index++;
     }
 
+    setState(() {
+      pinns = [];
+    });
     setState(() {
       pinns = newPinnedPosts;
     });

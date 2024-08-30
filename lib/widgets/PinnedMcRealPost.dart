@@ -16,11 +16,13 @@ class PinndedMcRealPost extends StatefulWidget {
       {super.key,
       required this.postData,
       required this.pinnedIndex,
-      required this.pinnedUuid});
+      required this.pinnedUuid,
+      required this.pinnedPostsUpdateStream});
 
   final int pinnedIndex;
   final Map<String, dynamic>? postData;
   final String pinnedUuid;
+  final StreamController<bool> pinnedPostsUpdateStream;
 
   @override
   State<PinndedMcRealPost> createState() => McRealPostState();
@@ -53,20 +55,23 @@ class McRealPostState extends State<PinndedMcRealPost> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: widget.postData == null
-          ? Container(
-              height: MediaQuery.of(context).size.width * 0.5,
-              decoration: BoxDecoration(
-                color: NoRiskClientColors.darkerBackground,
-                borderRadius: BorderRadius.circular(5),
+          ? GestureDetector(
+              onTap: widget.pinnedUuid == userData['uuid'] ? pin : null,
+              child: Container(
+                height: MediaQuery.of(context).size.width * 0.5,
+                decoration: BoxDecoration(
+                  color: NoRiskClientColors.darkerBackground,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Center(
+                    child: widget.pinnedUuid == userData['uuid']
+                        ? NoRiskIconButton(onTap: pin, icon: NoRiskIcon.lock)
+                        : const Text('?',
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: NoRiskClientColors.textLight,
+                                fontWeight: FontWeight.bold))),
               ),
-              child: Center(
-                  child: widget.pinnedUuid == userData['uuid']
-                      ? NoRiskIconButton(onTap: pin, icon: NoRiskIcon.lock)
-                      : const Text('?',
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: NoRiskClientColors.textLight,
-                              fontWeight: FontWeight.bold))),
             )
           : Stack(children: [
               SizedBox(
@@ -173,19 +178,84 @@ class McRealPostState extends State<PinndedMcRealPost> {
     });
   }
 
-  Future<void> pin() async {
-    http.Response res = await http.post(
-        Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
-        headers: {'Authorization': 'Bearer ${userData['token']}'});
-    if (res.statusCode != 200) {
-      print(res.statusCode);
-      if (res.statusCode == 401) {
-        Navigator.of(context).pop();
-        getUpdateStream.sink.add(['signOut']);
-      }
-      return;
-    }
+  void pin() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Platform.isAndroid
+              ? AlertDialog(
+                  title: Text(
+                      AppLocalizations.of(context)!.mcReal_pinPostPopupTitle),
+                  content: Text(
+                      AppLocalizations.of(context)!.mcReal_pinPostPopupContent),
+                  backgroundColor: NoRiskClientColors.darkerBackground,
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel,
+                            style: const TextStyle(color: Colors.red))),
+                    TextButton(
+                        onPressed: () async {
+                          http.Response res = await http.post(
+                              Uri.parse(
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
+                              headers: {
+                                'Authorization': 'Bearer ${userData['token']}'
+                              });
+                          if (res.statusCode != 200) {
+                            print(res.statusCode);
+                            if (res.statusCode == 401) {
+                              Navigator.of(context).pop();
+                              getUpdateStream.sink.add(['signOut']);
+                            }
+                            return;
+                          }
+                          Navigator.of(context).pop();
+                          widget.pinnedPostsUpdateStream.sink.add(true);
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_pin,
+                            style: const TextStyle(
+                                color: NoRiskClientColors.blue)))
+                  ],
+                )
+              : CupertinoAlertDialog(
+                  title: Text(
+                      AppLocalizations.of(context)!.mcReal_pinPostPopupTitle),
+                  content: Text(
+                      AppLocalizations.of(context)!.mcReal_pinPostPopupContent),
+                  actions: [
+                    CupertinoDialogAction(
+                        isDestructiveAction: true,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel)),
+                    CupertinoDialogAction(
+                        isDefaultAction: true,
+                        onPressed: () async {
+                          http.Response res = await http.post(
+                              Uri.parse(
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
+                              headers: {
+                                'Authorization': 'Bearer ${userData['token']}'
+                              });
+                          if (res.statusCode != 200) {
+                            print(res.statusCode);
+                            if (res.statusCode == 401) {
+                              Navigator.of(context).pop();
+                              getUpdateStream.sink.add(['signOut']);
+                            }
+                            return;
+                          }
+                          Navigator.of(context).pop();
+                          widget.pinnedPostsUpdateStream.sink.add(true);
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_pin))
+                  ],
+                );
+        });
   }
 
   void delete() {
@@ -194,8 +264,8 @@ class McRealPostState extends State<PinndedMcRealPost> {
         builder: (BuildContext context) {
           return Platform.isAndroid
               ? AlertDialog(
-                  title: Text(AppLocalizations.of(context)!
-                      .mcReal_unpinPostPopupTitle),
+                  title: Text(
+                      AppLocalizations.of(context)!.mcReal_unpinPostPopupTitle),
                   content: Text(AppLocalizations.of(context)!
                       .mcReal_unpinPostPopupContent),
                   backgroundColor: NoRiskClientColors.darkerBackground,
@@ -212,8 +282,7 @@ class McRealPostState extends State<PinndedMcRealPost> {
                               Uri.parse(
                                   '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
                               headers: {
-                                'Authorization':
-                                    'Bearer ${userData['token']}'
+                                'Authorization': 'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
@@ -224,6 +293,7 @@ class McRealPostState extends State<PinndedMcRealPost> {
                             return;
                           }
                           Navigator.of(context).pop();
+                          widget.pinnedPostsUpdateStream.sink.add(true);
                         },
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_unpin,
@@ -231,8 +301,8 @@ class McRealPostState extends State<PinndedMcRealPost> {
                   ],
                 )
               : CupertinoAlertDialog(
-                  title: Text(AppLocalizations.of(context)!
-                      .mcReal_unpinPostPopupTitle),
+                  title: Text(
+                      AppLocalizations.of(context)!.mcReal_unpinPostPopupTitle),
                   content: Text(AppLocalizations.of(context)!
                       .mcReal_unpinPostPopupContent),
                   actions: [
@@ -250,8 +320,7 @@ class McRealPostState extends State<PinndedMcRealPost> {
                               Uri.parse(
                                   '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pinned/${widget.pinnedIndex}?uuid=${userData['uuid']}&index=${widget.pinnedIndex}'),
                               headers: {
-                                'Authorization':
-                                    'Bearer ${userData['token']}'
+                                'Authorization': 'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
@@ -262,6 +331,7 @@ class McRealPostState extends State<PinndedMcRealPost> {
                             return;
                           }
                           Navigator.of(context).pop();
+                          widget.pinnedPostsUpdateStream.sink.add(true);
                         },
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_unpin))
