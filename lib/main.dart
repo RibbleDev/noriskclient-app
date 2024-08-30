@@ -74,25 +74,31 @@ class AppState extends State<App> {
     updateStream.stream.listen((List data) async {
       String event = data[0];
       if (event == 'signIn') {
+        print('Signing in');
         saveUserData(data[1]);
       } else if (event == 'signOut') {
+        print('Signing out');
         saveUserData({});
       } else if (event == 'loadSkin') {
+        print('Loading skin for ${data[1]}');
         loadSkin(data[1]);
         if (data.length > 2) {
           data[2]();
         }
       } else if (event == 'loadUsername') {
+        print('Loading username for ${data[1]}');
         await loadUsername(data[1]);
         if (data.length > 2) {
           data[2]();
         }
       } else if (event == 'cachePost') {
+        print('Caching post ${data[1]}');
         setState(() {
           cache['posts']?[data[1]] = {};
           cache['posts']?[data[1]]?['primary'] = data[2];
           cache['posts']?[data[1]]?['secondary'] = data[3];
         });
+        data[4]();
       }
     });
   }
