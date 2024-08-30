@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
+import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -49,6 +50,7 @@ class McRealState extends State<McReal> {
         loadPosts(true);
       }
     });
+
     super.initState();
   }
 
@@ -88,92 +90,105 @@ class McRealState extends State<McReal> {
                         )
                 ],
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 60),
-                  Stack(children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 5),
-                          GestureDetector(
-                            onTap: () {
-                              if (friendsOnly) return;
-                              setState(() {
-                                friendsOnly = true;
-                              });
-                              loadPosts(false);
-                            },
-                            child: Text(
-                                AppLocalizations.of(context)!
-                                    .mcReal_friendsOnly,
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: NoRiskClientColors.text,
-                                    fontWeight: friendsOnly
-                                        ? FontWeight.bold
-                                        : FontWeight.w400)),
-                          ),
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.3),
-                        ]),
-                    const Center(
-                        child: Text('|',
-                            style: TextStyle(
-                                fontSize: 20,
-                                color: NoRiskClientColors.text,
-                                fontWeight: FontWeight.bold))),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.35),
-                          GestureDetector(
-                            onTap: () {
-                              if (!friendsOnly) return;
-                              setState(() {
-                                friendsOnly = false;
-                              });
-                              loadPosts(false);
-                            },
-                            child: Text(
-                                AppLocalizations.of(context)!.mcReal_discovery,
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: NoRiskClientColors.text,
-                                    fontWeight: friendsOnly
-                                        ? FontWeight.w400
-                                        : FontWeight.bold)),
-                          ),
-                        ]),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 15),
-                            child: GestureDetector(
-                              onTap: () => Navigator.of(context).pop(),
-                              child: GestureDetector(
-                                onTap: openProfilePage,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: cache['skins']?[userData['uuid']] ??
-                                      const SizedBox(
-                                          height: 32,
-                                          width: 32,
-                                          child: LoadingIndicator()),
+              ClipRRect(
+                child: SizedBox(
+                  height: 100,
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child:
+                  Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 60),
+                        Stack(children: [
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 5),
+                                GestureDetector(
+                                  onTap: () {
+                                    if (friendsOnly) return;
+                                    setState(() {
+                                      friendsOnly = true;
+                                    });
+                                    loadPosts(false);
+                                  },
+                                  child: Text(
+                                      AppLocalizations.of(context)!
+                                          .mcReal_friendsOnly,
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          color: NoRiskClientColors.text,
+                                          fontWeight: friendsOnly
+                                              ? FontWeight.bold
+                                              : FontWeight.w400)),
                                 ),
-                              ),
-                            ),
-                          )
-                        ])
-                  ])
-                ],
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.3),
+                              ]),
+                          const Center(
+                              child: Text('|',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: NoRiskClientColors.text,
+                                      fontWeight: FontWeight.bold))),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.35),
+                                GestureDetector(
+                                  onTap: () {
+                                    if (!friendsOnly) return;
+                                    setState(() {
+                                      friendsOnly = false;
+                                    });
+                                    loadPosts(false);
+                                  },
+                                  child: Text(
+                                      AppLocalizations.of(context)!
+                                          .mcReal_discovery,
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          color: NoRiskClientColors.text,
+                                          fontWeight: friendsOnly
+                                              ? FontWeight.w400
+                                              : FontWeight.bold)),
+                                ),
+                              ]),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 15),
+                                  child: GestureDetector(
+                                    onTap: () => Navigator.of(context).pop(),
+                                    child: GestureDetector(
+                                      onTap: openProfilePage,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(5),
+                                        child: cache['skins']
+                                                ?[userData['uuid']] ??
+                                            const SizedBox(
+                                                height: 32,
+                                                width: 32,
+                                                child: LoadingIndicator()),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ])
+                        ]),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
