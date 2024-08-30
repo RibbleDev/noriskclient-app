@@ -65,8 +65,9 @@ class McRealPostState extends State<McRealComment> {
     }
     likes = widget.commentData['likes'];
     dislikes = widget.commentData['dislikes'];
+    print(widget.commentData);
     if (widget.commentData['userRating'] != null) {
-      ownRating = widget.commentData['userRating']?['isPositive'] == null;
+      ownRating = widget.commentData['userRating']?['isPositive'] != null;
     }
     loadReplys();
     super.initState();
