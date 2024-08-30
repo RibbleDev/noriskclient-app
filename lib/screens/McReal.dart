@@ -91,7 +91,7 @@ class McRealState extends State<McReal> {
               ),
               ClipRRect(
                 child: SizedBox(
-                  height: 100,
+                  height: 85,
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                     child:
@@ -99,7 +99,7 @@ class McRealState extends State<McReal> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 60),
+                        SizedBox(height: Platform.isAndroid ? 60 : 50),
                         Stack(children: [
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -285,7 +285,7 @@ class McRealState extends State<McReal> {
     setState(() {
       posts = [];
     });
-    await Future.delayed(const Duration(milliseconds: 10));
+    await Future.delayed(const Duration(milliseconds: 100));
     setState(() {
       posts = newPosts;
     });
