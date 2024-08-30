@@ -48,7 +48,10 @@ class SignInState extends State<SignIn> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * 0.125),
-                  Image.asset('lib/assets/app/norisk_logo.png', height: 150),
+                  GestureDetector(
+                      onLongPress: showDeveloperSignInPopup,
+                      child: Image.asset('lib/assets/app/norisk_logo.png',
+                          height: 150)),
                   const Text('NoRiskClient',
                       style: TextStyle(
                           color: NoRiskClientColors.text,
@@ -215,6 +218,79 @@ class SignInState extends State<SignIn> {
     controller.dispose();
     Navigator.of(context).pop();
 
+    await signIn(userData);
+  }
+
+  void showDeveloperSignInPopup() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          TextEditingController uuidController = TextEditingController();
+          TextEditingController tokenController = TextEditingController();
+
+          Map<String, dynamic> userData = {
+            'uuid': '',
+            'experimental': false,
+            'token': ''
+          };
+
+          uuidController
+              .addListener(() => userData['uuid'] = uuidController.text);
+          tokenController
+              .addListener(() => userData['token'] = tokenController.text);
+
+          return AlertDialog(
+            title: const Text('Developer Sign In'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                    'If you are not a developer, please close this dialog and use the QR code scanner.'),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: uuidController,
+                  decoration: const InputDecoration(labelText: 'UUID'),
+                ),
+                TextField(
+                  controller: tokenController,
+                  decoration: const InputDecoration(labelText: 'Token'),
+                ),
+                const SizedBox(height: 15),
+                const Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sign In Environment:',
+                        textAlign: TextAlign.start,
+                      )
+                    ]),
+                const SizedBox(height: 5),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            userData['experimental'] = true;
+                            Navigator.of(context).pop();
+                            signIn(userData);
+                          },
+                          child: const Text('Experimental')),
+                      ElevatedButton(
+                          onPressed: () {
+                            userData['experimental'] = false;
+                            Navigator.of(context).pop();
+                            signIn(userData);
+                          },
+                          child: const Text('Production'))
+                    ]),
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<void> signIn(Map<String, dynamic> userData) async {
     http.Response res = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/validateToken?uuid=${userData['uuid']}'),
