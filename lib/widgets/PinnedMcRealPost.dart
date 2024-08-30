@@ -97,7 +97,9 @@ class McRealPostState extends State<PinndedMcRealPost> {
                                           NoRiskClientColors.darkerBackground,
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: swapped ? secondary : primary),
+                                    child: swapped
+                                        ? getSecondary()
+                                        : getPrimary()),
                                 if (!holdingMainImage)
                                   Positioned(
                                       top: 10,
@@ -112,13 +114,13 @@ class McRealPostState extends State<PinndedMcRealPost> {
                                                 borderRadius:
                                                     BorderRadius.circular(5),
                                                 child: swapped
-                                                    ? primary
-                                                    : secondary,
+                                                    ? getPrimary()
+                                                    : getSecondary(),
                                               )))),
                               ],
                             ),
-                            if (!(primary is Container ||
-                                secondary is Container))
+                            if (!(getPrimary() is Container ||
+                                getSecondary() is Container))
                               Positioned(
                                   bottom: 5,
                                   left: 10,
@@ -126,8 +128,8 @@ class McRealPostState extends State<PinndedMcRealPost> {
                                       style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w500))),
-                            if (!(primary is Container ||
-                                    secondary is Container) &&
+                            if (!(getPrimary() is Container ||
+                                    getSecondary() is Container) &&
                                 widget.pinnedUuid == userData['uuid'])
                               Positioned(
                                   top: 10,
@@ -142,6 +144,11 @@ class McRealPostState extends State<PinndedMcRealPost> {
             ]),
     );
   }
+
+  Widget getPrimary() =>
+      cache['posts']?[widget.postData?['_id']]?['primary'] ?? primary;
+  Widget getSecondary() =>
+      cache['posts']?[widget.postData?['_id']]?['secondary'] ?? secondary;
 
   String getPostTime() {
     DateTime uploadTime = DateTime.parse(widget.postData!['uploadDate'] +
@@ -172,10 +179,15 @@ class McRealPostState extends State<PinndedMcRealPost> {
       return;
     }
 
-    setState(() {
-      primary = Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill);
-      secondary = Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill);
-    });
+    getUpdateStream.sink.add([
+      'cachePost',
+      widget.postData!['_id'],
+      Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill),
+      Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill),
+      () => setState(() {
+            cache = getCache;
+          })
+    ]);
   }
 
   void pin() {

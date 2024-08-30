@@ -85,10 +85,9 @@ class McRealPostState extends State<McRealPost> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: GestureDetector(
-        onTap:
-            ownPost && userData['mcRealStatus'] == McRealStatus.REMOVED
-                ? openPostRemovedPopup
-                : () {},
+        onTap: ownPost && userData['mcRealStatus'] == McRealStatus.REMOVED
+            ? openPostRemovedPopup
+            : () {},
         child: Container(
           padding: EdgeInsets.only(
               top: ownPost && userData['mcRealStatus'] != McRealStatus.OK
@@ -96,15 +95,13 @@ class McRealPostState extends State<McRealPost> {
                   : 5,
               left: 12,
               right: 12,
-              bottom:
-                  ownPost && userData['mcRealStatus'] != McRealStatus.OK
-                      ? 12
-                      : 0),
+              bottom: ownPost && userData['mcRealStatus'] != McRealStatus.OK
+                  ? 12
+                  : 0),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: NoRiskClientColors.darkerBackground),
-          child: ownPost &&
-                  userData['mcRealStatus'] == McRealStatus.REMOVED
+          child: ownPost && userData['mcRealStatus'] == McRealStatus.REMOVED
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -117,8 +114,7 @@ class McRealPostState extends State<McRealPost> {
                               color: NoRiskClientColors.text,
                               fontWeight: FontWeight.w500)),
                     ])
-              : ownPost &&
-                      userData['mcRealStatus'] == McRealStatus.DELETED
+              : ownPost && userData['mcRealStatus'] == McRealStatus.DELETED
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -168,9 +164,8 @@ class McRealPostState extends State<McRealPost> {
                                             ownPost
                                                 ? AppLocalizations.of(context)!
                                                     .mcReal_yourMcReal
-                                                : cache['usernames']?[
-                                                        widget.postData[
-                                                            'author']] ??
+                                                : cache['usernames']?[widget
+                                                        .postData['author']] ??
                                                     '',
                                             style: TextStyle(
                                                 fontSize: 17,
@@ -221,8 +216,7 @@ class McRealPostState extends State<McRealPost> {
                                         Container(
                                             width: double.infinity,
                                             decoration: BoxDecoration(
-                                              color:
-                                                  NoRiskClientColors
+                                              color: NoRiskClientColors
                                                   .darkerBackground,
                                               borderRadius:
                                                   BorderRadius.circular(5),
@@ -231,8 +225,8 @@ class McRealPostState extends State<McRealPost> {
                                                 borderRadius:
                                                     BorderRadius.circular(5),
                                                 child: swapped
-                                                    ? secondary
-                                                    : primary)),
+                                                    ? getSecondary()
+                                                    : getPrimary())),
                                         if (!holdingMainImage)
                                           Positioned(
                                               top: 10,
@@ -250,13 +244,13 @@ class McRealPostState extends State<McRealPost> {
                                                             BorderRadius
                                                                 .circular(5),
                                                         child: swapped
-                                                            ? primary
-                                                            : secondary,
+                                                            ? getPrimary()
+                                                            : getSecondary(),
                                                       )))),
                                       ],
                                     ),
-                                    if (!(primary is Container ||
-                                        secondary is Container))
+                                    if (!(getPrimary() is Container ||
+                                        getSecondary() is Container))
                                       Positioned(
                                           bottom: ownPost ? 10 : 45,
                                           right: 10,
@@ -266,8 +260,8 @@ class McRealPostState extends State<McRealPost> {
                                                   : openDetailsPage,
                                               icon: NoRiskIcon.comment)),
                                     if (!ownPost &&
-                                        !(primary is Container ||
-                                            secondary is Container))
+                                        !(getPrimary() is Container ||
+                                            getSecondary() is Container))
                                       Positioned(
                                           bottom: 10,
                                           right: 10,
@@ -317,6 +311,11 @@ class McRealPostState extends State<McRealPost> {
     );
   }
 
+  Widget getPrimary() =>
+      cache['posts']?[widget.postData['_id']]?['primary'] ?? primary;
+  Widget getSecondary() =>
+      cache['posts']?[widget.postData['_id']]?['secondary'] ?? secondary;
+
   String getPostTime() {
     DateTime mcRealTime = DateTime.parse(widget.postData['mcRealDate'] +
         ' ' +
@@ -360,6 +359,10 @@ class McRealPostState extends State<McRealPost> {
   }
 
   Future<void> loadImages() async {
+    if (cache['posts']?[widget.postData['_id']] != null) {
+      return;
+    }
+
     http.Response primaryRes = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${userData['uuid']}&type=primary'),
@@ -379,10 +382,15 @@ class McRealPostState extends State<McRealPost> {
       return;
     }
 
-    setState(() {
-      primary = Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill);
-      secondary = Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill);
-    });
+    getUpdateStream.sink.add([
+      'cachePost',
+      widget.postData['_id'],
+      Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill),
+      Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill),
+      () => setState(() {
+            cache = getCache;
+          })
+    ]);
   }
 
   void openProfilePage() {
@@ -408,8 +416,7 @@ class McRealPostState extends State<McRealPost> {
     if (widget.locked) return;
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => ReportMcReal(
-            type: ReportType.POST,
-            contentId: widget.postData['_id'])));
+            type: ReportType.POST, contentId: widget.postData['_id'])));
   }
 
   void openPostRemovedPopup() {
@@ -470,8 +477,7 @@ class McRealPostState extends State<McRealPost> {
                               Uri.parse(
                                   '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post?uuid=${userData['uuid']}'),
                               headers: {
-                                'Authorization':
-                                    'Bearer ${userData['token']}'
+                                'Authorization': 'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
@@ -511,8 +517,7 @@ class McRealPostState extends State<McRealPost> {
                               Uri.parse(
                                   '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post?uuid=${userData['uuid']}'),
                               headers: {
-                                'Authorization':
-                                    'Bearer ${userData['token']}'
+                                'Authorization': 'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
