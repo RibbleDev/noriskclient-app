@@ -17,6 +17,8 @@ import 'package:mcreal/widgets/McRealPost.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+Map<String, dynamic>? ownPostData;
+
 class McReal extends StatefulWidget {
   const McReal({super.key});
 
@@ -25,10 +27,13 @@ class McReal extends StatefulWidget {
 }
 
 class McRealState extends State<McReal> {
+  ScrollController scrollController = ScrollController();
   StreamController<bool> postUpdateStream = StreamController<bool>();
   bool friendsOnly = true;
   int page = 0;
-  McRealPost? post;
+  bool hitEnd = false;
+  bool isLoadingNewPosts = false;
+  McRealPost? ownPost;
   List<McRealPost> posts = [];
   Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
@@ -50,7 +55,26 @@ class McRealState extends State<McReal> {
       }
     });
 
+    scrollController.addListener(() async {
+      double maxScroll = scrollController.position.maxScrollExtent;
+      double currentScroll = scrollController.position.pixels;
+      double delta = 100.0;
+      if ((maxScroll - currentScroll <= delta) &&
+          isLoadingNewPosts != true &&
+          hitEnd != true) {
+        page++;
+        await loadPosts();
+      }
+    });
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    postUpdateStream.close();
+    super.dispose();
   }
 
   @override
@@ -58,13 +82,24 @@ class McRealState extends State<McReal> {
     return Scaffold(
         backgroundColor: NoRiskClientColors.background,
         body: RefreshIndicator(
-          onRefresh: () => loadPosts(),
+          onRefresh: () async {
+            setState(() {
+              cache['posts'] = {};
+              ownPost = null;
+              ownPostData = null;
+              posts = [];
+              page = 0;
+            });
+            loadPlayerPost();
+            loadPosts();
+          },
           child: Stack(
             children: [
               ListView(
+                controller: scrollController,
                 children: [
                   SizedBox(height: Platform.isAndroid ? 60 : 35),
-                  posts.isEmpty && post == null
+                  posts.isEmpty && ownPost == null
                       ? Padding(
                           padding: const EdgeInsets.only(top: 35),
                           child: Text(
@@ -83,7 +118,7 @@ class McRealState extends State<McReal> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const SizedBox(height: 10),
-                                post ?? const SizedBox(height: 0, width: 0),
+                                ownPost ?? const SizedBox(height: 0, width: 0),
                                 ...posts
                               ]),
                         )
@@ -94,12 +129,11 @@ class McRealState extends State<McReal> {
                   height: 85,
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child:
-                  Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: Platform.isAndroid ? 60 : 50),
+                        SizedBox(height: Platform.isAndroid ? 40 : 50),
                         Stack(children: [
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -111,6 +145,8 @@ class McRealState extends State<McReal> {
                                     if (friendsOnly) return;
                                     setState(() {
                                       friendsOnly = true;
+                                      posts = [];
+                                      page = 0;
                                     });
                                     loadPosts();
                                   },
@@ -146,6 +182,8 @@ class McRealState extends State<McReal> {
                                     if (!friendsOnly) return;
                                     setState(() {
                                       friendsOnly = false;
+                                      posts = [];
+                                      page = 0;
                                     });
                                     loadPosts();
                                   },
@@ -223,7 +261,7 @@ class McRealState extends State<McReal> {
       print("Load player post: ${res.statusCode}");
       if (res.statusCode == 403) {
         setState(() {
-          post = null;
+          ownPost = null;
         });
       } else if (res.statusCode == 401) {
         getUpdateStream.sink.add(['signOut']);
@@ -242,7 +280,8 @@ class McRealState extends State<McReal> {
     }
 
     setState(() {
-      post = McRealPost(
+      ownPostData = postData;
+      ownPost = McRealPost(
           locked: false,
           postData: postData,
           postUpdateStream: postUpdateStream);
@@ -250,6 +289,7 @@ class McRealState extends State<McReal> {
   }
 
   Future<void> loadPosts() async {
+    isLoadingNewPosts = true;
     await loadPlayerPost();
     http.Response res = await http.get(
         Uri.parse(
@@ -264,32 +304,47 @@ class McRealState extends State<McReal> {
     }
     List postsData = jsonDecode(utf8.decode(res.bodyBytes));
 
+    print(postsData.length);
+
+    if (postsData.length < Config.maxPostsPerPage) {
+      hitEnd = true;
+      print('Hit end!!!');
+    } else {
+      hitEnd = false;
+    }
+
     String lockedReason = '';
     if (userData['mcRealStatus'] == McRealStatus.REMOVED) {
       lockedReason = AppLocalizations.of(context)!.mcReal_status_removed;
     } else if (userData['mcRealStatus'] == McRealStatus.DELETED) {
       lockedReason = AppLocalizations.of(context)!.mcReal_status_deleted;
-    } else if (post == null) {
+    } else if (ownPost == null) {
       lockedReason = AppLocalizations.of(context)!.mcReal_status_noPost;
     }
 
     List<McRealPost> newPosts = [];
     for (var postData in postsData) {
       newPosts.add(McRealPost(
-          locked: post == null || lockedReason != '',
+          locked: ownPost == null || lockedReason != '',
           lockedReason: lockedReason,
           postData: postData,
           postUpdateStream: postUpdateStream));
     }
 
+    List<McRealPost> existingPosts = posts;
+    int scrollOffset = scrollController.offset.toInt();
+
+    // setState(() {
+    //   posts = [];
+    // });
+    await Future.delayed(const Duration(milliseconds: 10));
     setState(() {
-      posts = [];
+      posts = [...existingPosts, ...newPosts];
     });
-    await Future.delayed(const Duration(milliseconds: 100));
-    setState(() {
-      posts = newPosts;
-    });
-    print('New posts: ${posts.map((p) => p.postData['_id'])}');
+    scrollController.jumpTo(scrollOffset.toDouble());
+    print('New posts: ${posts.map((p) => p.postData['post']['_id'])}');
+
+    isLoadingNewPosts = false;
   }
 
   void openProfilePage() {

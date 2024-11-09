@@ -8,6 +8,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
 import 'package:mcreal/config/Config.dart';
 import 'package:mcreal/main.dart';
+import 'package:mcreal/screens/McReal.dart';
 import 'package:mcreal/screens/PostDetails.dart';
 import 'package:mcreal/screens/Profile.dart';
 import 'package:mcreal/screens/ReportMcReal.dart';
@@ -40,7 +41,7 @@ class McRealPost extends StatefulWidget {
 }
 
 class McRealPostState extends State<McRealPost> {
-  bool ownPost = false;
+  bool isOwnPost = false;
   Widget primary = Container();
   Widget secondary = Container();
   bool swapped = false;
@@ -50,14 +51,15 @@ class McRealPostState extends State<McRealPost> {
 
   @override
   void initState() {
+    print(widget.postData);
     getUpdateStream.sink.add([
       'loadSkin',
-      widget.postData['author'],
+      widget.postData['post']['author'],
       () => setState(() {
             cache = getCache;
           })
     ]);
-    ownPost = userData['uuid'] == widget.postData['author'];
+    isOwnPost = userData['uuid'] == widget.postData['post']['author'];
     primary = Container(
         height: 200,
         decoration: BoxDecoration(
@@ -67,10 +69,10 @@ class McRealPostState extends State<McRealPost> {
           borderRadius: BorderRadius.circular(5),
         ),
         child: const Center(child: LoadingIndicator()));
-    if (!ownPost) {
+    if (!isOwnPost) {
       getUpdateStream.sink.add([
         'loadUsername',
-        widget.postData['author'],
+        widget.postData['post']['author'],
         () => setState(() {
               cache = getCache;
             })
@@ -85,23 +87,23 @@ class McRealPostState extends State<McRealPost> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: GestureDetector(
-        onTap: ownPost && userData['mcRealStatus'] == McRealStatus.REMOVED
+        onTap: isOwnPost && userData['mcRealStatus'] == McRealStatus.REMOVED
             ? openPostRemovedPopup
             : () {},
         child: Container(
           padding: EdgeInsets.only(
-              top: ownPost && userData['mcRealStatus'] != McRealStatus.OK
+              top: isOwnPost && userData['mcRealStatus'] != McRealStatus.OK
                   ? 12
                   : 5,
               left: 12,
               right: 12,
-              bottom: ownPost && userData['mcRealStatus'] != McRealStatus.OK
+              bottom: isOwnPost && userData['mcRealStatus'] != McRealStatus.OK
                   ? 12
                   : 0),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: NoRiskClientColors.darkerBackground),
-          child: ownPost && userData['mcRealStatus'] == McRealStatus.REMOVED
+          child: isOwnPost && userData['mcRealStatus'] == McRealStatus.REMOVED
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -114,7 +116,7 @@ class McRealPostState extends State<McRealPost> {
                               color: NoRiskClientColors.text,
                               fontWeight: FontWeight.w500)),
                     ])
-              : ownPost && userData['mcRealStatus'] == McRealStatus.DELETED
+              : isOwnPost && userData['mcRealStatus'] == McRealStatus.DELETED
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -145,7 +147,8 @@ class McRealPostState extends State<McRealPost> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(2.5),
                                     child: cache['skins']
-                                            ?[widget.postData['author']] ??
+                                            ?[widget
+                                            .postData['post']['author']] ??
                                         const SizedBox(
                                             height: 32,
                                             width: 32,
@@ -161,16 +164,17 @@ class McRealPostState extends State<McRealPost> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                            ownPost
+                                            isOwnPost
                                                 ? AppLocalizations.of(context)!
                                                     .mcReal_yourMcReal
                                                 : cache['usernames']?[widget
-                                                        .postData['author']] ??
+                                                        .postData['post']
+                                                            ['author']] ??
                                                     '',
                                             style: TextStyle(
                                                 fontSize: 17,
                                                 fontWeight: FontWeight.bold,
-                                                color: ownPost
+                                                color: isOwnPost
                                                     ? NoRiskClientColors.blue
                                                     : Colors.white))
                                       ]),
@@ -179,15 +183,53 @@ class McRealPostState extends State<McRealPost> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
                                         Text(getPostTime(),
                                             style: const TextStyle(
                                                 fontSize: 13.5,
                                                 fontWeight: FontWeight.w500,
                                                 color: Colors.white)),
+                                            const SizedBox(width: 5),
+                                            if (!isOwnPost &&
+                                                ownPostData != null &&
+                                                ownPostData?['post']
+                                                        ?['region'] !=
+                                                    widget.postData['post']
+                                                        ['region'])
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  const Icon(
+                                                      CupertinoIcons.globe,
+                                                      color: NoRiskClientColors
+                                                          .textLight,
+                                                      size: 13.5),
+                                                  Text(
+                                                      widget.postData['post']
+                                                          ['region'],
+                                                      style: const TextStyle(
+                                                          fontSize: 13.5,
+                                                          color:
+                                                              NoRiskClientColors
+                                                                  .textLight,
+                                                          fontWeight:
+                                                              FontWeight.w500)),
+                                                ],
+                                              )
+                                          ],
+                                        )
                                       ])
                                 ]),
                                 const Spacer(),
-                                if (ownPost)
+                                if (isOwnPost)
                                   NoRiskIconButton(
                                       onTap: delete, icon: NoRiskIcon.delete),
                                 const SizedBox(width: 5)
@@ -252,14 +294,14 @@ class McRealPostState extends State<McRealPost> {
                                     if (!(getPrimary() is Container ||
                                         getSecondary() is Container))
                                       Positioned(
-                                          bottom: ownPost ? 10 : 45,
+                                          bottom: isOwnPost ? 10 : 45,
                                           right: 10,
                                           child: NoRiskIconButton(
                                               onTap: widget.displayOnly
                                                   ? openCommentBox
                                                   : openDetailsPage,
                                               icon: NoRiskIcon.comment)),
-                                    if (!ownPost &&
+                                    if (!isOwnPost &&
                                         !(getPrimary() is Container ||
                                             getSecondary() is Container))
                                       Positioned(
@@ -267,7 +309,67 @@ class McRealPostState extends State<McRealPost> {
                                           right: 10,
                                           child: NoRiskIconButton(
                                               onTap: openReportPage,
-                                              icon: NoRiskIcon.report))
+                                              icon: NoRiskIcon.report)),
+                                    if (!(getPrimary() is Container ||
+                                        getSecondary() is Container))
+                                      Positioned(
+                                          bottom: 10,
+                                          left: 10,
+                                          child: Row(
+                                            children: [
+                                              NoRiskIconButton(
+                                                  onTap: (widget.postData[
+                                                                  'userRating']
+                                                              ?['isPositive'] ??
+                                                          false)
+                                                      ? deleteRating
+                                                      : upvote,
+                                                  icon: (widget.postData[
+                                                                  'userRating']
+                                                              ?['isPositive'] ??
+                                                          false)
+                                                      ? NoRiskIcon.upvoted
+                                                      : NoRiskIcon.upvote),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                  (widget.postData['likes'] -
+                                                          widget.postData[
+                                                              'dislikes'])
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: widget.postData[
+                                                                      'likes'] -
+                                                                  widget.postData[
+                                                                      'dislikes'] >
+                                                              0
+                                                          ? Colors.green
+                                                          : widget.postData[
+                                                                          'likes'] -
+                                                                      widget.postData[
+                                                                          'dislikes'] <
+                                                                  0
+                                                              ? Colors.red
+                                                              : NoRiskClientColors
+                                                                  .text,
+                                                      fontWeight:
+                                                          FontWeight.w600)),
+                                              const SizedBox(width: 5),
+                                              NoRiskIconButton(
+                                                  onTap: widget.postData[
+                                                                  'userRating']
+                                                              ?['isPositive'] ==
+                                                          false
+                                                      ? deleteRating
+                                                      : downvote,
+                                                  icon: widget.postData[
+                                                                  'userRating']
+                                                              ?['isPositive'] ==
+                                                          false
+                                                      ? NoRiskIcon.downvoted
+                                                      : NoRiskIcon.downvote),
+                                            ],
+                                          ))
                                   ],
                                 ),
                               ),
@@ -298,7 +400,7 @@ class McRealPostState extends State<McRealPost> {
                             )),
                         ]),
                         const SizedBox(height: 5),
-                        Text(widget.postData['title'],
+                        Text(widget.postData['post']['title'],
                             style: const TextStyle(
                                 fontSize: 15,
                                 color: NoRiskClientColors.text,
@@ -312,18 +414,18 @@ class McRealPostState extends State<McRealPost> {
   }
 
   Widget getPrimary() =>
-      cache['posts']?[widget.postData['_id']]?['primary'] ?? primary;
+      cache['posts']?[widget.postData['post']['_id']]?['primary'] ?? primary;
   Widget getSecondary() =>
-      cache['posts']?[widget.postData['_id']]?['secondary'] ?? secondary;
+      cache['posts']?[widget.postData['post']['_id']]?['secondary'] ??
+      secondary;
 
   String getPostTime() {
-    DateTime mcRealTime = DateTime.parse(widget.postData['mcRealDate'] +
+    DateTime mcRealTime = DateTime.parse(widget.postData['post']['mcRealDate'] +
         ' ' +
-        widget.postData['mcRealTime'].toString().split('.')[0]);
-    DateTime uploadTime = DateTime.parse(widget.postData['uploadDate'] +
+        widget.postData['post']['mcRealTime'].toString().split('.')[0]);
+    DateTime uploadTime = DateTime.parse(widget.postData['post']['uploadDate'] +
         ' ' +
-        widget.postData['uploadTime'].toString().split('.')[0]);
-    DateTime now = DateTime.now();
+        widget.postData['post']['uploadTime'].toString().split('.')[0]);
 
     Duration difference = uploadTime
         .subtract(Duration(minutes: Config.mcRealTimeframe))
@@ -331,19 +433,14 @@ class McRealPostState extends State<McRealPost> {
 
     String postTime = '';
 
-    if (widget.postData['serverIp'] != null) {
-      postTime += widget.postData['serverIp'];
+    if (widget.postData['post']['serverIp'] != null) {
+      postTime += widget.postData['post']['serverIp'];
       postTime += ' • ';
     }
 
-    if (difference.inMinutes == 0) {
-      Duration uploadDifference = now.difference(mcRealTime);
-      if (uploadDifference.inMinutes < Config.mcRealTimeframe) {
-        postTime += AppLocalizations.of(context)!.mcReal_justNow;
-      } else {
-        postTime +=
-            '${uploadTime.hour}:${uploadTime.minute}:${uploadTime.second}';
-      }
+    if (difference.inMinutes <= 0) {
+      postTime +=
+          '${uploadTime.hour}:${uploadTime.minute}:${uploadTime.second}';
     } else {
       if (difference.inHours > 0) {
         postTime = '${difference.inHours}h ';
@@ -359,18 +456,18 @@ class McRealPostState extends State<McRealPost> {
   }
 
   Future<void> loadImages() async {
-    if (cache['posts']?[widget.postData['_id']] != null) {
+    if (cache['posts']?[widget.postData['post']['_id']] != null) {
       return;
     }
 
     http.Response primaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${userData['uuid']}&type=primary'),
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['post']['_id']}/image?uuid=${userData['uuid']}&type=primary'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
 
     http.Response secondaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['_id']}/image?uuid=${userData['uuid']}&type=secondary'),
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['post']['_id']}/image?uuid=${userData['uuid']}&type=secondary'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (primaryRes.statusCode != 200 || secondaryRes.statusCode != 200) {
       if (primaryRes.statusCode == 401 || secondaryRes.statusCode == 401) {
@@ -384,7 +481,7 @@ class McRealPostState extends State<McRealPost> {
 
     getUpdateStream.sink.add([
       'cachePost',
-      widget.postData['_id'],
+      widget.postData['post']['_id'],
       Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill),
       Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill),
       () => setState(() {
@@ -396,7 +493,7 @@ class McRealPostState extends State<McRealPost> {
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
-            Profile(uuid: widget.postData['author'])));
+            Profile(uuid: widget.postData['post']['author'])));
   }
 
   void openDetailsPage() {
@@ -416,7 +513,71 @@ class McRealPostState extends State<McRealPost> {
     if (widget.locked) return;
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => ReportMcReal(
-            type: ReportType.POST, contentId: widget.postData['_id'])));
+            type: ReportType.POST, contentId: widget.postData['post']['_id'])));
+  }
+
+  void upvote() {
+    http.post(
+        Uri.parse(
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/rate?postId=${widget.postData['post']['_id']}&isPositive=true&uuid=${userData['uuid']}'),
+        headers: {
+          'Authorization': 'Bearer ${userData['token']}',
+          'Content-Type': 'application/json'
+        }).then((http.Response res) {
+      if (res.statusCode != 200) {
+        print(res.statusCode);
+        if (res.statusCode == 401) {
+          if (widget.commentUpdateStream != null) {
+            Navigator.of(context).pop();
+          }
+          getUpdateStream.sink.add(['signOut']);
+        }
+        return;
+      }
+      widget.postUpdateStream.sink.add(true);
+    });
+  }
+
+  void downvote() async {
+    http.Response res = await http.post(
+        Uri.parse(
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/rate?postId=${widget.postData['post']['_id']}&isPositive=false&uuid=${userData['uuid']}'),
+        headers: {
+          'Authorization': 'Bearer ${userData['token']}',
+          'Content-Type': 'application/json'
+        });
+    if (res.statusCode != 200) {
+      print(res.statusCode);
+      if (res.statusCode == 401) {
+        if (widget.commentUpdateStream != null) {
+          Navigator.of(context).pop();
+        }
+        getUpdateStream.sink.add(['signOut']);
+      }
+      return;
+    }
+    widget.postUpdateStream.sink.add(true);
+  }
+
+  void deleteRating() async {
+    http.Response res = await http.delete(
+        Uri.parse(
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/rate?postId=${widget.postData['post']['_id']}&uuid=${userData['uuid']}'),
+        headers: {
+          'Authorization': 'Bearer ${userData['token']}',
+          'Content-Type': 'application/json'
+        });
+    if (res.statusCode != 200) {
+      print(res.statusCode);
+      if (res.statusCode == 401) {
+        if (widget.commentUpdateStream != null) {
+          Navigator.of(context).pop();
+        }
+        getUpdateStream.sink.add(['signOut']);
+      }
+      return;
+    }
+    widget.postUpdateStream.sink.add(true);
   }
 
   void openPostRemovedPopup() {
@@ -428,7 +589,7 @@ class McRealPostState extends State<McRealPost> {
                   title: Text(AppLocalizations.of(context)!
                       .mcReal_removedPostPopupTitle),
                   content: Text(
-                      '${AppLocalizations.of(context)!.mcReal_removedPostReason}: ${widget.postData['mcRealStatusInfo']}'),
+                      '${AppLocalizations.of(context)!.mcReal_removedPostReason}: ${widget.postData['post']['mcRealStatusInfo']}'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.of(context).pop(),

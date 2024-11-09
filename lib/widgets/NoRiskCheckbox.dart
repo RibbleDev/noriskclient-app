@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mcreal/config/Colors.dart';
 
+// ignore: must_be_immutable
 class NoRiskCheckbox extends StatefulWidget {
   NoRiskCheckbox(
       {super.key,
