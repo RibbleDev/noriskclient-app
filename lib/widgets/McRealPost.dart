@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
@@ -32,7 +33,7 @@ class McRealPost extends StatefulWidget {
   final bool locked;
   final String lockedReason;
   final Map<String, dynamic> postData;
-  final StreamController<bool> postUpdateStream;
+  final StreamController<String> postUpdateStream;
   final StreamController<bool>? commentUpdateStream;
   final bool displayOnly;
 
@@ -79,6 +80,7 @@ class McRealPostState extends State<McRealPost> {
       ]);
     }
     loadImages();
+    loadStreak();
     super.initState();
   }
 
@@ -146,8 +148,7 @@ class McRealPostState extends State<McRealPost> {
                                   onTap: openProfilePage,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(2.5),
-                                    child: cache['skins']
-                                            ?[widget
+                                    child: cache['skins']?[widget
                                             .postData['post']['author']] ??
                                         const SizedBox(
                                             height: 32,
@@ -167,8 +168,8 @@ class McRealPostState extends State<McRealPost> {
                                             isOwnPost
                                                 ? AppLocalizations.of(context)!
                                                     .mcReal_yourMcReal
-                                                : cache['usernames']?[widget
-                                                        .postData['post']
+                                                : cache['usernames']?[
+                                                        widget.postData['post']
                                                             ['author']] ??
                                                     '',
                                             style: TextStyle(
@@ -189,11 +190,11 @@ class McRealPostState extends State<McRealPost> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                        Text(getPostTime(),
-                                            style: const TextStyle(
-                                                fontSize: 13.5,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.white)),
+                                            Text(getPostTime(),
+                                                style: const TextStyle(
+                                                    fontSize: 13.5,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white)),
                                             const SizedBox(width: 5),
                                             if (!isOwnPost &&
                                                 ownPostData != null &&
@@ -291,6 +292,37 @@ class McRealPostState extends State<McRealPost> {
                                                       )))),
                                       ],
                                     ),
+                                    if (!(getPrimary() is Container ||
+                                        getSecondary() is Container))
+                                      Positioned(
+                                          top: 10,
+                                          right: 10,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                  cache['streaks']?[
+                                                                  widget.postData[
+                                                                          'post']
+                                                                      [
+                                                                      'author']]
+                                                              ?['mcreal']
+                                                          ?.toString() ??
+                                                      '?',
+                                                  style: const TextStyle(
+                                                      fontSize: 15,
+                                                      color: Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.w900)),
+                                              const SizedBox(width: 5),
+                                              NoRiskIconButton(
+                                                  onTap: () {},
+                                                  icon: NoRiskIcon.streak)
+                                            ],
+                                          )),
                                     if (!(getPrimary() is Container ||
                                         getSecondary() is Container))
                                       Positioned(
@@ -490,6 +522,36 @@ class McRealPostState extends State<McRealPost> {
     ]);
   }
 
+  void loadStreak() async {
+    if (cache['streaks']?[widget.postData['post']['author']] != null) {
+      return;
+    }
+    var res = await http.get(
+        Uri.parse(
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/streak/${widget.postData['post']['author']}?uuid=${userData['uuid']}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
+    Map<String, dynamic> streakData = jsonDecode(utf8.decode(res.bodyBytes));
+    if (res.statusCode != 200) {
+      print(res.statusCode);
+      if (res.statusCode == 401) {
+        if (widget.commentUpdateStream != null) {
+          Navigator.of(context).pop();
+        }
+        getUpdateStream.sink.add(['signOut']);
+      }
+      return;
+    }
+
+    getUpdateStream.sink.add([
+      'cacheStreak',
+      widget.postData['post']['author'],
+      streakData,
+      () => setState(() {
+            cache = getCache;
+          })
+    ]);
+  }
+
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
@@ -534,7 +596,7 @@ class McRealPostState extends State<McRealPost> {
         }
         return;
       }
-      widget.postUpdateStream.sink.add(true);
+      widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
     });
   }
 
@@ -556,7 +618,7 @@ class McRealPostState extends State<McRealPost> {
       }
       return;
     }
-    widget.postUpdateStream.sink.add(true);
+    widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
   }
 
   void deleteRating() async {
@@ -577,7 +639,7 @@ class McRealPostState extends State<McRealPost> {
       }
       return;
     }
-    widget.postUpdateStream.sink.add(true);
+    widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
   }
 
   void openPostRemovedPopup() {
@@ -650,7 +712,8 @@ class McRealPostState extends State<McRealPost> {
                             }
                             return;
                           }
-                          widget.postUpdateStream.sink.add(true);
+                          widget.postUpdateStream.sink
+                              .add(widget.postData['post']['_id']);
                           Navigator.of(context).pop();
                         },
                         child: Text(
@@ -690,7 +753,8 @@ class McRealPostState extends State<McRealPost> {
                             }
                             return;
                           }
-                          widget.postUpdateStream.sink.add(true);
+                          widget.postUpdateStream.sink
+                              .add(widget.postData['post']['_id']);
                           Navigator.of(context).pop();
                         },
                         child: Text(

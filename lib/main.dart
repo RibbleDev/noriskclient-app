@@ -30,7 +30,8 @@ Map<String, Map<String, dynamic>> cache = {
   'skins': {},
   'armorSkins': {},
   'usernames': {},
-  'posts': {}
+  'posts': {},
+  'streaks': {}
 };
 final StreamController<List> updateStream = StreamController<List>();
 
@@ -104,6 +105,12 @@ class AppState extends State<App> {
           cache['posts']?[data[1]]?['secondary'] = data[3];
         });
         data[4]();
+      } else if (event == 'cacheStreak') {
+        print('Caching streak ${data[1]} -> ${data[2]}');
+        setState(() {
+          cache['streaks']?[data[1]] = data[2];
+        });
+        data[3]();
       }
     });
   }

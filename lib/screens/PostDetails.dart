@@ -23,7 +23,7 @@ class PostDetails extends StatefulWidget {
       required this.postUpdateStream});
 
   final Map<String, dynamic> postData;
-  final StreamController<bool> postUpdateStream;
+  final StreamController<String> postUpdateStream;
 
   @override
   State<PostDetails> createState() => McRealState();
@@ -49,7 +49,7 @@ class McRealState extends State<PostDetails> {
               ? Container()
               : McRealCommentInput(
                   userData: userData,
-                  postId: widget.postData['_id'],
+                  postId: widget.postData['post']['_id'],
                   refresh: () {
                     loadComments();
                     setState(() {
@@ -156,7 +156,7 @@ class McRealState extends State<PostDetails> {
     });
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments?uuid=${userData['uuid']}&page=$page&postId=${widget.postData['_id']}'),
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments?uuid=${userData['uuid']}&page=$page&postId=${widget.postData['post']['_id']}'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
       print(res.statusCode);
@@ -166,7 +166,7 @@ class McRealState extends State<PostDetails> {
       }
       if (res.body.contains('hochladen')) {
         Navigator.of(context).pop();
-        widget.postUpdateStream.sink.add(true);
+        widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
       }
       return;
     }
@@ -192,6 +192,6 @@ class McRealState extends State<PostDetails> {
   void openReportPage(String uuid) {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) => ReportMcReal(
-            type: ReportType.POST, contentId: widget.postData['_id'])));
+            type: ReportType.POST, contentId: widget.postData['post']['_id'])));
   }
 }

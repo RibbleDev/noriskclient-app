@@ -21,4 +21,6 @@ class NoRiskIcon {
       height: 25, width: 25, fit: BoxFit.fill);
   static Image lock = Image.asset('lib/assets/icons/lock.png',
       height: 20, width: 15, fit: BoxFit.fill);
+  static Image streak = Image.asset('lib/assets/icons/fire.webp',
+      height: 25, width: 25, fit: BoxFit.fill);
 }

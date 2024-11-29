@@ -28,7 +28,7 @@ class McReal extends StatefulWidget {
 
 class McRealState extends State<McReal> {
   ScrollController scrollController = ScrollController();
-  StreamController<bool> postUpdateStream = StreamController<bool>();
+  StreamController<String> postUpdateStream = StreamController<String>();
   bool friendsOnly = true;
   int page = 0;
   bool hitEnd = false;
@@ -49,10 +49,41 @@ class McRealState extends State<McReal> {
           })
     ]);
     loadPosts();
-    postUpdateStream.stream.listen((bool data) {
-      if (data) {
-        loadPosts();
+    postUpdateStream.stream.listen((String data) async {
+      var res = await http.get(
+          Uri.parse(
+              '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/$data?uuid=${userData['uuid']}'),
+          headers: {'Authorization': 'Bearer ${userData['token']}'});
+      if (res.statusCode != 200) {
+        print("Load player post: ${res.statusCode}");
+        if (res.statusCode == 403) {
+          setState(() {
+            ownPost = null;
+          });
+        } else if (res.statusCode == 401) {
+          getUpdateStream.sink.add(['signOut']);
+        }
+        return;
       }
+      Map<String, dynamic> postData = jsonDecode(utf8.decode(res.bodyBytes));
+      int index = posts.indexWhere(
+          (post) => post.postData['post']['_id'] == postData['post']['_id']);
+
+      McRealPost oldPost = index == -1 ? ownPost! : posts[index];
+      McRealPost newPost = McRealPost(
+          locked: oldPost.locked,
+          lockedReason: oldPost.lockedReason,
+          postData: postData,
+          commentUpdateStream: oldPost.commentUpdateStream,
+          displayOnly: oldPost.displayOnly,
+          postUpdateStream: oldPost.postUpdateStream);
+      setState(() {
+        if (index == -1) {
+          ownPost = newPost;
+        } else {
+          posts[index] = newPost;
+        } 
+      });
     });
 
     scrollController.addListener(() async {
