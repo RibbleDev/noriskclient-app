@@ -185,9 +185,10 @@ class ReportMcRealState extends State<ReportMcReal> {
 
   Future<void> report() async {
     String reasons = '';
-    if (obscenity)
+    if (obscenity) {
       reasons +=
           '&reasons=${ReportReason.OBSCENITY.toString().split('.').last}';
+    }
     if (hateSpeech) {
       reasons +=
           '&reasons=${ReportReason.HATE_SPEECH.toString().split('.').last}';
@@ -208,8 +209,9 @@ class ReportMcRealState extends State<ReportMcReal> {
       reasons +=
           '&reasons=${ReportReason.INAPPROPRIATE_FOR_MINORS.toString().split('.').last}';
     }
-    if (other)
+    if (other) {
       reasons += '&reasons=${ReportReason.OTHER.toString().split('.').last}';
+    }
 
     http.Response res = await http.post(
         Uri.parse(
