@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
@@ -47,6 +48,7 @@ class McRealPostState extends State<McRealPost> {
   Widget secondary = Container();
   bool swapped = false;
   bool holdingMainImage = false;
+  bool processingNewRating = false;
   Map<String, dynamic> userData = getUserData;
   Map<String, Map<String, dynamic>> cache = getCache;
 
@@ -297,31 +299,42 @@ class McRealPostState extends State<McRealPost> {
                                       Positioned(
                                           top: 10,
                                           right: 10,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                  cache['streaks']?[
-                                                                  widget.postData[
+                                          child: GestureDetector(
+                                            child: SizedBox(
+                                              height: 30,
+                                              width: 50,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                      cache['streaks']?[widget.postData[
                                                                           'post']
                                                                       [
                                                                       'author']]
-                                                              ?['mcreal']
-                                                          ?.toString() ??
-                                                      '?',
-                                                  style: const TextStyle(
-                                                      fontSize: 15,
-                                                      color: Colors.red,
-                                                      fontWeight:
-                                                          FontWeight.w900)),
-                                              const SizedBox(width: 5),
-                                              NoRiskIconButton(
-                                                  onTap: () {},
-                                                  icon: NoRiskIcon.streak)
-                                            ],
+                                                                  ?['mcreal']
+                                                              ?.toString() ??
+                                                          '?',
+                                                      style: const TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.red,
+                                                          fontWeight:
+                                                              FontWeight.w900)),
+                                                  const SizedBox(width: 5),
+                                                  NoRiskIconButton(
+                                                      onTap: () => Fluttertoast
+                                                          .showToast(
+                                                              msg:
+                                                                  "McReal Streak: ${cache['streaks']?[widget.postData['post']['author']]?['mcreal'] ?? '?'}"),
+                                                      icon: NoRiskIcon.streak)
+                                                ],
+                                              ),
+                                            ),
+                                            onTap: () => Fluttertoast.showToast(
+                                                msg:
+                                                    "McReal Streak: ${cache['streaks']?[widget.postData['post']['author']]?['mcreal'] ?? '?'}"),
                                           )),
                                     if (!(getPrimary() is Container ||
                                         getSecondary() is Container))
@@ -579,6 +592,16 @@ class McRealPostState extends State<McRealPost> {
   }
 
   void upvote() {
+    if (processingNewRating) return;
+    setState(() {
+      widget.postData['likes']++;
+      if (widget.postData['userRating'] != null &&
+          !widget.postData['userRating']!['isPositive']) {
+        widget.postData['dislikes']--;
+      }
+      widget.postData['userRating'] = {'isPositive': true};
+      processingNewRating = true;
+    });
     http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/rate?postId=${widget.postData['post']['_id']}&isPositive=true&uuid=${userData['uuid']}'),
@@ -588,6 +611,9 @@ class McRealPostState extends State<McRealPost> {
         }).then((http.Response res) {
       if (res.statusCode != 200) {
         print(res.statusCode);
+        setState(() {
+          processingNewRating = false;
+        });
         if (res.statusCode == 401) {
           if (widget.commentUpdateStream != null) {
             Navigator.of(context).pop();
@@ -597,10 +623,24 @@ class McRealPostState extends State<McRealPost> {
         return;
       }
       widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
+      Future.delayed(
+          const Duration(seconds: 1),
+          () => setState(() {
+                processingNewRating = false;
+              }));
     });
   }
 
   void downvote() async {
+    if (processingNewRating) return;
+    setState(() {
+      widget.postData['dislikes']++;
+      if (widget.postData['userRating']?['isPositive'] == true) {
+        widget.postData['likes']--;
+      }
+      widget.postData['userRating'] = {'isPositive': false};
+      processingNewRating = true;
+    });
     http.Response res = await http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/rate?postId=${widget.postData['post']['_id']}&isPositive=false&uuid=${userData['uuid']}'),
@@ -610,6 +650,9 @@ class McRealPostState extends State<McRealPost> {
         });
     if (res.statusCode != 200) {
       print(res.statusCode);
+      setState(() {
+        processingNewRating = false;
+      });
       if (res.statusCode == 401) {
         if (widget.commentUpdateStream != null) {
           Navigator.of(context).pop();
@@ -619,9 +662,24 @@ class McRealPostState extends State<McRealPost> {
       return;
     }
     widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
+    Future.delayed(
+        const Duration(seconds: 1),
+        () => setState(() {
+              processingNewRating = false;
+            }));
   }
 
   void deleteRating() async {
+    if (processingNewRating) return;
+    setState(() {
+      if (widget.postData['userRating']?['isPositive'] == true) {
+        widget.postData['likes']--;
+      } else {
+        widget.postData['dislikes']--;
+      }
+      widget.postData['userRating'] = null;
+      processingNewRating = true;
+    });
     http.Response res = await http.delete(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/rate?postId=${widget.postData['post']['_id']}&uuid=${userData['uuid']}'),
@@ -631,6 +689,9 @@ class McRealPostState extends State<McRealPost> {
         });
     if (res.statusCode != 200) {
       print(res.statusCode);
+      setState(() {
+        processingNewRating = false;
+      });
       if (res.statusCode == 401) {
         if (widget.commentUpdateStream != null) {
           Navigator.of(context).pop();
@@ -640,6 +701,11 @@ class McRealPostState extends State<McRealPost> {
       return;
     }
     widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
+    Future.delayed(
+        const Duration(seconds: 1),
+        () => setState(() {
+              processingNewRating = false;
+            }));
   }
 
   void openPostRemovedPopup() {
