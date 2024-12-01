@@ -1,13 +1,4 @@
 {
-  "friends_blocked": "Blocked",
-  "friends_friends": "Friends",
-  "friends_incomingRequests": "Incoming Requests",
-  "friends_noBlocked": "No blocked players",
-  "friends_noFriends": "No friends :(",
-  "friends_noIncomingRequests": "No incoming requests",
-  "friends_noOutgoingRequests": "No outgoing requests",
-  "friends_outgoingRequests": "Outgoing Requests",
-  "friends_title": "Friends",
   "mcRealComment_reply": "Reply",
   "mcRealComment_replys": "Rreplys",
   "mcRealComment_you": "You",
@@ -61,5 +52,8 @@
   "signIn_explanation": "To sign in just scan the QR-Code from the NoRiskClient Launcher under the menu option \"McReal App\" in the settings tab.",
   "signIn_scanQrCode": "Scan QR Code",
   "signIn_signIn": "SignIn",
-  "signIn_signingIn": "Signing In..."
+  "signIn_signingIn": "Signing In...",
+  "profile_yourProfile": "Your Profile",
+  "profile_usersProfile": "'s Profile",
+  "profile_noPinnedPosts": " doesn't have any pinned posts :/"
 }
