@@ -55,5 +55,11 @@
   "signIn_signingIn": "Signing In...",
   "profile_yourProfile": "Your Profile",
   "profile_usersProfile": "'s Profile",
-  "profile_noPinnedPosts": " doesn't have any pinned posts :/"
+  "profile_noPinnedPosts": " doesn't have any pinned posts :/",
+  "settings_language": "Language",
+  "settings_legal": "Legal Info's",
+  "settings_eula": "EULA",
+  "settings_privacyPolicy": "Privacy Policy",
+  "settings_imprint": "Imprint",
+  "settings_support": "Support"
 }

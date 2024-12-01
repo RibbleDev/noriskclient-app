@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/config/Config.dart';
 import 'package:mcreal/main.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
@@ -51,9 +52,10 @@ class ReportMcRealState extends State<ReportMcReal> {
                                   .mcRealReport_title_post
                               : AppLocalizations.of(context)!
                                   .mcRealReport_title_comment,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: Colors.white,
-                              fontSize: 30,
+                              fontSize:
+                                  widget.type == ReportType.POST ? 30 : 25,
                               fontWeight: FontWeight.bold)),
                     ),
                     Row(
@@ -61,7 +63,7 @@ class ReportMcRealState extends State<ReportMcReal> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 10, left: 5),
+                            padding: const EdgeInsets.only(top: 5, left: 5),
                             child: GestureDetector(
                                 onTap: () => Navigator.of(context).pop(),
                                 child: NoRiskIcon.back),
@@ -158,7 +160,7 @@ class ReportMcRealState extends State<ReportMcReal> {
                     controller: infoController,
                     focusNode: infoFocus,
                     keyboardType: TextInputType.text,
-                    maxLength: 200,
+                    maxLength: Config.maxReportContentLength,
                     cursorHeight: 12.5,
                     style: const TextStyle(color: Colors.white, fontSize: 12.5),
                     autofocus: false,
@@ -184,6 +186,8 @@ class ReportMcRealState extends State<ReportMcReal> {
   }
 
   Future<void> report() async {
+    if (infoController.text.isEmpty) return;
+
     String reasons = '';
     if (obscenity) {
       reasons +=

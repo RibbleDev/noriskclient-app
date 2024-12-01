@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/config/Config.dart';
 import 'package:mcreal/main.dart';
 import 'package:mcreal/screens/Profile.dart';
 import 'package:mcreal/screens/ReportMcReal.dart';
@@ -18,9 +19,7 @@ import 'package:mcreal/widgets/NoRiskIconButton.dart';
 
 class PostDetails extends StatefulWidget {
   const PostDetails(
-      {super.key,
-      required this.postData,
-      required this.postUpdateStream});
+      {super.key, required this.postData, required this.postUpdateStream});
 
   final Map<String, dynamic> postData;
   final StreamController<String> postUpdateStream;
@@ -30,8 +29,11 @@ class PostDetails extends StatefulWidget {
 }
 
 class McRealState extends State<PostDetails> {
-  StreamController<bool> commentUpdateStream = StreamController<bool>();
+  ScrollController scrollController = ScrollController();
+  StreamController<String?> commentUpdateStream = StreamController<String?>();
   int page = 0;
+  bool hitEnd = false;
+  bool isLoadingNewComments = false;
   List<McRealComment>? comments;
   Widget commentInput = Container();
   Map<String, Map<String, dynamic>> cache = getCache;
@@ -40,9 +42,45 @@ class McRealState extends State<PostDetails> {
   @override
   void initState() {
     loadComments();
-    commentUpdateStream.stream.listen((bool data) {
-      if (data) {
-        loadComments();
+    commentUpdateStream.stream.listen((String? commentId) async {
+      if (commentId != null) {
+        if (commentId == '*') {
+          setState(() {
+            comments = null;
+            page = 0;
+            hitEnd = false;
+          });
+          loadComments();
+          return;
+        }
+        var res = await http.get(
+            Uri.parse(
+                '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/$commentId?uuid=${userData['uuid']}'),
+            headers: {'Authorization': 'Bearer ${userData['token']}'});
+        if (res.statusCode != 200) {
+          print("Load comment: ${res.statusCode}");
+          if (res.statusCode == 401) {
+            Navigator.of(context).pop();
+            getUpdateStream.sink.add(['signOut']);
+          }
+          return;
+        }
+        Map<String, dynamic> commentData =
+            jsonDecode(utf8.decode(res.bodyBytes));
+        int index = comments!.indexWhere((comment) =>
+            comment.commentData['comment']['_id'] ==
+            commentData['comment']['_id']);
+
+        if (index == -1) return;
+
+        McRealComment oldComment = comments![index];
+        McRealComment newComment = McRealComment(
+            parentId: oldComment.parentId,
+            commentData: commentData,
+            commentUpdateStream: commentUpdateStream);
+        setState(() {
+          comments![index] = newComment;
+        });
       } else {
         setState(() {
           commentInput = commentInput is McRealCommentInput
@@ -51,12 +89,25 @@ class McRealState extends State<PostDetails> {
                   userData: userData,
                   postId: widget.postData['post']['_id'],
                   refresh: () {
-                    loadComments();
                     setState(() {
+                      page = 0;
+                      hitEnd = false;
                       commentInput = Container();
                     });
+                    loadComments();
                   });
         });
+      }
+    });
+    scrollController.addListener(() async {
+      double maxScroll = scrollController.position.maxScrollExtent;
+      double currentScroll = scrollController.position.pixels;
+      double delta = 100.0;
+      if ((maxScroll - currentScroll <= delta) &&
+          isLoadingNewComments != true &&
+          hitEnd != true) {
+        page++;
+        await loadComments();
       }
     });
     super.initState();
@@ -69,41 +120,60 @@ class McRealState extends State<PostDetails> {
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: [
-            RefreshIndicator(
-              onRefresh: loadComments,
-              child: ListView(
-                children: [
-                  SizedBox(
-                      height: MediaQuery.of(context).size.width * 0.9),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: comments != null
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                                commentInput,
-                                if (comments!.isNotEmpty) ...comments!,
-                                if (comments!.isEmpty &&
-                                    commentInput is Container)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 50),
-                                    child: Text(
-                                        AppLocalizations.of(context)!
-                                            .mcReal_noComments,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            color: NoRiskClientColors.text)),
-                                  ),
-                                const SizedBox(height: 50)
-                              ])
-                        : const Center(
-                            child: Padding(
-                                padding: EdgeInsets.only(top: 50),
-                                child: LoadingIndicator()),
-                          ),
-                  )
-                ],
+            Padding(
+              padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.width *
+                      (widget.postData['post']['author'] == userData['uuid']
+                          ? 1
+                          : 0.9)),
+              child: RefreshIndicator(
+                onRefresh: () {
+                  setState(() {
+                    comments = null;
+                    page = 0;
+                    hitEnd = false;
+                  });
+                  return loadComments();
+                },
+                child: Stack(
+                  children: [
+                    ListView(
+                      controller: scrollController,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: comments != null
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                      commentInput,
+                                      if (comments!.isNotEmpty) ...comments!,
+                                      if (comments!.isEmpty &&
+                                          commentInput is Container)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 50),
+                                          child: Text(
+                                              AppLocalizations.of(context)!
+                                                  .mcReal_noComments,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                  color:
+                                                      NoRiskClientColors.text)),
+                                        ),
+                                      const SizedBox(height: 50)
+                                    ])
+                              : const Center(
+                                  child: Padding(
+                                      padding: EdgeInsets.only(top: 50),
+                                      child: LoadingIndicator()),
+                                ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             Column(
@@ -151,9 +221,7 @@ class McRealState extends State<PostDetails> {
   }
 
   Future<void> loadComments() async {
-    setState(() {
-      comments = [];
-    });
+    isLoadingNewComments = true;
     http.Response res = await http.get(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments?uuid=${userData['uuid']}&page=$page&postId=${widget.postData['post']['_id']}'),
@@ -163,25 +231,36 @@ class McRealState extends State<PostDetails> {
       if (res.statusCode == 401) {
         Navigator.of(context).pop();
         getUpdateStream.sink.add(['signOut']);
-      }
-      if (res.body.contains('hochladen')) {
-        Navigator.of(context).pop();
-        widget.postUpdateStream.sink.add(widget.postData['post']['_id']);
-      }
+      } else if (res.statusCode == 400) {}
       return;
     }
     Map<String, dynamic> commentsData = jsonDecode(utf8.decode(res.bodyBytes));
 
+    if (commentsData['comments'].length < Config.maxCommentsPerPage) {
+      hitEnd = true;
+      print('Hit end!!!');
+    } else {
+      hitEnd = false;
+    }
+
     List<McRealComment> newComments = [];
     for (var commentData in commentsData['comments']) {
       newComments.add(McRealComment(
-          commentData: commentData,
-          commentUpdateStream: commentUpdateStream));
+          commentData: commentData, commentUpdateStream: commentUpdateStream));
     }
 
+    List<McRealComment> existingPosts = comments ?? [];
+    int scrollOffset = scrollController.offset.toInt();
+
+    await Future.delayed(const Duration(milliseconds: 20));
     setState(() {
-      comments = newComments;
+      comments = [...existingPosts, ...newComments];
     });
+    scrollController.jumpTo(scrollOffset.toDouble());
+    print(
+        'New comments (${newComments.length}): ${newComments.map((c) => c.commentData['comment']['_id'])}');
+
+    isLoadingNewComments = false;
   }
 
   void openProfilePage(String uuid) {

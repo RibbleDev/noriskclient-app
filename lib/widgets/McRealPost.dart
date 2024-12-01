@@ -35,7 +35,7 @@ class McRealPost extends StatefulWidget {
   final String lockedReason;
   final Map<String, dynamic> postData;
   final StreamController<String> postUpdateStream;
-  final StreamController<bool>? commentUpdateStream;
+  final StreamController<String?>? commentUpdateStream;
   final bool displayOnly;
 
   @override
@@ -581,7 +581,7 @@ class McRealPostState extends State<McRealPost> {
 
   void openCommentBox() {
     if (widget.locked || widget.commentUpdateStream == null) return;
-    widget.commentUpdateStream!.sink.add(false);
+    widget.commentUpdateStream!.sink.add(null);
   }
 
   void openReportPage() {
@@ -593,6 +593,9 @@ class McRealPostState extends State<McRealPost> {
 
   void upvote() {
     if (processingNewRating) return;
+    int oldLikes = widget.postData['likes'];
+    int oldDislikes = widget.postData['dislikes'];
+    Map<String, dynamic>? oldUserRating = widget.postData['userRating'];
     setState(() {
       widget.postData['likes']++;
       if (widget.postData['userRating'] != null &&
@@ -612,6 +615,9 @@ class McRealPostState extends State<McRealPost> {
       if (res.statusCode != 200) {
         print(res.statusCode);
         setState(() {
+          widget.postData['likes'] = oldLikes;
+          widget.postData['dislikes'] = oldDislikes;
+          widget.postData['userRating'] = oldUserRating;
           processingNewRating = false;
         });
         if (res.statusCode == 401) {

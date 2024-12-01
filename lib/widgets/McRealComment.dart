@@ -24,7 +24,7 @@ class McRealComment extends StatefulWidget {
       this.parentId = ''});
 
   final Map<String, dynamic> commentData;
-  final StreamController<bool> commentUpdateStream;
+  final StreamController<String?> commentUpdateStream;
   final String parentId;
 
   @override
@@ -39,6 +39,8 @@ class McRealPostState extends State<McRealComment> {
   bool? ownRating;
   List<McRealComment> replys = [];
   bool showReplys = false;
+  bool deleted = false;
+  bool currentlyUpdatingVotes = false;
   Widget commentInput = Container();
   Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
@@ -52,8 +54,7 @@ class McRealPostState extends State<McRealComment> {
             cache = getCache;
           })
     ]);
-    ownComment =
-        userData['uuid'] == widget.commentData['comment']['author'];
+    ownComment = userData['uuid'] == widget.commentData['comment']['author'];
     if (!ownComment) {
       getUpdateStream.sink.add([
         'loadUsername',
@@ -74,7 +75,9 @@ class McRealPostState extends State<McRealComment> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return deleted
+        ? Container()
+        : Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         padding: const EdgeInsets.all(7.5),
@@ -266,38 +269,34 @@ class McRealPostState extends State<McRealComment> {
               userData: userData,
               postId: widget.commentData['comment']['postId'],
               parentCommentId: widget.commentData['comment']['_id'],
-              refresh: () => widget.commentUpdateStream.sink.add(true));
+              refresh: () => widget.commentUpdateStream.sink.add("*"));
     });
   }
 
   Future<void> upvote() async {
-    http.Response res = await http.post(
-        Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments/rating?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=true'),
-        headers: {'Authorization': 'Bearer ${userData['token']}'});
-    if (res.statusCode != 200) {
-      if (res.statusCode == 401) {
-        Navigator.of(context).pop();
-        getUpdateStream.sink.add(['signOut']);
-      }
-      print(res.statusCode);
-      return;
-    }
+    if (currentlyUpdatingVotes) return;
+    int oldLikes = likes;
+    int oldDislikes = dislikes;
+    bool? oldOwnRating = ownRating;
     setState(() {
       likes++;
       if (ownRating == false) {
         dislikes--;
       }
       ownRating = true;
+      currentlyUpdatingVotes = true;
     });
-  }
-
-  Future<void> downvote() async {
     http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments/rating?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=false'),
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments/rating?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=true'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
+      setState(() {
+        likes = oldLikes;
+        dislikes = oldDislikes;
+        ownRating = oldOwnRating;
+        currentlyUpdatingVotes = false;
+      });
       if (res.statusCode == 401) {
         Navigator.of(context).pop();
         getUpdateStream.sink.add(['signOut']);
@@ -305,21 +304,38 @@ class McRealPostState extends State<McRealComment> {
       print(res.statusCode);
       return;
     }
+    widget.commentUpdateStream.sink.add(widget.commentData['comment']['_id']);
+    Future.delayed(
+        const Duration(seconds: 1),
+        () => setState(() {
+              currentlyUpdatingVotes = false;
+            }));
+  }
+
+  Future<void> downvote() async {
+    if (currentlyUpdatingVotes) return;
+    int oldLikes = likes;
+    int oldDislikes = dislikes;
+    bool? oldOwnRating = ownRating;
     setState(() {
       dislikes++;
       if (ownRating == true) {
         likes--;
       }
       ownRating = false;
+      currentlyUpdatingVotes = true;
     });
-  }
-
-  Future<void> deleteRating() async {
-    http.Response res = await http.delete(
+    http.Response res = await http.post(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments/rating?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments/rating?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}&isPositive=false'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
+      setState(() {
+        likes = oldLikes;
+        dislikes = oldDislikes;
+        ownRating = oldOwnRating;
+        currentlyUpdatingVotes = false;
+      });
       if (res.statusCode == 401) {
         Navigator.of(context).pop();
         getUpdateStream.sink.add(['signOut']);
@@ -327,6 +343,19 @@ class McRealPostState extends State<McRealComment> {
       print(res.statusCode);
       return;
     }
+    widget.commentUpdateStream.sink.add(widget.commentData['comment']['_id']);
+    Future.delayed(
+        const Duration(seconds: 1),
+        () => setState(() {
+              currentlyUpdatingVotes = false;
+            }));
+  }
+
+  Future<void> deleteRating() async {
+    if (currentlyUpdatingVotes) return;
+    int oldLikes = likes;
+    int oldDislikes = dislikes;
+    bool? oldOwnRating = ownRating;
     setState(() {
       if (ownRating == true) {
         likes--;
@@ -334,7 +363,32 @@ class McRealPostState extends State<McRealComment> {
         dislikes--;
       }
       ownRating = null;
+      currentlyUpdatingVotes = true;
     });
+    http.Response res = await http.delete(
+        Uri.parse(
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments/rating?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
+        headers: {'Authorization': 'Bearer ${userData['token']}'});
+    if (res.statusCode != 200) {
+      setState(() {
+        likes = oldLikes;
+        dislikes = oldDislikes;
+        ownRating = oldOwnRating;
+        currentlyUpdatingVotes = false;
+      });
+      if (res.statusCode == 401) {
+        Navigator.of(context).pop();
+        getUpdateStream.sink.add(['signOut']);
+      }
+      print(res.statusCode);
+      return;
+    }
+    widget.commentUpdateStream.sink.add(widget.commentData['comment']['_id']);
+    Future.delayed(
+        const Duration(seconds: 1),
+        () => setState(() {
+              currentlyUpdatingVotes = false;
+            }));
   }
 
   Future<void> report() async {
@@ -368,8 +422,7 @@ class McRealPostState extends State<McRealComment> {
                               Uri.parse(
                                   '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
                               headers: {
-                                'Authorization':
-                                    'Bearer ${userData['token']}'
+                                'Authorization': 'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             if (res.statusCode == 401) {
@@ -379,7 +432,10 @@ class McRealPostState extends State<McRealComment> {
                             print(res.statusCode);
                             return;
                           }
-                          widget.commentUpdateStream.sink.add(true);
+                          setState(() {
+                            deleted = true;
+                          });
+                          widget.commentUpdateStream.sink.add("*");
                           Navigator.of(context).pop();
                         },
                         child: Text(
@@ -407,8 +463,7 @@ class McRealPostState extends State<McRealComment> {
                               Uri.parse(
                                   '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/comments?uuid=${userData['uuid']}&commentId=${widget.commentData['comment']['_id']}'),
                               headers: {
-                                'Authorization':
-                                    'Bearer ${userData['token']}'
+                                'Authorization': 'Bearer ${userData['token']}'
                               });
                           if (res.statusCode != 200) {
                             if (res.statusCode == 401) {
@@ -418,7 +473,9 @@ class McRealPostState extends State<McRealComment> {
                             print(res.statusCode);
                             return;
                           }
-                          widget.commentUpdateStream.sink.add(true);
+                          setState(() {
+                            deleted = true;
+                          });
                           Navigator.of(context).pop();
                         },
                         child: Text(

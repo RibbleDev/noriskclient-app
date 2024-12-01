@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
+import 'package:mcreal/config/Config.dart';
 import 'package:mcreal/main.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 
@@ -74,7 +75,7 @@ class McRealPostState extends State<McRealCommentInput> {
                   controller: commentController,
                   focusNode: commentFocus,
                   keyboardType: TextInputType.text,
-                  maxLength: 200,
+                  maxLength: Config.maxCommentContentLength,
                   cursorHeight: 12.5,
                   style: const TextStyle(color: Colors.white, fontSize: 12.5),
                   autofocus: true,
@@ -88,6 +89,8 @@ class McRealPostState extends State<McRealCommentInput> {
   }
 
   Future<void> create(String content) async {
+    if (content.isEmpty) return;
+    
     http.Response res = await http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(widget.userData['experimental'], 'mcreal')}/comments?uuid=${widget.userData['uuid']}&postId=${widget.postId}${widget.parentCommentId != null ? '&parentCommentId=${widget.parentCommentId}' : ''}&text=$content'),

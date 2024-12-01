@@ -365,9 +365,6 @@ class McRealState extends State<McReal> {
     List<McRealPost> existingPosts = posts;
     int scrollOffset = scrollController.offset.toInt();
 
-    // setState(() {
-    //   posts = [];
-    // });
     await Future.delayed(const Duration(milliseconds: 10));
     setState(() {
       posts = [...existingPosts, ...newPosts];

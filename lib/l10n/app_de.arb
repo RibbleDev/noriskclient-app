@@ -55,5 +55,11 @@
   "signIn_signingIn": "Wird angemeldet...",
   "profile_yourProfile": "Dein Profil",
   "profile_usersProfile": "'s Profil",
-  "profile_noPinnedPosts": " hat keine angepinnten Posts :/"
+  "profile_noPinnedPosts": " hat keine angepinnten Posts :/",
+  "settings_language": "Sprache",
+  "settings_legal": "Rechtliches",
+  "settings_eula": "EULA",
+  "settings_privacyPolicy": "Datenschutz",
+  "settings_imprint": "Impressum",
+  "settings_support": "Support"
 }

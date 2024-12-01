@@ -89,24 +89,54 @@ class ProfileState extends State<Profile> {
               padding: const EdgeInsets.all(15),
               child: Stack(
                 children: [
-                  RefreshIndicator(
-                    onRefresh: () => loadPinnedPosts(null),
-                    child: ListView(
-                      children: [
-                        const SizedBox(height: 20),
-                        Text(
-                            widget.uuid == userData['uuid']
-                                ? AppLocalizations.of(context)!
-                                    .profile_yourProfile
-                                : (cache['usernames']?[widget.uuid] ??
-                                        'Unknown') +
-                                    AppLocalizations.of(context)!
-                                        .profile_usersProfile,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 20,
-                                color: NoRiskClientColors.text,
-                                fontWeight: FontWeight.bold)),
+                  Stack(
+                    children: [
+                      Column(children: [
+                        const SizedBox(height: 65),
+                        Row(
+                          children: [
+                            const SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () => Navigator.of(context).pop(),
+                              child: SizedBox(
+                                height: 30,
+                                width: 30,
+                                child: NoRiskIcon.back,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                                widget.uuid == userData['uuid']
+                                    ? AppLocalizations.of(context)!
+                                        .profile_yourProfile
+                                    : (cache['usernames']?[widget.uuid] ??
+                                            'Unknown') +
+                                        AppLocalizations.of(context)!
+                                            .profile_usersProfile,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    color: NoRiskClientColors.text,
+                                    fontWeight: FontWeight.bold)),
+                            const Spacer(),
+                            if (widget.isSettings)
+                              GestureDetector(
+                                  onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              const Settings())),
+                                  child: const SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: Center(
+                                        child: Icon(Icons.settings,
+                                            color: NoRiskClientColors.text,
+                                            size: 30),
+                                      ))),
+                            if (!widget.isSettings) const Spacer(),
+                            const SizedBox(width: 10),
+                          ],
+                        ),
                         Center(
                             child: cache['armorSkins']?[widget.uuid] != null
                                 ? GestureDetector(
@@ -137,73 +167,46 @@ class ProfileState extends State<Profile> {
                             NoRiskIconButton(
                                 onTap: () {}, icon: NoRiskIcon.streak)
                           ],
-                        ),
-                        const SizedBox(height: 25),
-                        Column(
-                            children: pinns == null
-                                ? [const LoadingIndicator()]
-                                : noPinns
-                                    ? [
-                                        SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height -
-                                              500,
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          child: Center(
-                                              child: Text(
-                                                  (cache['usernames']
-                                                              ?[widget.uuid] ??
-                                                          'Unknown') +
-                                                      AppLocalizations.of(
-                                                              context)!
-                                                          .profile_noPinnedPosts,
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red))),
-                                        )
-                                      ]
-                                    : pinns!),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
+                        )
+                      ]),
                       Padding(
-                        padding: const EdgeInsets.only(top: 60),
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
-                          child: SizedBox(
-                            height: 30,
-                            width: 30,
-                            child: NoRiskIcon.back,
-                          ),
+                        padding: const EdgeInsets.only(top: 300),
+                        child: RefreshIndicator(
+                          onRefresh: () => loadPinnedPosts(null),
+                          child: ListView(
+                              children: pinns == null
+                                  ? [const LoadingIndicator()]
+                                  : noPinns
+                                      ? [
+                                          SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height -
+                                                500,
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            child: Center(
+                                                child: Text(
+                                                    (cache['usernames']?[
+                                                                widget.uuid] ??
+                                                            'Unknown') +
+                                                        AppLocalizations.of(
+                                                                context)!
+                                                            .profile_noPinnedPosts,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.red))),
+                                          )
+                                        ]
+                                      : pinns!),
                         ),
                       ),
                     ],
                   ),
-                  if (widget.isSettings)
-                    Positioned(
-                        top: 70,
-                        right: 5,
-                        child: GestureDetector(
-                            onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        const Settings())),
-                            child: const SizedBox(
-                                height: 30,
-                                width: 30,
-                                child: Center(
-                                  child: Icon(Icons.settings,
-                                      color: NoRiskClientColors.text, size: 30),
-                                ))))
                 ],
               )),
         ));
