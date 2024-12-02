@@ -79,7 +79,8 @@ class AppState extends State<App> {
         saveUserData(data[1]);
       } else if (event == 'signOut') {
         print('Signing out');
-        saveUserData({});
+        clearUserData();
+        clearCache();
       } else if (event == 'loadSkin') {
         if (cache['skins']?[data[1]] == null ||
             cache['armorSkins']?[data[1]] == null) {
@@ -206,6 +207,18 @@ class AppState extends State<App> {
     await prefs.remove('experimental');
     await prefs.remove('token');
     loadUserData();
+  }
+
+  void clearCache() {
+    setState(() {
+      cache = {
+        'skins': {},
+        'armorSkins': {},
+        'usernames': {},
+        'posts': {},
+        'streaks': {}
+      };
+    });
   }
 
   void loadSkin(String uuid) {

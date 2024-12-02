@@ -12,8 +12,10 @@ import 'package:mcreal/provider/localeProvider.dart';
 import 'package:mcreal/screens/Profile.dart';
 import 'package:mcreal/utils/McRealStatus.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
+import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/McRealPost.dart';
+import 'package:mcreal/widgets/NoRiskIconButton.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -160,7 +162,21 @@ class McRealState extends State<McReal> {
                               children: [
                                 const SizedBox(height: 10),
                                 ownPost ?? const SizedBox(height: 0, width: 0),
-                                ...posts
+                                ...posts,
+                                (ownPost != null ? 1 : 0) + posts.length <= 2
+                                    ? SizedBox(
+                                        height: 30,
+                                        child: Center(
+                                            child: NoRiskIconButton(
+                                                onTap: () {
+                                                  setState(() {
+                                                    posts = [];
+                                                    page = 0;
+                                                  });
+                                                  loadPosts();
+                                                },
+                                                icon: NoRiskIcon.reload)))
+                                    : Container()
                               ]),
                         )
                 ],
@@ -292,6 +308,13 @@ class McRealState extends State<McReal> {
   }
 
   Future<void> loadPlayerPost() async {
+    if (userData['mcRealStatus'] != McRealStatus.OK) {
+      setState(() {
+        cache['posts'] = {};
+        ownPost = null;
+        ownPostData = null;
+      });
+    }
     userData.remove('mcRealStatus');
     userData.remove('mcRealStatusInfo');
     http.Response res = await http.get(
