@@ -10,6 +10,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
 import 'package:mcreal/config/Config.dart';
 import 'package:mcreal/main.dart';
+import 'package:mcreal/screens/ImageViewer.dart';
 import 'package:mcreal/screens/McReal.dart';
 import 'package:mcreal/screens/PostDetails.dart';
 import 'package:mcreal/screens/Profile.dart';
@@ -244,6 +245,20 @@ class McRealPostState extends State<McRealPost> {
                             height: MediaQuery.of(context).size.width * 0.5,
                             child: Center(
                               child: GestureDetector(
+                                onTap: widget.locked
+                                    ? () {}
+                                    : widget.commentUpdateStream != null
+                                        ? () => Navigator.push(context,
+                                                MaterialPageRoute(
+                                                    builder: (context) {
+                                              return ImageViewer(
+                                                  image: cache['posts']?[
+                                                      widget.postData['post']
+                                                          ['_id']]?[swapped
+                                                      ? 'secondary'
+                                                      : 'primary']);
+                                            }))
+                                        : openDetailsPage,
                                 onLongPress: widget.locked
                                     ? () {}
                                     : () => setState(() {
@@ -784,8 +799,7 @@ class McRealPostState extends State<McRealPost> {
                             }
                             return;
                           }
-                          widget.postUpdateStream.sink
-                              .add('*');
+                          widget.postUpdateStream.sink.add('*');
                           Navigator.of(context).pop();
                         },
                         child: Text(
@@ -825,8 +839,7 @@ class McRealPostState extends State<McRealPost> {
                             }
                             return;
                           }
-                          widget.postUpdateStream.sink
-                              .add('*');
+                          widget.postUpdateStream.sink.add('*');
                           Navigator.of(context).pop();
                         },
                         child: Text(

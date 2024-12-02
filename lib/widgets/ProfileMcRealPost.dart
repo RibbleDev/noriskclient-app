@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
 import 'package:mcreal/main.dart';
+import 'package:mcreal/screens/ImageViewer.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
@@ -96,6 +97,13 @@ class McRealPostState extends State<ProfileMcRealPost> {
                           height: MediaQuery.of(context).size.width * 0.5,
                           child: Center(
                             child: GestureDetector(
+                              onTap: () => Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return ImageViewer(
+                                    image: cache['posts']
+                                            ?[widget.postData!['post']['_id']]
+                                        ?[swapped ? 'secondary' : 'primary']);
+                              })),
                               onLongPress: () => setState(() {
                                 holdingMainImage = true;
                               }),
