@@ -770,7 +770,7 @@ class McRealPostState extends State<McRealPost> {
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post?uuid=${userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['post']['_id']}?uuid=${userData['uuid']}'),
                               headers: {
                                 'Authorization': 'Bearer ${userData['token']}'
                               });
@@ -785,7 +785,7 @@ class McRealPostState extends State<McRealPost> {
                             return;
                           }
                           widget.postUpdateStream.sink
-                              .add(widget.postData['post']['_id']);
+                              .add('*');
                           Navigator.of(context).pop();
                         },
                         child: Text(
@@ -811,7 +811,7 @@ class McRealPostState extends State<McRealPost> {
                         onPressed: () async {
                           http.Response res = await http.delete(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post?uuid=${userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['post']['_id']}?uuid=${userData['uuid']}'),
                               headers: {
                                 'Authorization': 'Bearer ${userData['token']}'
                               });
@@ -826,7 +826,7 @@ class McRealPostState extends State<McRealPost> {
                             return;
                           }
                           widget.postUpdateStream.sink
-                              .add(widget.postData['post']['_id']);
+                              .add('*');
                           Navigator.of(context).pop();
                         },
                         child: Text(

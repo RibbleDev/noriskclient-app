@@ -50,6 +50,16 @@ class McRealState extends State<McReal> {
     ]);
     loadPosts();
     postUpdateStream.stream.listen((String data) async {
+      if (data == '*') {
+        setState(() {
+          ownPost = null;
+          posts = [];
+          cache['posts'] = {};
+          page = 0;
+        });
+        loadPosts();
+        return;
+      }
       var res = await http.get(
           Uri.parse(
               '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/$data?uuid=${userData['uuid']}'),
@@ -301,11 +311,11 @@ class McRealState extends State<McReal> {
     }
     Map<String, dynamic> postData = jsonDecode(utf8.decode(res.bodyBytes));
 
-    if (postData['status'] != null) {
-      if (postData['status'] == McRealStatus.REMOVED) {
+    if (postData['post']['status'] != null) {
+      if (postData['post']['status'] == McRealStatus.REMOVED) {
         userData['mcRealStatus'] = McRealStatus.REMOVED;
-        userData['mcRealStatusInfo'] = postData['statusInfo'];
-      } else if (postData['status'] == McRealStatus.DELETED) {
+        userData['mcRealStatusInfo'] = postData['post']['statusInfo'];
+      } else if (postData['post']['status'] == McRealStatus.DELETED) {
         userData['mcRealStatus'] = McRealStatus.DELETED;
       }
     }
