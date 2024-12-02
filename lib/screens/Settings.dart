@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mcreal/config/Colors.dart';
 import 'package:mcreal/main.dart';
+import 'package:mcreal/config/Config.dart';
 import 'package:mcreal/provider/localeProvider.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -136,7 +138,8 @@ class SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 5),
                 GestureDetector(
-                  onTap: () => {},
+                  onTap: () => launchUrl(
+                      mode: LaunchMode.externalApplication, Config.termsUrl),
                   child: Container(
                     width: double.infinity,
                     height: 50,
@@ -144,7 +147,7 @@ class SettingsState extends State<Settings> {
                         color: NoRiskClientColors.darkerBackground,
                         borderRadius: BorderRadius.circular(10)),
                     child: Center(
-                      child: Text(AppLocalizations.of(context)!.settings_eula,
+                      child: Text(AppLocalizations.of(context)!.settings_tos,
                           style: const TextStyle(
                               color: NoRiskClientColors.text,
                               fontSize: 20,
@@ -154,7 +157,8 @@ class SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 5),
                 GestureDetector(
-                  onTap: () => {},
+                  onTap: () => launchUrl(
+                      mode: LaunchMode.externalApplication, Config.privacyUrl),
                   child: Container(
                     width: double.infinity,
                     height: 50,
@@ -173,7 +177,8 @@ class SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 5),
                 GestureDetector(
-                  onTap: () => {},
+                  onTap: () => launchUrl(
+                      mode: LaunchMode.externalApplication, Config.imprintUrl),
                   child: Container(
                     width: double.infinity,
                     height: 50,
@@ -204,7 +209,8 @@ class SettingsState extends State<Settings> {
                 ),
                 const SizedBox(height: 5),
                 GestureDetector(
-                  onTap: () => {},
+                  onTap: () => launchUrl(
+                      mode: LaunchMode.externalApplication, Config.supportUrl),
                   child: Container(
                     width: double.infinity,
                     height: 50,
