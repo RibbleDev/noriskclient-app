@@ -33,6 +33,7 @@
   "mcReal_popup_cancel": "Cancel",
   "mcReal_popup_delete": "Delete!",
   "mcReal_popup_ok": "Ok",
+  "mcReal_popup_yes": "Yes",
   "mcReal_popup_pin": "Pin!",
   "mcReal_popup_unpin": "Unpin",
   "mcReal_removedPost": "Your McReal was removed.\nTap here for more information.",
@@ -57,9 +58,15 @@
   "profile_usersProfile": "'s Profile",
   "profile_noPinnedPosts": " doesn't have any pinned posts :/",
   "settings_language": "Language",
+  "settings_blockedPlayers": "Blocked Players",
   "settings_legal": "Legal Info's",
   "settings_tos": "Terms of Service",
   "settings_privacyPolicy": "Privacy Policy",
   "settings_imprint": "Imprint",
-  "settings_support": "Support"
+  "settings_support": "Support",
+  "mcReal_profile_blockUserPopupTitle": "Are you sure?",
+  "mcReal_profile_blockUserPopupContent": "Are you sure you want to block this player?",
+  "mcReal_profile_unblockUserPopupTitle": "Are you sure?",
+  "mcReal_profile_unblockUserPopupContent": "Are you sure you want to unblock this player?",
+  "mcReal_profile_blockedPlayer": "You have blocked this player."
 }

@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mcreal/config/Colors.dart';
 import 'package:mcreal/main.dart';
 import 'package:mcreal/screens/Settings.dart';
+import 'package:mcreal/utils/BlockingManager.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
 import 'package:mcreal/widgets/LoadingIndicator.dart';
@@ -15,10 +17,15 @@ import 'package:mcreal/widgets/NoRiskIconButton.dart';
 import 'package:mcreal/widgets/ProfileMcRealPost.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key, required this.uuid, this.isSettings = false});
+  const Profile(
+      {super.key,
+      required this.uuid,
+      this.isSettings = false,
+      required this.postUpdateStream});
 
   final String uuid;
   final bool isSettings;
+  final StreamController<String> postUpdateStream;
 
   @override
   State<Profile> createState() => ProfileState();
@@ -30,6 +37,7 @@ class ProfileState extends State<Profile> {
   Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
   bool noPinns = true;
+  bool? blocked;
 
   //eastereggs
   bool PSJahn = false;
@@ -39,15 +47,16 @@ class ProfileState extends State<Profile> {
   void initState() {
     loadPinnedPosts(null);
     loadStreak();
+    loadBlockedState();
 
     if (!widget.isSettings) {
-    getUpdateStream.sink.add([
-      'loadUsername',
-      widget.uuid,
-      () => setState(() {
-            cache = getCache;
-          })
-    ]);
+      getUpdateStream.sink.add([
+        'loadUsername',
+        widget.uuid,
+        () => setState(() {
+              cache = getCache;
+            })
+      ]);
     }
 
     profilePostsUpdateStream.stream
@@ -124,7 +133,9 @@ class ProfileState extends State<Profile> {
                                   onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute(
                                           builder: (BuildContext context) =>
-                                              const Settings())),
+                                              Settings(
+                                                  postUpdateStream: widget
+                                                      .postUpdateStream))),
                                   child: const SizedBox(
                                       height: 30,
                                       width: 30,
@@ -133,7 +144,27 @@ class ProfileState extends State<Profile> {
                                             color: NoRiskClientColors.text,
                                             size: 30),
                                       ))),
-                            if (!widget.isSettings) const Spacer(),
+                            if (blocked != null)
+                              GestureDetector(
+                                  onTap: blocked! ? unblock : block,
+                                  onLongPress: () => Fluttertoast.showToast(
+                                      msg:
+                                          "${blocked == false ? 'Block' : 'Unblock'} ${cache['usernames']?[widget.uuid] ?? 'Unknown'}"),
+                                  child: SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: Center(
+                                        child: Icon(
+                                            blocked == false
+                                                ? Icons.block
+                                                : Icons.handshake,
+                                            color: blocked == false
+                                                ? Colors.red
+                                                : Colors.green,
+                                            size: 30),
+                                      ))),
+                            if (!widget.isSettings && blocked == null)
+                              const SizedBox(width: 30),
                             const SizedBox(width: 10),
                           ],
                         ),
@@ -176,7 +207,7 @@ class ProfileState extends State<Profile> {
                           child: ListView(
                               children: pinns == null
                                   ? [const LoadingIndicator()]
-                                  : noPinns
+                                  : noPinns || blocked == true
                                       ? [
                                           SizedBox(
                                             height: MediaQuery.of(context)
@@ -188,12 +219,17 @@ class ProfileState extends State<Profile> {
                                                 .width,
                                             child: Center(
                                                 child: Text(
-                                                    (cache['usernames']?[
-                                                                widget.uuid] ??
-                                                            'Unknown') +
-                                                        AppLocalizations.of(
+                                                    blocked == true
+                                                        ? AppLocalizations.of(
                                                                 context)!
-                                                            .profile_noPinnedPosts,
+                                                            .mcReal_profile_blockedPlayer
+                                                        : (cache['usernames']?[
+                                                                    widget
+                                                                        .uuid] ??
+                                                                'Unknown') +
+                                                            AppLocalizations.of(
+                                                                    context)!
+                                                                .profile_noPinnedPosts,
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                         fontSize: 15,
@@ -210,6 +246,125 @@ class ProfileState extends State<Profile> {
                 ],
               )),
         ));
+  }
+
+  void loadBlockedState() {
+    if (widget.uuid == userData['uuid']) return;
+    BlockingManager().checkBlocked(widget.uuid).then((bool blocked) {
+      setState(() {
+        this.blocked = blocked;
+      });
+    });
+  }
+
+  void block() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Platform.isAndroid
+              ? AlertDialog(
+                  title: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_blockUserPopupTitle),
+                  content: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_blockUserPopupContent),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel,
+                            style: const TextStyle(color: Colors.red))),
+                    TextButton(
+                        onPressed: () async {
+                          await BlockingManager().block(widget.uuid);
+                          loadBlockedState();
+                          widget.postUpdateStream.sink.add('*');
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_yes,
+                            style: const TextStyle(
+                                color: NoRiskClientColors.blue))),
+                  ],
+                )
+              : CupertinoAlertDialog(
+                  title: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_blockUserPopupTitle),
+                  content: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_blockUserPopupContent),
+                  actions: [
+                    CupertinoDialogAction(
+                        isDestructiveAction: true,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel)),
+                    CupertinoDialogAction(
+                        isDefaultAction: true,
+                        onPressed: () async {
+                          await BlockingManager().block(widget.uuid);
+                          loadBlockedState();
+                          widget.postUpdateStream.sink.add('*');
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_yes))
+                  ],
+                );
+        });
+  }
+
+  void unblock() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Platform.isAndroid
+              ? AlertDialog(
+                  title: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_unblockUserPopupTitle),
+                  content: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_unblockUserPopupContent),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel,
+                            style: const TextStyle(color: Colors.red))),
+                    TextButton(
+                        onPressed: () async {
+                          await BlockingManager().unblock(widget.uuid);
+                          loadBlockedState();
+                          widget.postUpdateStream.sink.add('*');
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_yes,
+                            style: const TextStyle(
+                                color: NoRiskClientColors.blue))),
+                  ],
+                )
+              : CupertinoAlertDialog(
+                  title: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_unblockUserPopupTitle),
+                  content: Text(AppLocalizations.of(context)!
+                      .mcReal_profile_unblockUserPopupContent),
+                  actions: [
+                    CupertinoDialogAction(
+                        isDestructiveAction: true,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_cancel)),
+                    CupertinoDialogAction(
+                        isDefaultAction: true,
+                        onPressed: () async {
+                          await BlockingManager().unblock(widget.uuid);
+                          loadBlockedState();
+                          widget.postUpdateStream.sink.add('*');
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                            AppLocalizations.of(context)!.mcReal_popup_yes))
+                  ],
+                );
+        });
   }
 
   void loadStreak() async {

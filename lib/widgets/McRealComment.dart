@@ -21,10 +21,12 @@ class McRealComment extends StatefulWidget {
       {super.key,
       required this.commentData,
       required this.commentUpdateStream,
+      required this.postUpdateStream,
       this.parentId = ''});
 
   final Map<String, dynamic> commentData;
   final StreamController<String?> commentUpdateStream;
+  final StreamController<String> postUpdateStream;
   final String parentId;
 
   @override
@@ -247,7 +249,8 @@ class McRealPostState extends State<McRealComment> {
       newReplys.add(McRealComment(
           commentData: commentData,
           commentUpdateStream: widget.commentUpdateStream,
-          parentId: widget.commentData['comment']['_id']));
+          parentId: widget.commentData['comment']['_id'],
+          postUpdateStream: widget.postUpdateStream));
     }
 
     setState(() {
@@ -258,7 +261,9 @@ class McRealPostState extends State<McRealComment> {
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
-            Profile(uuid: widget.commentData['comment']['author'])));
+            Profile(
+            uuid: widget.commentData['comment']['author'],
+            postUpdateStream: widget.postUpdateStream)));
   }
 
   Future<void> reply() async {

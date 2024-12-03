@@ -10,6 +10,7 @@ import 'package:mcreal/config/Config.dart';
 import 'package:mcreal/main.dart';
 import 'package:mcreal/provider/localeProvider.dart';
 import 'package:mcreal/screens/Profile.dart';
+import 'package:mcreal/utils/BlockingManager.dart';
 import 'package:mcreal/utils/McRealStatus.dart';
 import 'package:mcreal/utils/NoRiskApi.dart';
 import 'package:mcreal/utils/NoRiskIcon.dart';
@@ -388,6 +389,14 @@ class McRealState extends State<McReal> {
 
     List<McRealPost> newPosts = [];
     for (var postData in postsData) {
+      bool isBlocked =
+          await BlockingManager().checkBlocked(postData['post']['author']);
+      if (isBlocked) {
+        print(
+            'Skipped blocked post ${postData['post']['_id']} (${postData['post']['author']})');
+        continue;
+      }
+      
       newPosts.add(McRealPost(
           locked: ownPost == null || lockedReason != '',
           lockedReason: lockedReason,
@@ -411,6 +420,9 @@ class McRealState extends State<McReal> {
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
-            Profile(uuid: userData['uuid'], isSettings: true)));
+            Profile(
+            uuid: userData['uuid'],
+            isSettings: true,
+            postUpdateStream: postUpdateStream)));
   }
 }

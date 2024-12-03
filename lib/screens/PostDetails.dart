@@ -77,7 +77,8 @@ class McRealState extends State<PostDetails> {
         McRealComment newComment = McRealComment(
             parentId: oldComment.parentId,
             commentData: commentData,
-            commentUpdateStream: commentUpdateStream);
+            commentUpdateStream: commentUpdateStream,
+            postUpdateStream: widget.postUpdateStream);
         setState(() {
           comments![index] = newComment;
         });
@@ -246,7 +247,9 @@ class McRealState extends State<PostDetails> {
     List<McRealComment> newComments = [];
     for (var commentData in commentsData['comments']) {
       newComments.add(McRealComment(
-          commentData: commentData, commentUpdateStream: commentUpdateStream));
+          commentData: commentData,
+          commentUpdateStream: commentUpdateStream,
+          postUpdateStream: widget.postUpdateStream));
     }
 
     List<McRealComment> existingPosts = comments ?? [];
@@ -265,7 +268,8 @@ class McRealState extends State<PostDetails> {
 
   void openProfilePage(String uuid) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => Profile(uuid: uuid)));
+        builder: (BuildContext context) =>
+            Profile(uuid: uuid, postUpdateStream: widget.postUpdateStream)));
   }
 
   void openReportPage(String uuid) {

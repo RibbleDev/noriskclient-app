@@ -82,6 +82,7 @@ class McRealPostState extends State<McRealPost> {
             })
       ]);
     }
+
     loadImages();
     loadStreak();
     super.initState();
@@ -441,7 +442,7 @@ class McRealPostState extends State<McRealPost> {
                               height: MediaQuery.of(context).size.width * 0.5,
                               child: BackdropFilter(
                                   filter:
-                                      ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                      ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                                   child: Center(
                                       child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -583,7 +584,9 @@ class McRealPostState extends State<McRealPost> {
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (BuildContext context) =>
-            Profile(uuid: widget.postData['post']['author'])));
+            Profile(
+            uuid: widget.postData['post']['author'],
+            postUpdateStream: widget.postUpdateStream)));
   }
 
   void openDetailsPage() {
