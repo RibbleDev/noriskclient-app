@@ -77,7 +77,20 @@ class BlockedState extends State<Blocked> {
               height: MediaQuery.of(context).size.height - 190,
               child: blockedPlayers == null
                   ? const Center(child: LoadingIndicator())
-                  : ListView(
+                  : blockedPlayers!.isEmpty
+                      ? Center(
+                          child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                              AppLocalizations.of(context)!
+                                  .mcReal_blocked_noBlockedPlayers,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red)),
+                        ))
+                      : ListView(
                       children: blockedPlayers!
                           .map((uuid) => GestureDetector(
                                 onTap: () => unblock(uuid),

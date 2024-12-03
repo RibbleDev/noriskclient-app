@@ -68,5 +68,6 @@
   "mcReal_profile_blockUserPopupContent": "Möchtest du diesen Spieler blockieren?",
   "mcReal_profile_unblockUserPopupTitle": "Bist du sicher?",
   "mcReal_profile_unblockUserPopupContent": "Möchtest du diesen Spieler wirklich entsperren?",
-  "mcReal_profile_blockedPlayer": "Du hast diesen Spieler blockiert."
+  "mcReal_profile_blockedPlayer": "Du hast diesen Spieler blockiert.",
+  "mcReal_blocked_noBlockedPlayers": "Du hast keine Spieler blockiert."
 }
