@@ -184,14 +184,14 @@ class McRealState extends State<McReal> {
               ),
               ClipRRect(
                 child: SizedBox(
-                  height: 85,
+                  height: 100,
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: Platform.isAndroid ? 40 : 50),
+                        SizedBox(height: Platform.isAndroid ? 55 : 65),
                         Stack(children: [
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
