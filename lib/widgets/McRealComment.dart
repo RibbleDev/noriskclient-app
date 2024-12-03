@@ -192,26 +192,31 @@ class McRealPostState extends State<McRealComment> {
                       showReplys = !showReplys;
                     });
                   },
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeInOut,
-                          child: RotatedBox(
-                              quarterTurns: showReplys ? 1 : 0,
-                              child: Image.asset('lib/assets/icons/arrow.png',
-                                  height: 12.5, width: 12.5)),
-                        ),
-                        const SizedBox(width: 7.5),
-                        Text(
-                            '${replys.length} ${replys.length > 1 ? AppLocalizations.of(context)!.mcRealComment_replys : AppLocalizations.of(context)!.mcRealComment_reply}',
-                            style: const TextStyle(
-                                fontSize: 15,
-                                color: NoRiskClientColors.text,
-                                fontWeight: FontWeight.w500))
-                      ])),
+                        child: SizedBox(
+                          height: 25,
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                AnimatedContainer(
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                  child: RotatedBox(
+                                      quarterTurns: showReplys ? 1 : 0,
+                                      child: Image.asset(
+                                          'lib/assets/icons/arrow.png',
+                                          height: 12.5,
+                                          width: 12.5)),
+                                ),
+                                const SizedBox(width: 7.5),
+                                Text(
+                                    '${replys.length} ${replys.length > 1 ? AppLocalizations.of(context)!.mcRealComment_replys : AppLocalizations.of(context)!.mcRealComment_reply}',
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        color: NoRiskClientColors.text,
+                                        fontWeight: FontWeight.w500))
+                              ]),
+                        )),
             if (showReplys)
               Padding(
                   padding:
