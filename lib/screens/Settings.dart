@@ -73,10 +73,10 @@ class SettingsState extends State<Settings> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
-                  height: MediaQuery.of(context).size.height - 190,
+                  height: MediaQuery.of(context).size.height - 160,
                   child: ListView(children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
