@@ -452,6 +452,7 @@ class McRealPostState extends State<McRealPost> {
                                       NoRiskIcon.lock,
                                       const SizedBox(height: 5),
                                       Text(widget.lockedReason,
+                                          textAlign: TextAlign.center,
                                           style: const TextStyle(
                                               fontSize: 15,
                                               color: NoRiskClientColors.text,
