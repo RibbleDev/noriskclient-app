@@ -94,6 +94,7 @@ class McRealState extends State<PostDetails> {
                       page = 0;
                       hitEnd = false;
                       commentInput = Container();
+                      comments = null;
                     });
                     loadComments();
                   });
