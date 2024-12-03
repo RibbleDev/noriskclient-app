@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,7 @@ import 'package:mcreal/widgets/LoadingIndicator.dart';
 import 'package:mcreal/widgets/NoRiskIconButton.dart';
 
 class ProfileMcRealPost extends StatefulWidget {
-  const ProfileMcRealPost(
+  ProfileMcRealPost(
       {super.key,
       required this.postData,
       required this.profilePostIndex,
@@ -22,9 +21,9 @@ class ProfileMcRealPost extends StatefulWidget {
       required this.profilePostsUpdateStream});
 
   final int profilePostIndex;
-  final Map<String, dynamic>? postData;
+  Map<String, dynamic>? postData;
   final String profileUuid;
-  final StreamController<int> profilePostsUpdateStream;
+  final StreamController<List> profilePostsUpdateStream;
 
   @override
   State<ProfileMcRealPost> createState() => McRealPostState();
@@ -195,7 +194,8 @@ class McRealPostState extends State<ProfileMcRealPost> {
   }
 
   Future<void> loadImages() async {
-    if (cache['posts']?[widget.postData!['post']['_id']] != null) {
+    if (widget.postData == null ||
+        cache['posts']?[widget.postData!['post']['_id']] != null) {
       return;
     }
 
@@ -227,6 +227,14 @@ class McRealPostState extends State<ProfileMcRealPost> {
     ]);
   }
 
+  void updateData(newData) {
+    setState(() {
+      widget.postData = newData;
+    });
+    loadImages();
+    getPostTime();
+  }
+
   void pin() {
     showDialog(
         context: context,
@@ -248,7 +256,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                         onPressed: () async {
                           http.Response res = await http.post(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pin?index=${widget.profilePostIndex}&uuid=${userData['uuid']}}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pin?index=${widget.profilePostIndex}&uuid=${userData['uuid']}'),
                               headers: {
                                 'Authorization': 'Bearer ${userData['token']}'
                               });
@@ -262,7 +270,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                           }
                           Navigator.of(context).pop();
                           widget.profilePostsUpdateStream.sink
-                              .add(widget.profilePostIndex);
+                              .add([widget.profilePostIndex, updateData]);
                         },
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_pin,
@@ -286,7 +294,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                         onPressed: () async {
                           http.Response res = await http.post(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pin?index=${widget.profilePostIndex}&uuid=${userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/${userData['uuid']}/pin?index=${widget.profilePostIndex}&uuid=${userData['uuid']}'),
                               headers: {
                                 'Authorization': 'Bearer ${userData['token']}'
                               });
@@ -300,7 +308,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                           }
                           Navigator.of(context).pop();
                           widget.profilePostsUpdateStream.sink
-                              .add(widget.profilePostIndex);
+                              .add([widget.profilePostIndex, updateData]);
                         },
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_pin))
@@ -345,7 +353,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                           }
                           Navigator.of(context).pop();
                           widget.profilePostsUpdateStream.sink
-                              .add(widget.profilePostIndex);
+                              .add([widget.profilePostIndex, updateData]);
                         },
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_unpin,
@@ -384,7 +392,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                           }
                           Navigator.of(context).pop();
                           widget.profilePostsUpdateStream.sink
-                              .add(widget.profilePostIndex);
+                              .add([widget.profilePostIndex, updateData]);
                         },
                         child: Text(
                             AppLocalizations.of(context)!.mcReal_popup_unpin))

@@ -33,7 +33,7 @@ class Profile extends StatefulWidget {
 
 class ProfileState extends State<Profile> {
   List<ProfileMcRealPost>? pinns;
-  StreamController<int> profilePostsUpdateStream = StreamController<int>();
+  StreamController<List> profilePostsUpdateStream = StreamController<List>();
   Map<String, Map<String, dynamic>> cache = getCache;
   Map<String, dynamic> userData = getUserData;
   bool noPinns = true;
@@ -45,22 +45,20 @@ class ProfileState extends State<Profile> {
 
   @override
   void initState() {
-    loadPinnedPosts(null);
+    loadPinnedPosts(null, null);
     loadStreak();
     loadBlockedState();
 
-    if (!widget.isSettings) {
-      getUpdateStream.sink.add([
-        'loadUsername',
-        widget.uuid,
-        () => setState(() {
-              cache = getCache;
-            })
-      ]);
-    }
+    getUpdateStream.sink.add([
+      'loadUsername',
+      widget.uuid,
+      () => setState(() {
+            cache = getCache;
+          })
+    ]);
 
     profilePostsUpdateStream.stream
-        .listen((int index) => loadPinnedPosts(index));
+        .listen((List data) => loadPinnedPosts(data[0], data[1]));
     super.initState();
   }
 
@@ -203,7 +201,7 @@ class ProfileState extends State<Profile> {
                       Padding(
                         padding: const EdgeInsets.only(top: 300),
                         child: RefreshIndicator(
-                          onRefresh: () => loadPinnedPosts(null),
+                          onRefresh: () => loadPinnedPosts(null, null),
                           child: ListView(
                               children: pinns == null
                                   ? [const LoadingIndicator()]
@@ -395,7 +393,8 @@ class ProfileState extends State<Profile> {
     ]);
   }
 
-  Future<void> loadPinnedPosts(int? refreshPostIndex) async {
+  Future<void> loadPinnedPosts(int? refreshPostIndex,
+      void Function(Map<String, dynamic>? newData)? updateData) async {
     // only clear if we refresh all posts
     if (refreshPostIndex == null) {
       setState(() {
@@ -438,11 +437,9 @@ class ProfileState extends State<Profile> {
       setState(() {
         pinns![refreshPostIndex] = newPinnedPosts[refreshPostIndex];
       });
+      updateData!(pinns![refreshPostIndex].postData);
     } else {
       // update all posts if we refresh all posts
-      setState(() {
-        pinns = [];
-      });
       setState(() {
         pinns = newPinnedPosts;
       });
