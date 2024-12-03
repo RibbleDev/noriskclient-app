@@ -151,10 +151,10 @@ class SignInState extends State<SignIn> {
               alignment: Alignment.center,
               child: MobileScanner(
                 fit: BoxFit.fitHeight,
-                controller: controller,
+                controller: controller, 
                 onDetect: (BarcodeCapture result) {
                   handleQrCodeResult(
-                      controller, result.raw[0]?['rawValue'].toString() ?? '');
+                      controller, result.barcodes[0].rawValue ?? '');
                 },
               ),
             ),
@@ -211,7 +211,7 @@ class SignInState extends State<SignIn> {
       return;
     }
     Vibration.vibrate(duration: 500);
-    
+
     controller.stop();
     controller.dispose();
     Navigator.of(context).pop();
