@@ -50,6 +50,7 @@
   "postDetails_yourMcReal": "Dein McReal",
   "settings_signOut": "Abmelden",
   "settings_title": "Einstellungen",
+  "signIn_eula": "Durch die Anmeldung erklärst du dich mit den Nutzungsbedingungen und Datenschutzrichtlinien einverstanden.",
   "signIn_explanation": "Um dich anzumelden, scanne einfach den QR-Code aus dem NoRiskClient Launcher unter der Menu Option \"McReal App\" in den Einstellungen.",
   "signIn_scanQrCode": "QR Code Scannen",
   "signIn_signIn": "Anmelden",

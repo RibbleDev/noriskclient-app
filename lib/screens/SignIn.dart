@@ -14,6 +14,7 @@ import 'package:mcreal/widgets/QRScannerOverlayShape.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 
 class SignIn extends StatefulWidget {
@@ -68,7 +69,14 @@ class SignInState extends State<SignIn> {
                       fontSize: 12, color: NoRiskClientColors.textLight),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+                Text(
+                  AppLocalizations.of(context)!.signIn_eula,
+                  style: const TextStyle(
+                      fontSize: 10, color: NoRiskClientColors.textLight),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
                 GestureDetector(
                   onTap: scanQrCode,
                   child: Container(
@@ -114,8 +122,36 @@ class SignInState extends State<SignIn> {
                       ),
                     ),
                   ),
-                )
-              ])
+                ),
+                const SizedBox(height: 5),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () => launchUrl(Config.privacyUrl,
+                            mode: LaunchMode.externalApplication),
+                        child: Text(
+                            AppLocalizations.of(context)!
+                                .settings_privacyPolicy,
+                            style: TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.blue)),
+                      ),
+                      const SizedBox(width: 50),
+                      GestureDetector(
+                        onTap: () => launchUrl(Config.termsUrl,
+                            mode: LaunchMode.externalApplication),
+                        child: Text(AppLocalizations.of(context)!.settings_tos,
+                            style: TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.blue)),
+                      ),
+                    ]),
+                const SizedBox(height: 10),
+              ]),
             ],
           ),
         ));
@@ -151,7 +187,7 @@ class SignInState extends State<SignIn> {
               alignment: Alignment.center,
               child: MobileScanner(
                 fit: BoxFit.fitHeight,
-                controller: controller, 
+                controller: controller,
                 onDetect: (BarcodeCapture result) {
                   handleQrCodeResult(
                       controller, result.barcodes[0].rawValue ?? '');
