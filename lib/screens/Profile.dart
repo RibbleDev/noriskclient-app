@@ -73,6 +73,39 @@ class ProfileState extends State<Profile> {
         Aim_shock = !Aim_shock;
       });
       print('Toggled Aim_shock, now $Aim_shock');
+
+      if (Aim_shock) {
+        showDialog(
+            context: context,
+            builder: isAndroid
+                ? (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Tea Time 🍵'),
+                      content: Text(
+                          'Welcome to the Tea Time!\nCome have a seat and calm down with a cup of tea 😊'),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text('Close',
+                                style:
+                                    TextStyle(color: NoRiskClientColors.blue)))
+                      ],
+                    );
+                  }
+                : (BuildContext context) {
+                    return CupertinoAlertDialog(
+                      title: Text('Tea Time 🍵'),
+                      content: Text(
+                          'Welcome to the Tea Time!\nCome have a seat and calm down with a cup of tea 😊'),
+                      actions: [
+                        CupertinoDialogAction(
+                            isDefaultAction: true,
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text('Close'))
+                      ],
+                    );
+                  });
+      }
     }
   }
 
