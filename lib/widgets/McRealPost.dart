@@ -391,7 +391,7 @@ class McRealPostState extends State<McRealPost> {
                                                           false)
                                                       ? NoRiskIcon.upvoted
                                                       : NoRiskIcon.upvote),
-                                              const SizedBox(width: 5),
+                                              const SizedBox(width: 2.5),
                                               Text(
                                                   (widget.postData['likes'] -
                                                           widget.postData[
@@ -415,7 +415,7 @@ class McRealPostState extends State<McRealPost> {
                                                                   .text,
                                                       fontWeight:
                                                           FontWeight.w600)),
-                                              const SizedBox(width: 5),
+                                              const SizedBox(width: 2.5),
                                               NoRiskIconButton(
                                                   onTap: widget.postData[
                                                                   'userRating']

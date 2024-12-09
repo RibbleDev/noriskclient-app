@@ -158,7 +158,7 @@ class McRealPostState extends State<McRealComment> {
                     icon: ownRating == true
                         ? NoRiskIcon.upvoted
                         : NoRiskIcon.upvote),
-                const SizedBox(width: 7.5),
+                      const SizedBox(width: 2.5),
                 Text('${likes - dislikes}',
                     style: TextStyle(
                         color: likes - dislikes > 0
@@ -166,18 +166,18 @@ class McRealPostState extends State<McRealComment> {
                             : likes - dislikes < 0
                                 ? Colors.red
                                 : Colors.white)),
-                const SizedBox(width: 7.5),
+                      const SizedBox(width: 2.5),
                 NoRiskIconButton(
                     onTap: ownRating == false ? deleteRating : downvote,
                     icon: ownRating == false
                         ? NoRiskIcon.downvoted
                         : NoRiskIcon.downvote),
-                const SizedBox(width: 15),
+                      const SizedBox(width: 5),
                 NoRiskIconButton(onTap: reply, icon: NoRiskIcon.comment),
-                if (!ownComment) const SizedBox(width: 15),
+                      if (!ownComment) const SizedBox(width: 10),
                 if (!ownComment)
                   NoRiskIconButton(onTap: report, icon: NoRiskIcon.report),
-                const SizedBox(width: 15),
+                      const SizedBox(width: 7.5),
                 if (ownComment)
                   NoRiskIconButton(onTap: delete, icon: NoRiskIcon.delete),
               ],

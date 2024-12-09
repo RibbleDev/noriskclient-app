@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class NoRiskIconButton extends StatelessWidget {
   const NoRiskIconButton({super.key, required this.onTap, required this.icon});
@@ -10,7 +10,10 @@ class NoRiskIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Center(child: icon),
+      child: SizedBox(
+          width: 30,
+          height: 30,
+          child: Center(child: icon)),
     );
   }
 }
