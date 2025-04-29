@@ -6,4 +6,8 @@ class NoRiskApi {
   String getBaseUrl(bool experimental, String project) {
     return (experimental ? baseExperimentalUrl : baseUrl) + project;
   }
+
+  String getAssetUrl() {
+    return 'https://assets.norisk.gg/api/v1/assets/mcreal';
+  }
 }

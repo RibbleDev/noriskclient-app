@@ -201,12 +201,12 @@ class McRealPostState extends State<ProfileMcRealPost> {
 
     http.Response primaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData!['post']['_id']}/image?uuid=${userData['uuid']}&type=primary'),
+            '${NoRiskApi().getAssetUrl()}/post/${widget.postData!['post']['_id']}/image?uuid=${userData['uuid']}&experimental=${userData['experimental'] ?? false}&type=primary'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
 
     http.Response secondaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData!['post']['_id']}/image?uuid=${userData['uuid']}&type=secondary'),
+            '${NoRiskApi().getAssetUrl()}/post/${widget.postData!['post']['_id']}/image?uuid=${userData['uuid']}&experimental=${userData['experimental'] ?? false}&type=secondary'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (primaryRes.statusCode != 200 || secondaryRes.statusCode != 200) {
       if (primaryRes.statusCode == 401 || secondaryRes.statusCode == 401) {

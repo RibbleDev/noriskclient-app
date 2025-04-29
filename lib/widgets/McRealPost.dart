@@ -318,7 +318,6 @@ class McRealPostState extends State<McRealPost> {
                                           child: GestureDetector(
                                             child: SizedBox(
                                               height: 30,
-                                              width: 50,
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
@@ -524,12 +523,12 @@ class McRealPostState extends State<McRealPost> {
 
     http.Response primaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['post']['_id']}/image?uuid=${userData['uuid']}&type=primary'),
+            '${NoRiskApi().getAssetUrl()}/post/${widget.postData['post']['_id']}/image?uuid=${userData['uuid']}&experimental=${userData['experimental'] ?? false}&type=primary'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
 
     http.Response secondaryRes = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/${widget.postData['post']['_id']}/image?uuid=${userData['uuid']}&type=secondary'),
+            '${NoRiskApi().getAssetUrl()}/post/${widget.postData['post']['_id']}/image?uuid=${userData['uuid']}&experimental=${userData['experimental'] ?? false}&type=secondary'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (primaryRes.statusCode != 200 || secondaryRes.statusCode != 200) {
       if (primaryRes.statusCode == 401 || secondaryRes.statusCode == 401) {
@@ -658,6 +657,9 @@ class McRealPostState extends State<McRealPost> {
 
   void downvote() async {
     if (processingNewRating) return;
+    int oldLikes = widget.postData['likes'];
+    int oldDislikes = widget.postData['dislikes'];
+    Map<String, dynamic>? oldUserRating = widget.postData['userRating'];
     setState(() {
       widget.postData['dislikes']++;
       if (widget.postData['userRating']?['isPositive'] == true) {
@@ -676,6 +678,9 @@ class McRealPostState extends State<McRealPost> {
     if (res.statusCode != 200) {
       print(res.statusCode);
       setState(() {
+        widget.postData['likes'] = oldLikes;
+        widget.postData['dislikes'] = oldDislikes;
+        widget.postData['userRating'] = oldUserRating;
         processingNewRating = false;
       });
       if (res.statusCode == 401) {
@@ -696,6 +701,9 @@ class McRealPostState extends State<McRealPost> {
 
   void deleteRating() async {
     if (processingNewRating) return;
+    int oldLikes = widget.postData['likes'];
+    int oldDislikes = widget.postData['dislikes'];
+    Map<String, dynamic>? oldUserRating = widget.postData['userRating'];
     setState(() {
       if (widget.postData['userRating']?['isPositive'] == true) {
         widget.postData['likes']--;
@@ -715,6 +723,9 @@ class McRealPostState extends State<McRealPost> {
     if (res.statusCode != 200) {
       print(res.statusCode);
       setState(() {
+        widget.postData['likes'] = oldLikes;
+        widget.postData['dislikes'] = oldDislikes;
+        widget.postData['userRating'] = oldUserRating;
         processingNewRating = false;
       });
       if (res.statusCode == 401) {
