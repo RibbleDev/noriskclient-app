@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -75,16 +76,22 @@ class AppState extends State<App> {
     updateStream.stream.listen((List data) async {
       String event = data[0];
       if (event == 'signIn') {
-        print('Signing in');
+        if (kDebugMode) {
+          print('Signing in');
+        }
         saveUserData(data[1]);
       } else if (event == 'signOut') {
-        print('Signing out');
+        if (kDebugMode) {
+          print('Signing out');
+        }
         clearUserData();
         clearCache();
       } else if (event == 'loadSkin') {
         if (cache['skins']?[data[1]] == null ||
             cache['armorSkins']?[data[1]] == null) {
-          print('Loading skin for ${data[1]}');
+          if (kDebugMode) {
+            print('Loading skin for ${data[1]}');
+          }
           loadSkin(data[1]);
         }
         if (data.length > 2) {
@@ -92,14 +99,18 @@ class AppState extends State<App> {
         }
       } else if (event == 'loadUsername') {
         if (cache['usernames']?[data[1]] == null) {
-          print('Loading username for ${data[1]}');
+          if (kDebugMode) {
+            print('Loading username for ${data[1]}');
+          }
           await loadUsername(data[1]);
         }
         if (data.length > 2) {
           data[2]();
         }
       } else if (event == 'cachePost') {
-        print('Caching post ${data[1]}');
+        if (kDebugMode) {
+          print('Caching post ${data[1]}');
+        }
         setState(() {
           cache['posts']?[data[1]] = {};
           cache['posts']?[data[1]]?['primary'] = data[2];
@@ -107,7 +118,9 @@ class AppState extends State<App> {
         });
         data[4]();
       } else if (event == 'cacheStreak') {
-        print('Caching streak ${data[1]} -> ${data[2]}');
+        if (kDebugMode) {
+          print('Caching streak ${data[1]} -> ${data[2]}');
+        }
         setState(() {
           cache['streaks']?[data[1]] = data[2];
         });
