@@ -262,6 +262,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                               });
                           if (res.statusCode != 200) {
                             print(res.statusCode);
+                            print(res.body);
                             if (res.statusCode == 401) {
                               Navigator.of(context).pop();
                               getUpdateStream.sink.add(['signOut']);
@@ -294,7 +295,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                         onPressed: () async {
                           http.Response res = await http.post(
                               Uri.parse(
-                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/${userData['uuid']}/pin?index=${widget.profilePostIndex}&uuid=${userData['uuid']}'),
+                                  '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/pin?index=${widget.profilePostIndex}&uuid=${userData['uuid']}'),
                               headers: {
                                 'Authorization': 'Bearer ${userData['token']}'
                               });
