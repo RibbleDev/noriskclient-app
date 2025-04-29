@@ -50,6 +50,7 @@ class McRealPostState extends State<McRealPost> {
   bool swapped = false;
   bool holdingMainImage = false;
   bool processingNewRating = false;
+  bool animateUpvote = false;
   Map<String, dynamic> userData = getUserData;
   Map<String, Map<String, dynamic>> cache = getCache;
 
@@ -260,6 +261,7 @@ class McRealPostState extends State<McRealPost> {
                                                       : 'primary']);
                                             }))
                                         : openDetailsPage,
+                                onDoubleTap: () => upvote(true),
                                 onLongPress: widget.locked
                                     ? () {}
                                     : () => setState(() {
@@ -383,7 +385,7 @@ class McRealPostState extends State<McRealPost> {
                                                               ?['isPositive'] ??
                                                           false)
                                                       ? deleteRating
-                                                      : upvote,
+                                                      : () => upvote(false),
                                                   icon: (widget.postData[
                                                                   'userRating']
                                                               ?['isPositive'] ??
@@ -435,6 +437,21 @@ class McRealPostState extends State<McRealPost> {
                               ),
                             ),
                           ),
+                          AnimatedPositioned(
+                              duration: Duration(milliseconds: 500),
+                              height: 35,
+                              width: 40,
+                              top: MediaQuery.of(context).size.width *
+                                  (animateUpvote ? 0.3 : 0.35),
+                              left: 5,
+                              child: AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: animateUpvote ? 1 : 0,
+                                  child: Image.asset(
+                                      'lib/assets/icons/upvoted.png',
+                                      height: 35,
+                                      width: 40,
+                                      fit: BoxFit.fill))),
                           if (widget.locked)
                             ClipRect(
                                 child: SizedBox(
@@ -609,7 +626,7 @@ class McRealPostState extends State<McRealPost> {
             type: ReportType.POST, contentId: widget.postData['post']['_id'])));
   }
 
-  void upvote() {
+  void upvote(bool animate) {
     if (processingNewRating) return;
     int oldLikes = widget.postData['likes'];
     int oldDislikes = widget.postData['dislikes'];
@@ -623,6 +640,10 @@ class McRealPostState extends State<McRealPost> {
       widget.postData['userRating'] = {'isPositive': true};
       processingNewRating = true;
     });
+    if (animate) {
+      animatedUpvote();
+    }
+
     http.post(
         Uri.parse(
             '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/post/rate?postId=${widget.postData['post']['_id']}&isPositive=true&uuid=${userData['uuid']}'),
@@ -652,6 +673,16 @@ class McRealPostState extends State<McRealPost> {
           () => setState(() {
                 processingNewRating = false;
               }));
+    });
+  }
+
+  void animatedUpvote() async {
+    setState(() {
+      animateUpvote = true;
+    });
+    await Future.delayed(const Duration(milliseconds: 500));
+    setState(() {
+      animateUpvote = false;
     });
   }
 
