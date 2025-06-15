@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/utils/NoRiskIcon.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/utils/NoRiskIcon.dart';
 
 class ImageViewer extends StatelessWidget {
   ImageViewer({super.key, required this.image});

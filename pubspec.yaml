@@ -1,5 +1,5 @@
-name: mcreal
-description: "McReal mobile app."
+name: noriskclient
+description: "NoRisk Client mobile app."
 publish_to: 'none'
 
 version: 1.0.8+9
@@ -15,6 +15,7 @@ dependencies:
   intl: any
   flutter_localizations:
     sdk: flutter
+  flutter_localized_locales: ^2.0.5
   shared_preferences: ^2.2.2
   flutter_native_splash: ^2.3.13
   mobile_scanner: ^6.0.2
@@ -23,6 +24,7 @@ dependencies:
   fluttertoast: ^8.2.8
   package_info_plus: ^8.0.2
   url_launcher: ^6.3.1
+  glass_kit: ^4.0.1
 
 dev_dependencies:
   flutter_test:

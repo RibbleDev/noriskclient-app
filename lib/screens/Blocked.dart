@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/main.dart';
-import 'package:mcreal/utils/BlockingManager.dart';
-import 'package:mcreal/utils/NoRiskIcon.dart';
-import 'package:mcreal/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/main.dart';
+import 'package:noriskclient/utils/BlockingManager.dart';
+import 'package:noriskclient/utils/NoRiskIcon.dart';
+import 'package:noriskclient/widgets/LoadingIndicator.dart';
 
 class Blocked extends StatefulWidget {
   const Blocked({super.key, required this.postUpdateStream});

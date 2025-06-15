@@ -1,4 +1,4 @@
-import 'package:mcreal/main.dart';
+import 'package:noriskclient/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BlockingManager {

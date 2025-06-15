@@ -1,6 +1,6 @@
 {
-    "name": "mcreal_app",
-    "short_name": "mcreal_app",
+    "name": "noriskclient",
+    "short_name": "noriskclient",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

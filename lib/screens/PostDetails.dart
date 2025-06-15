@@ -2,20 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/config/Config.dart';
-import 'package:mcreal/main.dart';
-import 'package:mcreal/screens/Profile.dart';
-import 'package:mcreal/screens/ReportMcReal.dart';
-import 'package:mcreal/utils/NoRiskApi.dart';
-import 'package:mcreal/utils/NoRiskIcon.dart';
-import 'package:mcreal/utils/ReportTypes.dart';
-import 'package:mcreal/widgets/LoadingIndicator.dart';
-import 'package:mcreal/widgets/McRealComment.dart';
-import 'package:mcreal/widgets/McRealCommentInput.dart';
-import 'package:mcreal/widgets/McRealPost.dart';
-import 'package:mcreal/widgets/NoRiskIconButton.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/config/Config.dart';
+import 'package:noriskclient/main.dart';
+import 'package:noriskclient/screens/Profile.dart';
+import 'package:noriskclient/screens/ReportMcReal.dart';
+import 'package:noriskclient/utils/NoRiskApi.dart';
+import 'package:noriskclient/utils/NoRiskIcon.dart';
+import 'package:noriskclient/utils/ReportTypes.dart';
+import 'package:noriskclient/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/widgets/McRealComment.dart';
+import 'package:noriskclient/widgets/McRealCommentInput.dart';
+import 'package:noriskclient/widgets/McRealPost.dart';
+import 'package:noriskclient/widgets/NoRiskIconButton.dart';
 
 class PostDetails extends StatefulWidget {
   const PostDetails(

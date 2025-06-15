@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/main.dart';
-import 'package:mcreal/screens/ImageViewer.dart';
-import 'package:mcreal/utils/NoRiskApi.dart';
-import 'package:mcreal/utils/NoRiskIcon.dart';
-import 'package:mcreal/widgets/LoadingIndicator.dart';
-import 'package:mcreal/widgets/NoRiskIconButton.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/main.dart';
+import 'package:noriskclient/screens/ImageViewer.dart';
+import 'package:noriskclient/utils/NoRiskApi.dart';
+import 'package:noriskclient/utils/NoRiskIcon.dart';
+import 'package:noriskclient/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/widgets/NoRiskIconButton.dart';
 
 class ProfileMcRealPost extends StatefulWidget {
   ProfileMcRealPost(

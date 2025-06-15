@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/config/Config.dart';
-import 'package:mcreal/main.dart';
-import 'package:mcreal/utils/NoRiskApi.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/config/Config.dart';
+import 'package:noriskclient/main.dart';
+import 'package:noriskclient/utils/NoRiskApi.dart';
 
 class McRealCommentInput extends StatefulWidget {
   const McRealCommentInput(

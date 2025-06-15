@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mcreal/config/Colors.dart';
+import 'package:noriskclient/config/Colors.dart';
 
 class NoRiskButton extends StatelessWidget {
   const NoRiskButton(

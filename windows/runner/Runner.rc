@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "mcreal_app" "\0"
+            VALUE "FileDescription", "noriskclient" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "mcreal_app" "\0"
+            VALUE "InternalName", "noriskclient" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "mcreal_app.exe" "\0"
-            VALUE "ProductName", "mcreal_app" "\0"
+            VALUE "OriginalFilename", "noriskclient.exe" "\0"
+            VALUE "ProductName", "noriskclient" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

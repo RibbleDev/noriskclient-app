@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/config/Config.dart';
-import 'package:mcreal/main.dart';
-import 'package:mcreal/provider/localeProvider.dart';
-import 'package:mcreal/utils/NoRiskApi.dart';
-import 'package:mcreal/widgets/LoadingIndicator.dart';
-import 'package:mcreal/widgets/QRScannerOverlayShape.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/config/Config.dart';
+import 'package:noriskclient/main.dart';
+import 'package:noriskclient/provider/localeProvider.dart';
+import 'package:noriskclient/utils/NoRiskApi.dart';
+import 'package:noriskclient/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/widgets/QRScannerOverlayShape.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,7 +53,7 @@ class SignInState extends State<SignIn> {
                       onLongPress: showDeveloperSignInPopup,
                       child: Image.asset('lib/assets/app/norisk_logo.png',
                           height: 150)),
-                  const Text('NoRiskClient',
+                  const Text('NoRisk Client',
                       style: TextStyle(
                           color: NoRiskClientColors.text,
                           fontWeight: FontWeight.bold,

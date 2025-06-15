@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/config/Config.dart';
-import 'package:mcreal/main.dart';
-import 'package:mcreal/utils/NoRiskApi.dart';
-import 'package:mcreal/utils/NoRiskIcon.dart';
-import 'package:mcreal/utils/ReportTypes.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mcreal/widgets/NoRiskButton.dart';
-import 'package:mcreal/widgets/NoRiskCheckbox.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/config/Config.dart';
+import 'package:noriskclient/main.dart';
+import 'package:noriskclient/utils/NoRiskApi.dart';
+import 'package:noriskclient/utils/NoRiskIcon.dart';
+import 'package:noriskclient/utils/ReportTypes.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
+import 'package:noriskclient/widgets/NoRiskButton.dart';
+import 'package:noriskclient/widgets/NoRiskCheckbox.dart';
 
 class ReportMcReal extends StatefulWidget {
   const ReportMcReal({super.key, required this.type, required this.contentId});

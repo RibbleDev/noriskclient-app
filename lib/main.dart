@@ -5,13 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:mcreal/config/Colors.dart';
-import 'package:mcreal/provider/localeProvider.dart';
-import 'package:mcreal/screens/McReal.dart';
-import 'package:mcreal/screens/SignIn.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/provider/localeProvider.dart';
+import 'package:noriskclient/screens/McReal.dart';
+import 'package:noriskclient/screens/SignIn.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -142,7 +142,7 @@ class AppState extends State<App> {
           builder: (context, child) {
             final provider = Provider.of<LocaleProvider>(context);
             return MaterialApp(
-              title: 'McReal.',
+              title: 'NoRisk Client',
               debugShowCheckedModeBanner: false,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
@@ -168,7 +168,7 @@ class AppState extends State<App> {
           builder: (context, child) {
             final provider = Provider.of<LocaleProvider>(context);
             return CupertinoApp(
-                title: 'McReal.',
+                title: 'NoRisk Client',
                 debugShowCheckedModeBanner: false,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,

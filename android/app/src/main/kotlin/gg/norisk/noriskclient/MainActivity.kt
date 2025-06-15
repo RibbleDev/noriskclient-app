@@ -1,4 +1,4 @@
-package gg.norisk.mcreal_app
+package gg.norisk.noriskclient
 
 import io.flutter.embedding.android.FlutterActivity
 
