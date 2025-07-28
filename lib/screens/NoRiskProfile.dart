@@ -216,7 +216,7 @@ class ProfileState extends State<Profile> {
                                   .profile_stats_firstJoin,
                               value: DateTime.fromMillisecondsSinceEpoch(cache['profiles']?[widget.uuid]?['firstJoinTimeStamp']).toIso8601String()
                                   .toString()
-                                  .substring(0, 10)
+                                  .split('T')[0]
                                   .replaceAll("-", ".")
                                   .split(".")
                                   .reversed
@@ -229,7 +229,7 @@ class ProfileState extends State<Profile> {
                                   .profile_stats_lastJoin,
                               value: DateTime.fromMillisecondsSinceEpoch(cache['profiles']?[widget.uuid]?['lastJoinTimeStamp']).toIso8601String()
                                   .toString()
-                                  .substring(0, 10)
+                                  .split('T')[0]
                                   .replaceAll("-", ".")
                                   .split(".")
                                   .reversed

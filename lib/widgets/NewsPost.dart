@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
+
+class NewsPost extends StatelessWidget {
+  final String title;
+  final String imageUrl;
+  final String link;
+  final String postedAt;
+  final bool isNewest;
+
+  const NewsPost({
+    super.key,
+    required this.title,
+    required this.imageUrl,
+    required this.link,
+    required this.postedAt,
+    this.isNewest = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return NoRiskContainer(
+      color: isNewest ? NoRiskClientColors.blue : Colors.white,
+      padding: const EdgeInsets.only(top: 2.5, bottom: 10, left: 10, right: 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              NoRiskText('${title.toLowerCase()} - $postedAt',
+                  spaceTop: false,
+                  spaceBottom: false,
+                  style: TextStyle(fontSize: 25, color: NoRiskClientColors.text)),
+            ],
+          ),
+          const SizedBox(height: 5),
+          SizedBox(
+            width: MediaQuery.of(context).size.width - 2 * 15 - 2 * 10,
+            child: Image.network(imageUrl, fit: BoxFit.cover),
+          ),
+        ],
+      ),
+    );
+  }
+}

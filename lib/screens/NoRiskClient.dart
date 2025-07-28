@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/screens/McReal.dart';
+import 'package:noriskclient/screens/News.dart';
 import 'package:noriskclient/screens/NoRiskProfile.dart';
 import 'package:noriskclient/widgets/BottomNavigationBar.dart';
 
@@ -37,7 +38,7 @@ class NoRiskClientState extends State<NoRiskClient> {
   Widget getActiveTab() {
     switch (tabIndex) {
       case 0:
-        return Container(color: Colors.red); // News
+        return News(); // News
       case 1:
         return Container(color: Colors.green); // Chat
       case 2:

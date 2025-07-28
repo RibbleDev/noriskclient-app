@@ -9,17 +9,20 @@ class NoRiskApi {
       'https://api-staging.norisk.gg/api/v1/';
 
   String getBaseUrl(bool experimental, String project) {
-    return (experimental ? baseExperimentalUrl : baseUrl) + project;
+    return project == 'wordpress'
+        ? 'https://blog.norisk.gg/wp-json/wp/v2'
+        : (experimental ? baseExperimentalUrl : baseUrl) + project;
   }
 
   String getAssetUrl() {
     return 'https://assets.norisk.gg/api/v1/assets/mcreal';
   }
-  
-  Future<T?> _fetchData<T>(String backend, String endpoint) async {
+
+  Future<T?> _fetchData<T>(
+      String backend, String endpoint, Map<String, dynamic>? params) async {
     final response = await http.get(
       Uri.parse(
-          '${getBaseUrl(getUserData['experimental'], backend)}/$endpoint?uuid=${getUserData['uuid']}'),
+          '${getBaseUrl(getUserData['experimental'], backend)}/$endpoint?uuid=${getUserData['uuid']}${params?.entries.map((e) => '&${e.key}=${e.value}').join()}'),
       headers: {'Authorization': 'Bearer ${getUserData['token']}'},
     );
     if (response.statusCode == 200) {
@@ -36,12 +39,19 @@ class NoRiskApi {
       return getCache['profiles']![uuid];
     }
 
-    Map? profileData = await _fetchData<Map>('mcreal', 'user/profile/$uuid');
+    Map? profileData =
+        await _fetchData<Map>('mcreal', 'user/profile/$uuid', null);
     if (profileData == null) {
       return {};
     } else {
       getUpdateStream.sink.add(['cacheProfile', uuid, profileData]);
       return profileData;
     }
+  }
+
+  Future<List<dynamic>> getBlogPostsAndChangeLogs() async {
+    List<dynamic>? data = await _fetchData<List<dynamic>>(
+        'wordpress', 'posts', {'categories': '21,2'});
+    return data ?? [];
   }
 }
