@@ -1,0 +1,30 @@
+import 'package:flutter/widgets.dart';
+
+class NoRiskText extends Text {
+  NoRiskText(
+    String data, {
+    Key? key,
+    bool spaceBottom = true,
+    bool spaceTop = true,
+    TextAlign? textAlign,
+    TextStyle? style,
+    TextDirection? textDirection,
+    Locale? locale,
+    bool softWrap = true,
+    TextOverflow overflow = TextOverflow.clip,
+    int? maxLines,
+    StrutStyle? strutStyle,
+  }) : super(
+          data,
+          key: key,
+          style: TextStyle(color: style?.color, fontSize: style?.fontSize, fontWeight: style?.fontWeight, fontFamily: 'SmallCapsMC'),
+          textAlign: textAlign,
+          textDirection: textDirection,
+          textHeightBehavior: TextHeightBehavior(applyHeightToFirstAscent: spaceTop, applyHeightToLastDescent: spaceBottom),
+          locale: locale,
+          softWrap: softWrap,
+          overflow: overflow,
+          maxLines: maxLines,
+          strutStyle: strutStyle,
+        );
+}

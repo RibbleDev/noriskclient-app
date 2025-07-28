@@ -6,11 +6,13 @@ import 'package:http/http.dart' as http;
 import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
-import 'package:noriskclient/screens/ImageViewer.dart';
+import 'package:noriskclient/screens/mcreal/ImageViewer.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
 
 class ProfileMcRealPost extends StatefulWidget {
   ProfileMcRealPost(
@@ -64,28 +66,30 @@ class McRealPostState extends State<ProfileMcRealPost> {
                     height: MediaQuery.of(context).size.width * 0.5,
                     decoration: BoxDecoration(
                       color: NoRiskClientColors.darkerBackground,
-                      borderRadius: BorderRadius.circular(5),
                     ),
                     child: Center(
                         child: NoRiskIconButton(
-                            onTap: pin, icon: NoRiskIcon.lock)),
+                            onTap: pin,
+                            icon: NoRiskIcon.lock,
+                            transparent: true)),
                   ))
-              : Container(
+              : NoRiskContainer(
                   decoration: BoxDecoration(
-                    color: NoRiskClientColors.darkerBackground,
-                    borderRadius: BorderRadius.circular(5),
+                    color: NoRiskClientColors.darkerBackground
                   ),
                   padding: const EdgeInsets.only(
-                      top: 7.5, right: 5, left: 5, bottom: 5),
+                      top: 0, right: 5, left: 5, bottom: 5),
                   child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(getPostTime(),
+                          NoRiskText(getPostTime().toLowerCase(),
+                              spaceTop: false,
+                              spaceBottom: false,
                               style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 25,
                                   fontWeight: FontWeight.w500,
                                   color: NoRiskClientColors.text)),
                         ],
@@ -110,7 +114,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                                 holdingMainImage = false;
                               }),
                               child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
+                                  borderRadius: BorderRadius.circular(2.5),
                                   child: Stack(
                                     children: [
                                       Stack(
@@ -121,7 +125,7 @@ class McRealPostState extends State<ProfileMcRealPost> {
                                                 color: NoRiskClientColors
                                                     .darkerBackground,
                                                 borderRadius:
-                                                    BorderRadius.circular(5),
+                                                    BorderRadius.circular(2.5),
                                               ),
                                               child: swapped
                                                   ? getSecondary()
@@ -139,7 +143,8 @@ class McRealPostState extends State<ProfileMcRealPost> {
                                                         child: ClipRRect(
                                                           borderRadius:
                                                               BorderRadius
-                                                                  .circular(5),
+                                                                  .circular(
+                                                                      2.5),
                                                           child: swapped
                                                               ? getPrimary()
                                                               : getSecondary(),

@@ -5,7 +5,7 @@ import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
-import 'package:noriskclient/screens/Blocked.dart';
+import 'package:noriskclient/screens/settings/Blocked.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';

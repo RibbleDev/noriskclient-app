@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
 
 class NoRiskButton extends StatelessWidget {
-  const NoRiskButton(
+  NoRiskButton(
       {super.key,
-      this.height = 50,
-      this.width = 200,
+      this.height,
+      this.width,
+      this.color = Colors.white,
       required this.onTap,
       required this.child});
 
   final Widget child;
+  Color color;
   final void Function() onTap;
-  final double height;
-  final double width;
+  final double? height;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: NoRiskContainer(
         height: height,
         width: width,
-        decoration: BoxDecoration(
-          color: NoRiskClientColors.darkerBackground,
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          border: Border.all(color: Colors.black, width: 1.5),
-        ),
+        color: color,
+        padding: const EdgeInsets.all(2.5),
         child: Center(child: child),
       ),
     );

@@ -9,14 +9,14 @@ import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
-import 'package:noriskclient/screens/Profile.dart';
+import 'package:noriskclient/screens/NoRiskProfile.dart';
 import 'package:noriskclient/utils/BlockingManager.dart';
 import 'package:noriskclient/utils/McRealStatus.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
-import 'package:noriskclient/widgets/LoadingIndicator.dart';
 import 'package:noriskclient/widgets/McRealPost.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,14 +32,12 @@ class McReal extends StatefulWidget {
 class McRealState extends State<McReal> {
   ScrollController scrollController = ScrollController();
   StreamController<String> postUpdateStream = StreamController<String>();
-  bool friendsOnly = true;
+  int activeTab = 0;
   int page = 0;
   bool hitEnd = false;
   bool isLoadingNewPosts = false;
   McRealPost? ownPost;
   List<McRealPost> posts = [];
-  Map<String, Map<String, dynamic>> cache = getCache;
-  Map<String, dynamic> userData = getUserData;
 
   @override
   void initState() {
@@ -146,13 +144,19 @@ class McRealState extends State<McReal> {
                   posts.isEmpty && ownPost == null
                       ? Padding(
                           padding: const EdgeInsets.only(top: 35),
-                          child: Text(
+                          child: NoRiskText(
                               userData['mcRealStatus'] == null
-                                  ? AppLocalizations.of(context)!.mcReal_noPosts
+                                  ? AppLocalizations.of(context)!
+                                      .mcReal_noPosts
+                                      .toLowerCase()
                                   : AppLocalizations.of(context)!
-                                      .mcReal_noPostsPlain,
+                                      .mcReal_noPostsPlain
+                                      .toLowerCase(),
+                              spaceTop: false,
+                              spaceBottom: false,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
+                                  fontSize: 20,
                                   color: NoRiskClientColors.textLight)),
                         )
                       : Padding(
@@ -162,7 +166,7 @@ class McRealState extends State<McReal> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const SizedBox(height: 10),
-                                ownPost ?? const SizedBox(height: 0, width: 0),
+                                if (activeTab != 2 && ownPost != null) ownPost!,
                                 ...posts,
                                 (ownPost != null ? 1 : 0) + posts.length <= 2
                                     ? SizedBox(
@@ -179,7 +183,8 @@ class McRealState extends State<McReal> {
                                                 icon: NoRiskIcon.reload)))
                                     : Container()
                               ]),
-                        )
+                        ),
+                  const SizedBox(height: 80),
                 ],
               ),
               ClipRRect(
@@ -191,94 +196,126 @@ class McRealState extends State<McReal> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: Platform.isAndroid ? 55 : 65),
+                        SizedBox(height: Platform.isAndroid ? 45 : 55),
                         Stack(children: [
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const SizedBox(width: 5),
                                 GestureDetector(
                                   onTap: () {
-                                    if (friendsOnly) return;
+                                    if (activeTab == 0) return;
                                     setState(() {
-                                      friendsOnly = true;
+                                      activeTab = 0;
                                       posts = [];
                                       page = 0;
                                     });
                                     loadPosts();
                                   },
-                                  child: Text(
+                                  child: NoRiskText(
                                       AppLocalizations.of(context)!
-                                          .mcReal_friendsOnly,
+                                          .mcReal_friendsOnly
+                                          .toLowerCase(),
+                                      spaceTop: false,
+                                      spaceBottom: false,
                                       style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 30,
                                           color: NoRiskClientColors.text,
-                                          fontWeight: friendsOnly
+                                          fontWeight: activeTab == 0
                                               ? FontWeight.bold
                                               : FontWeight.w400)),
                                 ),
                                 SizedBox(
                                     width: MediaQuery.of(context).size.width *
+                                        0.55),
+                              ]),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                NoRiskText('|',
+                                    spaceTop: false,
+                                    spaceBottom: false,
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        color: NoRiskClientColors.text,
+                                        fontWeight: FontWeight.bold)),
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
                                         0.3),
                               ]),
-                          const Center(
-                              child: Text('|',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: NoRiskClientColors.text,
-                                      fontWeight: FontWeight.bold))),
+                          Center(
+                            child: 
+                                GestureDetector(
+                                  onTap: () {
+                                if (activeTab == 1) return;
+                                    setState(() {
+                                  activeTab = 1;
+                                      posts = [];
+                                      page = 0;
+                                    });
+                                    loadPosts();
+                                  },
+                              child: NoRiskText(
+                                      AppLocalizations.of(context)!
+                                      .mcReal_discovery
+                                      .toLowerCase(),
+                                  spaceTop: false,
+                                  spaceBottom: false,
+                                      style: TextStyle(
+                                      fontSize: 30,
+                                          color: NoRiskClientColors.text,
+                                      fontWeight: activeTab == 1
+                                          ? FontWeight.bold
+                                          : FontWeight.w400)),
+                            ),
+                          ),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
                                     width: MediaQuery.of(context).size.width *
-                                        0.35),
+                                        0.3),
+                                NoRiskText('|',
+                                    spaceTop: false,
+                                    spaceBottom: false,
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        color: NoRiskClientColors.text,
+                                        fontWeight: FontWeight.bold)),
+                              ]),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.6),
                                 GestureDetector(
                                   onTap: () {
-                                    if (!friendsOnly) return;
+                                    if (activeTab == 2) return;
                                     setState(() {
-                                      friendsOnly = false;
+                                      activeTab = 2;
                                       posts = [];
                                       page = 0;
                                     });
                                     loadPosts();
                                   },
-                                  child: Text(
+                                  child: NoRiskText(
                                       AppLocalizations.of(context)!
-                                          .mcReal_discovery,
+                                          .mcReal_partnerPosts
+                                          .toLowerCase(),
+                                      spaceTop: false,
+                                      spaceBottom: false,
                                       style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 30,
                                           color: NoRiskClientColors.text,
-                                          fontWeight: friendsOnly
-                                              ? FontWeight.w400
-                                              : FontWeight.bold)),
+                                          fontWeight: activeTab == 2
+                                              ? FontWeight.bold
+                                              : FontWeight.w400)),
                                 ),
                               ]),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 15),
-                                  child: GestureDetector(
-                                    onTap: () => Navigator.of(context).pop(),
-                                    child: GestureDetector(
-                                      onTap: openProfilePage,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(5),
-                                        child: cache['skins']
-                                                ?[userData['uuid']] ??
-                                            const SizedBox(
-                                                height: 32,
-                                                width: 32,
-                                                child: LoadingIndicator()),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ])
                         ]),
                       ],
                     ),
@@ -358,7 +395,7 @@ class McRealState extends State<McReal> {
     await loadPlayerPost();
     http.Response res = await http.get(
         Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/posts?uuid=${userData['uuid']}&page=$page&friendsOnly=$friendsOnly'),
+            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/posts?uuid=${userData['uuid']}&page=$page&friendsOnly=${activeTab == 0}&partnersOnly=${activeTab == 2}'),
         headers: {'Authorization': 'Bearer ${userData['token']}'});
     if (res.statusCode != 200) {
       print("Load posts: ${res.statusCode}");

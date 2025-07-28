@@ -2,7 +2,7 @@ name: noriskclient
 description: "NoRisk Client mobile app."
 publish_to: 'none'
 
-version: 1.0.8+9
+version: 2.0.0+10
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -39,9 +39,9 @@ flutter:
    - lib/assets/icons/
    - lib/assets/widgets/
   fonts:
-    - family: PressStart2P
+    - family: SmallCapsMC
       fonts:
-        - asset: lib/assets/fonts/PressStart2P-Regular.ttf
+        - asset: lib/assets/fonts/SmallCapsMC.ttf
 
 flutter_native_splash:
   color: "#252525"

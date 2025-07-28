@@ -10,17 +10,21 @@ import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/main.dart';
-import 'package:noriskclient/screens/ImageViewer.dart';
+import 'package:noriskclient/screens/mcreal/ImageViewer.dart';
 import 'package:noriskclient/screens/McReal.dart';
-import 'package:noriskclient/screens/PostDetails.dart';
-import 'package:noriskclient/screens/Profile.dart';
-import 'package:noriskclient/screens/ReportMcReal.dart';
+import 'package:noriskclient/screens/mcreal/McRealPostDetails.dart';
+import 'package:noriskclient/screens/NoRiskProfile.dart';
+import 'package:noriskclient/screens/mcreal/ReportMcReal.dart';
 import 'package:noriskclient/utils/McRealStatus.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/utils/ReportTypes.dart';
 import 'package:noriskclient/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/widgets/NoRiskButton.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
+import 'package:noriskclient/utils/StringUtils.dart';
 
 class McRealPost extends StatefulWidget {
   const McRealPost(
@@ -68,11 +72,9 @@ class McRealPostState extends State<McRealPost> {
     primary = Container(
         height: 200,
         decoration: BoxDecoration(
-          color: widget.displayOnly
-              ? NoRiskClientColors.background
-              : NoRiskClientColors.darkerBackground,
-          borderRadius: BorderRadius.circular(5),
-        ),
+            color: widget.displayOnly
+                ? NoRiskClientColors.background
+                : NoRiskClientColors.darkerBackground),
         child: const Center(child: LoadingIndicator()));
     if (!isOwnPost) {
       getUpdateStream.sink.add([
@@ -85,7 +87,13 @@ class McRealPostState extends State<McRealPost> {
     }
 
     loadImages();
-    loadStreak();
+    NoRiskApi()
+        .getUserProfile(widget.postData['post']['author'])
+        .then((Map profile) {
+      setState(() {
+        cache = getCache;
+      });
+    });
     super.initState();
   }
 
@@ -97,7 +105,7 @@ class McRealPostState extends State<McRealPost> {
         onTap: isOwnPost && userData['mcRealStatus'] == McRealStatus.REMOVED
             ? openPostRemovedPopup
             : () {},
-        child: Container(
+        child: NoRiskContainer(
           padding: EdgeInsets.only(
               top: isOwnPost && userData['mcRealStatus'] != McRealStatus.OK
                   ? 12
@@ -105,11 +113,8 @@ class McRealPostState extends State<McRealPost> {
               left: 12,
               right: 12,
               bottom: isOwnPost && userData['mcRealStatus'] != McRealStatus.OK
-                  ? 12
+                  ? 0
                   : 0),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: NoRiskClientColors.darkerBackground),
           child: isOwnPost && userData['mcRealStatus'] == McRealStatus.REMOVED
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -117,9 +122,12 @@ class McRealPostState extends State<McRealPost> {
                   children: [
                       const Icon(Icons.info, color: Colors.red, size: 25),
                       const SizedBox(width: 10),
-                      Text(AppLocalizations.of(context)!.mcReal_removedPost,
+                      NoRiskText(
+                          AppLocalizations.of(context)!
+                              .mcReal_removedPost
+                              .toLowerCase(),
                           style: const TextStyle(
-                              fontSize: 15,
+                              fontSize: 20,
                               color: NoRiskClientColors.text,
                               fontWeight: FontWeight.w500)),
                     ])
@@ -131,11 +139,12 @@ class McRealPostState extends State<McRealPost> {
                           const Icon(Icons.info,
                               color: NoRiskClientColors.blue, size: 25),
                           const SizedBox(width: 10),
-                          Text(
+                          NoRiskText(
                               AppLocalizations.of(context)!
-                                  .mcReal_status_deleted,
+                                  .mcReal_status_deleted
+                                  .toLowerCase(),
                               style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 20,
                                   color: NoRiskClientColors.text,
                                   fontWeight: FontWeight.w500)),
                         ])
@@ -143,104 +152,172 @@ class McRealPostState extends State<McRealPost> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: 40,
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: openProfilePage,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(2.5),
-                                    child: cache['skins']?[widget
-                                            .postData['post']['author']] ??
-                                        const SizedBox(
-                                            height: 32,
-                                            width: 32,
-                                            child: LoadingIndicator()),
-                                  ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: openProfilePage,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(1.5),
+                                  child: cache['skins']?[widget.postData['post']
+                                          ['author']] ??
+                                      const SizedBox(
+                                          height: 32,
+                                          width: 32,
+                                          child: LoadingIndicator()),
                                 ),
-                                const SizedBox(width: 7.5),
-                                Stack(children: [
-                                  Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            isOwnPost
-                                                ? AppLocalizations.of(context)!
-                                                    .mcReal_yourMcReal
-                                                : cache['usernames']?[
-                                                        widget.postData['post']
-                                                            ['author']] ??
-                                                    '',
-                                            style: TextStyle(
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.bold,
-                                                color: isOwnPost
-                                                    ? NoRiskClientColors.blue
-                                                    : Colors.white))
-                                      ]),
-                                  Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(getPostTime(),
-                                                style: const TextStyle(
-                                                    fontSize: 13.5,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.white)),
-                                            const SizedBox(width: 5),
-                                            if (!isOwnPost &&
-                                                ownPostData != null &&
-                                                ownPostData?['post']
-                                                        ?['region'] !=
-                                                    widget.postData['post']
-                                                        ['region'])
-                                              Row(
+                              ),
+                              const SizedBox(width: 7.5),
+                              SizedBox(
+                                height: 32,
+                                width: MediaQuery.of(context).size.width / 2,
+                                child: Stack(children: [
+                                  Positioned(
+                                    top: -5,
+                                    left: 0,
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          NoRiskText(
+                                              isOwnPost
+                                                  ? AppLocalizations.of(
+                                                          context)!
+                                                      .mcReal_yourMcReal
+                                                      .toLowerCase()
+                                                  : cache['usernames']?[widget
+                                                                  .postData[
+                                                              'post']['author']]
+                                                          .toString()
+                                                          .toLowerCase() ??
+                                                      '',
+                                              spaceBottom: false,
+                                              spaceTop: false,
+                                              style: TextStyle(
+                                                  fontSize: 25,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white)),
+                                          const SizedBox(width: 5),
+                                          GestureDetector(
+                                            child: SizedBox(
+                                              height: 32,
+                                              child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.start,
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  const Icon(
-                                                      CupertinoIcons.globe,
-                                                      color: NoRiskClientColors
-                                                          .textLight,
-                                                      size: 13.5),
-                                                  Text(
-                                                      widget.postData['post']
-                                                          ['region'],
+                                                  NoRiskText(
+                                                      cache['profiles']?[widget.postData[
+                                                                              'post']
+                                                                          [
+                                                                          'author']]
+                                                                      ?[
+                                                                      'mcRealStreak']
+                                                                  ['days']
+                                                              ?.toString() ??
+                                                          '?',
+                                                      spaceBottom: false,
+                                                      spaceTop: false,
                                                       style: const TextStyle(
-                                                          fontSize: 13.5,
-                                                          color:
-                                                              NoRiskClientColors
-                                                                  .textLight,
+                                                          fontSize: 25,
+                                                          color: Colors.red,
                                                           fontWeight:
-                                                              FontWeight.w500)),
+                                                              FontWeight.w900)),
+                                                  const SizedBox(width: 1.5),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 1.5),
+                                                    child: NoRiskIconButton(
+                                                        transparent: true,
+                                                        width: 20,
+                                                        height: 20,
+                                                        onTap: () => Fluttertoast
+                                                            .showToast(
+                                                                msg:
+                                                                    "McReal Streak: ${cache['profiles']?[widget.postData['post']['author']]?['mcRealStreak']['days'] ?? '?'}"),
+                                                        icon:
+                                                            NoRiskIcon.streak),
+                                                  )
                                                 ],
-                                              )
-                                          ],
-                                        )
-                                      ])
+                                              ),
+                                            ),
+                                            onTap: () => Fluttertoast.showToast(
+                                                msg:
+                                                    "McReal Streak: ${cache['profiles']?[widget.postData['post']['author']]?['mcRealStreak']['days'] ?? '?'}"),
+                                          )
+                                        ]),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 15),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        NoRiskText(getPostTime().toLowerCase(),
+                                            spaceBottom: false,
+                                            spaceTop: false,
+                                            style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white)),
+                                        const SizedBox(width: 5),
+                                        if (!isOwnPost &&
+                                            ownPostData != null &&
+                                            ownPostData?['post']?['region'] !=
+                                                widget.postData['post']
+                                                    ['region'])
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 2.5),
+                                                child: const Icon(
+                                                    CupertinoIcons.globe,
+                                                    color:
+                                                        NoRiskClientColors.blue,
+                                                    size: 13.5),
+                                              ),
+                                              const SizedBox(width: 2.5),
+                                              NoRiskText(
+                                                  widget.postData['post']
+                                                          ['region']
+                                                      .toString()
+                                                      .toLowerCase(),
+                                                  spaceTop: false,
+                                                  spaceBottom: false,
+                                                  style: const TextStyle(
+                                                      fontSize: 20,
+                                                      color: NoRiskClientColors
+                                                          .blue,
+                                                      fontWeight:
+                                                          FontWeight.w500)),
+                                            ],
+                                          )
+                                      ],
+                                    ),
+                                  )
                                 ]),
-                                const Spacer(),
-                                if (isOwnPost)
-                                  NoRiskIconButton(
-                                      onTap: delete, icon: NoRiskIcon.delete),
-                                const SizedBox(width: 5)
-                              ]),
-                        ),
+                              ),
+                              const Spacer(),
+                              if (isOwnPost)
+                                NoRiskIconButton(
+                                    onTap: delete, icon: NoRiskIcon.delete),
+                              if (!isOwnPost && !widget.locked)
+                                NoRiskIconButton(
+                                    onTap: openReportPage,
+                                    icon: NoRiskIcon.report),
+                            ]),
                         const SizedBox(height: 5),
                         Stack(children: [
                           SizedBox(
@@ -282,11 +359,11 @@ class McRealPostState extends State<McRealPost> {
                                               color: NoRiskClientColors
                                                   .darkerBackground,
                                               borderRadius:
-                                                  BorderRadius.circular(5),
+                                                  BorderRadius.circular(1.5),
                                             ),
                                             child: ClipRRect(
                                                 borderRadius:
-                                                    BorderRadius.circular(5),
+                                                    BorderRadius.circular(1.5),
                                                 child: swapped
                                                     ? getSecondary()
                                                     : getPrimary())),
@@ -305,133 +382,13 @@ class McRealPostState extends State<McRealPost> {
                                                       child: ClipRRect(
                                                         borderRadius:
                                                             BorderRadius
-                                                                .circular(5),
+                                                                .circular(1.5),
                                                         child: swapped
                                                             ? getPrimary()
                                                             : getSecondary(),
                                                       )))),
                                       ],
                                     ),
-                                    if (!(getPrimary() is Container ||
-                                        getSecondary() is Container))
-                                      Positioned(
-                                          top: 10,
-                                          right: 10,
-                                          child: GestureDetector(
-                                            child: SizedBox(
-                                              height: 30,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                      cache['streaks']?[widget.postData[
-                                                                          'post']
-                                                                      [
-                                                                      'author']]
-                                                                  ?['mcreal']
-                                                              ?.toString() ??
-                                                          '?',
-                                                      style: const TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.red,
-                                                          fontWeight:
-                                                              FontWeight.w900)),
-                                                  const SizedBox(width: 5),
-                                                  NoRiskIconButton(
-                                                      onTap: () => Fluttertoast
-                                                          .showToast(
-                                                              msg:
-                                                                  "McReal Streak: ${cache['streaks']?[widget.postData['post']['author']]?['mcreal'] ?? '?'}"),
-                                                      icon: NoRiskIcon.streak)
-                                                ],
-                                              ),
-                                            ),
-                                            onTap: () => Fluttertoast.showToast(
-                                                msg:
-                                                    "McReal Streak: ${cache['streaks']?[widget.postData['post']['author']]?['mcreal'] ?? '?'}"),
-                                          )),
-                                    if (!(getPrimary() is Container ||
-                                        getSecondary() is Container))
-                                      Positioned(
-                                          bottom: isOwnPost ? 10 : 45,
-                                          right: 10,
-                                          child: NoRiskIconButton(
-                                              onTap: widget.displayOnly
-                                                  ? openCommentBox
-                                                  : openDetailsPage,
-                                              icon: NoRiskIcon.comment)),
-                                    if (!isOwnPost &&
-                                        !(getPrimary() is Container ||
-                                            getSecondary() is Container))
-                                      Positioned(
-                                          bottom: 10,
-                                          right: 10,
-                                          child: NoRiskIconButton(
-                                              onTap: openReportPage,
-                                              icon: NoRiskIcon.report)),
-                                    if (!(getPrimary() is Container ||
-                                        getSecondary() is Container))
-                                      Positioned(
-                                          bottom: 10,
-                                          left: 10,
-                                          child: Row(
-                                            children: [
-                                              NoRiskIconButton(
-                                                  onTap: (widget.postData[
-                                                                  'userRating']
-                                                              ?['isPositive'] ??
-                                                          false)
-                                                      ? deleteRating
-                                                      : () => upvote(false),
-                                                  icon: (widget.postData[
-                                                                  'userRating']
-                                                              ?['isPositive'] ??
-                                                          false)
-                                                      ? NoRiskIcon.upvoted
-                                                      : NoRiskIcon.upvote),
-                                              const SizedBox(width: 2.5),
-                                              Text(
-                                                  (widget.postData['likes'] -
-                                                          widget.postData[
-                                                              'dislikes'])
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: widget.postData[
-                                                                      'likes'] -
-                                                                  widget.postData[
-                                                                      'dislikes'] >
-                                                              0
-                                                          ? Colors.green
-                                                          : widget.postData[
-                                                                          'likes'] -
-                                                                      widget.postData[
-                                                                          'dislikes'] <
-                                                                  0
-                                                              ? Colors.red
-                                                              : NoRiskClientColors
-                                                                  .text,
-                                                      fontWeight:
-                                                          FontWeight.w600)),
-                                              const SizedBox(width: 2.5),
-                                              NoRiskIconButton(
-                                                  onTap: widget.postData[
-                                                                  'userRating']
-                                                              ?['isPositive'] ==
-                                                          false
-                                                      ? deleteRating
-                                                      : downvote,
-                                                  icon: widget.postData[
-                                                                  'userRating']
-                                                              ?['isPositive'] ==
-                                                          false
-                                                      ? NoRiskIcon.downvoted
-                                                      : NoRiskIcon.downvote),
-                                            ],
-                                          ))
                                   ],
                                 ),
                               ),
@@ -447,6 +404,7 @@ class McRealPostState extends State<McRealPost> {
                               child: AnimatedOpacity(
                                   duration: const Duration(milliseconds: 300),
                                   opacity: animateUpvote ? 1 : 0,
+                                  // CHANGE ME:
                                   child: Image.asset(
                                       'lib/assets/icons/upvoted.png',
                                       height: 35,
@@ -467,10 +425,13 @@ class McRealPostState extends State<McRealPost> {
                                     children: [
                                       NoRiskIcon.lock,
                                       const SizedBox(height: 5),
-                                      Text(widget.lockedReason,
+                                      NoRiskText(
+                                          widget.lockedReason.toLowerCase(),
                                           textAlign: TextAlign.center,
+                                          spaceTop: false,
+                                          spaceBottom: false,
                                           style: const TextStyle(
-                                              fontSize: 15,
+                                              fontSize: 20,
                                               color: NoRiskClientColors.text,
                                               fontWeight: FontWeight.w500)),
                                     ],
@@ -478,11 +439,106 @@ class McRealPostState extends State<McRealPost> {
                             )),
                         ]),
                         const SizedBox(height: 5),
-                        Text(widget.postData['post']['title'],
-                            style: const TextStyle(
-                                fontSize: 15,
-                                color: NoRiskClientColors.text,
-                                fontWeight: FontWeight.w500)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              NoRiskText(
+                                  StringUtils.enforceMaxLength(
+                                      widget.postData['post']['title']
+                                          .toString()
+                                          .toUpperCase(),
+                                      20),
+                                  spaceTop: false,
+                                  spaceBottom: false,
+                                  style: const TextStyle(
+                                      fontSize: 22.5,
+                                      color: NoRiskClientColors.text,
+                                      fontWeight: FontWeight.w500)),
+                              if (!widget.locked)
+                                Row(children: [
+                                  if (widget.postData['likes'] -
+                                          widget.postData['dislikes'] !=
+                                      0)
+                                    Padding(
+                                      padding: EdgeInsets.only(bottom: 5),
+                                      child: NoRiskText(
+                                          (widget.postData['likes'] -
+                                                  widget.postData['dislikes'])
+                                              .toString(),
+                                          spaceTop: false,
+                                          spaceBottom: false,
+                                          style: TextStyle(
+                                              fontSize: 35,
+                                              color: widget.postData['likes'] -
+                                                          widget.postData[
+                                                              'dislikes'] >
+                                                      0
+                                                  ? Colors.green
+                                                  : widget.postData['likes'] -
+                                                              widget.postData[
+                                                                  'dislikes'] <
+                                                          0
+                                                      ? Colors.red
+                                                      : NoRiskClientColors.text,
+                                              fontWeight: FontWeight.w600)),
+                                    ),
+                                  const SizedBox(width: 5),
+                                  NoRiskButton(
+                                      onTap: (widget.postData['userRating']
+                                                  ?['isPositive'] ??
+                                              false)
+                                          ? deleteRating
+                                          : () => upvote(false),
+                                      height: 30,
+                                      color: (widget.postData['userRating']
+                                                  ?['isPositive'] ??
+                                              false)
+                                          ? Colors.green
+                                          : NoRiskClientColors.text,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 2.5),
+                                        child: NoRiskText("like",
+                                            spaceTop: false,
+                                            spaceBottom: false,
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: NoRiskClientColors.text,
+                                                fontWeight: FontWeight.bold)),
+                                      )),
+                                  const SizedBox(width: 5),
+                                  NoRiskButton(
+                                      onTap: widget.postData['userRating']
+                                                  ?['isPositive'] ==
+                                              false
+                                          ? deleteRating
+                                          : downvote,
+                                      height: 30,
+                                      color: widget.postData['userRating']
+                                                  ?['isPositive'] ==
+                                              false
+                                          ? Colors.red
+                                          : NoRiskClientColors.text,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 2.5),
+                                        child: NoRiskText("dislike",
+                                            spaceTop: false,
+                                            spaceBottom: false,
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: NoRiskClientColors.text,
+                                                fontWeight: FontWeight.bold)),
+                                      )),
+                                  const SizedBox(width: 5),
+                                  NoRiskIconButton(
+                                      onTap: widget.displayOnly
+                                          ? openCommentBox
+                                          : openDetailsPage,
+                                      icon: NoRiskIcon.comment)
+                                ])
+                            ]),
                         const SizedBox(height: 5),
                       ],
                     ),
@@ -568,40 +624,9 @@ class McRealPostState extends State<McRealPost> {
     ]);
   }
 
-  void loadStreak() async {
-    if (cache['streaks']?[widget.postData['post']['author']] != null) {
-      return;
-    }
-    var res = await http.get(
-        Uri.parse(
-            '${NoRiskApi().getBaseUrl(userData['experimental'], 'mcreal')}/user/streak/${widget.postData['post']['author']}?uuid=${userData['uuid']}'),
-        headers: {'Authorization': 'Bearer ${userData['token']}'});
-    Map<String, dynamic> streakData = jsonDecode(utf8.decode(res.bodyBytes));
-    if (res.statusCode != 200) {
-      print(res.statusCode);
-      if (res.statusCode == 401) {
-        if (widget.commentUpdateStream != null) {
-          Navigator.of(context).pop();
-        }
-        getUpdateStream.sink.add(['signOut']);
-      }
-      return;
-    }
-
-    getUpdateStream.sink.add([
-      'cacheStreak',
-      widget.postData['post']['author'],
-      streakData,
-      () => setState(() {
-            cache = getCache;
-          })
-    ]);
-  }
-
   void openProfilePage() {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) =>
-            Profile(
+        builder: (BuildContext context) => Profile(
             uuid: widget.postData['post']['author'],
             postUpdateStream: widget.postUpdateStream)));
   }

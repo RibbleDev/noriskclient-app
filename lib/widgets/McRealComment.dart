@@ -7,14 +7,17 @@ import 'package:http/http.dart' as http;
 import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
-import 'package:noriskclient/screens/Profile.dart';
-import 'package:noriskclient/screens/ReportMcReal.dart';
+import 'package:noriskclient/screens/NoRiskProfile.dart';
+import 'package:noriskclient/screens/mcreal/ReportMcReal.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/utils/ReportTypes.dart';
 import 'package:noriskclient/widgets/LoadingIndicator.dart';
 import 'package:noriskclient/widgets/McRealCommentInput.dart';
+import 'package:noriskclient/widgets/NoRiskButton.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
 
 class McRealComment extends StatefulWidget {
   const McRealComment(
@@ -69,7 +72,7 @@ class McRealPostState extends State<McRealComment> {
     likes = widget.commentData['likes'];
     dislikes = widget.commentData['dislikes'];
     if (widget.commentData['userRating'] != null) {
-      ownRating = widget.commentData['userRating']?['isPositive'] != null;
+      ownRating = widget.commentData['userRating']?['isPositive'];
     }
     loadReplys();
     super.initState();
@@ -81,7 +84,7 @@ class McRealPostState extends State<McRealComment> {
         ? Container()
         : Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
+            child: NoRiskContainer(
         padding: const EdgeInsets.all(7.5),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -109,16 +112,21 @@ class McRealPostState extends State<McRealComment> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                                  NoRiskText(
                                 ownComment
                                     ? AppLocalizations.of(context)!
-                                        .mcRealComment_you
+                                              .mcRealComment_you
+                                              .toLowerCase()
                                     : cache['usernames']?[
                                             widget.commentData['comment']
-                                                ['author']] ??
+                                                ['author']]
+                                                  .toString()
+                                                  .toLowerCase() ??
                                         '',
+                                      spaceTop: false,
+                                      spaceBottom: false,
                                 style: TextStyle(
-                                    fontSize: 15,
+                                          fontSize: 27.5,
                                     fontWeight: FontWeight.bold,
                                     color: ownComment
                                         ? NoRiskClientColors.blue
@@ -130,12 +138,15 @@ class McRealPostState extends State<McRealComment> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Spacer(),
-                            Text(
+                                  NoRiskText(
                                 widget.commentData['comment']['time']
                                     .toString()
-                                    .split('.')[0],
+                                          .split('.')[0]
+                                          .toLowerCase(),
+                                      spaceTop: false,
+                                      spaceBottom: false,
                                 style: const TextStyle(
-                                    fontSize: 15,
+                                          fontSize: 27.5,
                                     fontWeight: FontWeight.w500,
                                     color: NoRiskClientColors.light)),
                           ])
@@ -143,45 +154,76 @@ class McRealPostState extends State<McRealComment> {
               ],
             ),
             const SizedBox(height: 5),
-            Text(widget.commentData['comment']['text'],
+                  NoRiskText(
+                      widget.commentData['comment']['text']
+                          .toString()
+                          .toLowerCase(),
+                      spaceTop: false,
+                      spaceBottom: false,
                 style: const TextStyle(
-                    fontSize: 15,
+                          fontSize: 27.5,
                     fontWeight: FontWeight.w500,
                     color: Colors.white)),
             const SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                NoRiskIconButton(
-                    onTap: ownRating == true ? deleteRating : upvote,
-                    icon: ownRating == true
-                        ? NoRiskIcon.upvoted
-                        : NoRiskIcon.upvote),
-                      const SizedBox(width: 2.5),
-                Text('${likes - dislikes}',
-                    style: TextStyle(
-                        color: likes - dislikes > 0
+                  Row(children: [
+                    if (likes - dislikes != 0)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 5),
+                        child: NoRiskText((likes - dislikes).toString(),
+                            spaceTop: false,
+                            spaceBottom: false,
+                            style: TextStyle(
+                                fontSize: 35,
+                                color: likes - dislikes > 0
+                                    ? Colors.green
+                                    : likes - dislikes < 0
+                                        ? Colors.red
+                                        : NoRiskClientColors.text,
+                                fontWeight: FontWeight.w600)),
+                      ),
+                    if (likes - dislikes != 0) const SizedBox(width: 5),
+                    NoRiskButton(
+                        onTap: ownRating == true ? deleteRating : upvote,
+                        height: 30,
+                        color: ownRating == true
                             ? Colors.green
-                            : likes - dislikes < 0
-                                ? Colors.red
-                                : Colors.white)),
-                      const SizedBox(width: 2.5),
-                NoRiskIconButton(
-                    onTap: ownRating == false ? deleteRating : downvote,
-                    icon: ownRating == false
-                        ? NoRiskIcon.downvoted
-                        : NoRiskIcon.downvote),
-                      const SizedBox(width: 5),
-                NoRiskIconButton(onTap: reply, icon: NoRiskIcon.comment),
+                            : NoRiskClientColors.text,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 2.5),
+                          child: NoRiskText("like",
+                              spaceTop: false,
+                              spaceBottom: false,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: NoRiskClientColors.text,
+                                  fontWeight: FontWeight.bold)),
+                        )),
+                    const SizedBox(width: 5),
+                    NoRiskButton(
+                        onTap: ownRating == false ? deleteRating : downvote,
+                        height: 30,
+                        color: ownRating == false
+                            ? Colors.red
+                            : NoRiskClientColors.text,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 2.5),
+                          child: NoRiskText("dislike",
+                              spaceTop: false,
+                              spaceBottom: false,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: NoRiskClientColors.text,
+                                  fontWeight: FontWeight.bold)),
+                        )),
+                    const SizedBox(width: 5),
+                    NoRiskIconButton(onTap: reply, icon: NoRiskIcon.comment),
                       if (!ownComment) const SizedBox(width: 10),
                 if (!ownComment)
                   NoRiskIconButton(onTap: report, icon: NoRiskIcon.report),
                       const SizedBox(width: 7.5),
                 if (ownComment)
                   NoRiskIconButton(onTap: delete, icon: NoRiskIcon.delete),
-              ],
-            ),
+                  ]),
             SizedBox(
                 height: replys.isNotEmpty && commentInput is Container ? 5 : 0),
             commentInput,
@@ -198,21 +240,27 @@ class McRealPostState extends State<McRealComment> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                AnimatedContainer(
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
-                                  child: RotatedBox(
-                                      quarterTurns: showReplys ? 1 : 0,
-                                      child: Image.asset(
-                                          'lib/assets/icons/arrow.png',
-                                          height: 12.5,
-                                          width: 12.5)),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 7.5),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOut,
+                                    child: RotatedBox(
+                                        quarterTurns: showReplys ? 1 : 0,
+                                        child: Image.asset(
+                                            'lib/assets/icons/arrow.png',
+                                            height: 12.5,
+                                            width: 12.5)),
+                                  ),
                                 ),
                                 const SizedBox(width: 7.5),
-                                Text(
-                                    '${replys.length} ${replys.length > 1 ? AppLocalizations.of(context)!.mcRealComment_replys : AppLocalizations.of(context)!.mcRealComment_reply}',
+                                NoRiskText(
+                                    '${replys.length} ${replys.length > 1 ? AppLocalizations.of(context)!.mcRealComment_replys : AppLocalizations.of(context)!.mcRealComment_reply}'
+                                        .toLowerCase(),
+                                    spaceTop: false,
+                                    spaceBottom: true,
                                     style: const TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 30,
                                         color: NoRiskClientColors.text,
                                         fontWeight: FontWeight.w500))
                               ]),

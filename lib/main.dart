@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
-import 'package:noriskclient/screens/McReal.dart';
+import 'package:noriskclient/screens/NoRiskClient.dart';
 import 'package:noriskclient/screens/SignIn.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -32,8 +32,9 @@ Map<String, Map<String, dynamic>> cache = {
   'armorSkins': {},
   'usernames': {},
   'posts': {},
-  'streaks': {}
+  'profiles': {}
 };
+int activeTabIndex = 2;
 final StreamController<List> updateStream = StreamController<List>();
 
 Map<String, Map<String, dynamic>> get getCache => cache;
@@ -84,8 +85,26 @@ class AppState extends State<App> {
         if (kDebugMode) {
           print('Signing out');
         }
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
         clearUserData();
         clearCache();
+      } else if (event == 'tabIndex') {
+        if (kDebugMode) {
+          print('Setting active tab index to ${data[1]}');
+        }
+        activeTabIndex = data[1];
+      } else if (event == 'clearCache') {
+        if (kDebugMode) {
+          print('Clearing cache');
+        }
+        clearCache();
+      } else if (event == 'loadUserData') {
+        if (kDebugMode) {
+          print('Loading user data');
+        }
+        await loadUserData();
       } else if (event == 'loadSkin') {
         if (cache['skins']?[data[1]] == null ||
             cache['armorSkins']?[data[1]] == null) {
@@ -117,14 +136,13 @@ class AppState extends State<App> {
           cache['posts']?[data[1]]?['secondary'] = data[3];
         });
         data[4]();
-      } else if (event == 'cacheStreak') {
+      } else if (event == 'cacheProfile') {
         if (kDebugMode) {
-          print('Caching streak ${data[1]} -> ${data[2]}');
+          print('Caching profile ${data[1]} -> ${data[2]}');
         }
         setState(() {
-          cache['streaks']?[data[1]] = data[2];
+          cache['profiles']?[data[1]] = data[2];
         });
-        data[3]();
       }
     });
   }
@@ -151,14 +169,14 @@ class AppState extends State<App> {
                   useMaterial3: true,
                   brightness: Brightness.dark,
                   textTheme: Theme.of(context).textTheme.apply(
-                      fontFamily: 'Roboto',
+                      fontFamily: 'SmallCapsMC',
                       displayColor: Colors.white,
                       bodyColor: Colors.white)),
               home: MediaQuery(
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: const TextScaler.linear(1.0)),
                 child:
-                    userData['token'] != '' ? const McReal() : const SignIn(),
+                    userData['token'] != '' ? NoRiskClient() : const SignIn(),
               ),
             );
           });
@@ -176,14 +194,15 @@ class AppState extends State<App> {
                 theme: const CupertinoThemeData(
                   textTheme: CupertinoTextThemeData(
                     textStyle:
-                        TextStyle(color: Colors.white, fontFamily: "Roboto"),
+                        TextStyle(
+                        color: Colors.white, fontFamily: "SmallCapsMC"),
                   ),
                 ),
                 home: MediaQuery(
                   data: MediaQuery.of(context)
                       .copyWith(textScaler: const TextScaler.linear(1.0)),
                   child:
-                      userData['token'] != '' ? const McReal() : const SignIn(),
+                      userData['token'] != '' ? NoRiskClient() : const SignIn(),
                 ));
           });
     }
@@ -229,7 +248,7 @@ class AppState extends State<App> {
         'armorSkins': {},
         'usernames': {},
         'posts': {},
-        'streaks': {}
+        'profiles': {}
       };
     });
   }

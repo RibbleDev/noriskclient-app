@@ -84,6 +84,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mcReal_friendsOnly => 'Friends';
 
   @override
+  String get mcReal_partnerPosts => 'Partners';
+
+  @override
   String get mcReal_justNow => 'Now';
 
   @override
@@ -181,6 +184,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profile_usersProfile => '\'s Profile';
+
+  @override
+  String get profile_stats_firstJoin => 'First Join';
+
+  @override
+  String get profile_stats_lastJoin => 'Last Join';
+
+  @override
+  String get profile_stats_loginStreak => 'Login Streak';
+
+  @override
+  String get profile_stats_mcReal => 'McReal Streak';
+
+  @override
+  String get profile_stats_playtime => 'Playtime';
 
   @override
   String get profile_noPinnedPosts => ' doesn\'t have any pinned posts :/';

@@ -10,6 +10,8 @@ import 'package:noriskclient/main.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
 import 'package:noriskclient/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
 import 'package:noriskclient/widgets/QRScannerOverlayShape.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -53,72 +55,79 @@ class SignInState extends State<SignIn> {
                       onLongPress: showDeveloperSignInPopup,
                       child: Image.asset('lib/assets/app/norisk_logo.png',
                           height: 150)),
-                  const Text('NoRisk Client',
+                  NoRiskText('NoRisk Client'.toLowerCase(),
                       style: TextStyle(
                           color: NoRiskClientColors.text,
                           fontWeight: FontWeight.bold,
-                          fontSize: 50,
+                          fontSize: 80,
                           letterSpacing: -1)),
                 ],
               ),
               Column(children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                Text(
-                  AppLocalizations.of(context)!.signIn_explanation,
+                NoRiskText(
+                  AppLocalizations.of(context)!
+                      .signIn_explanation
+                      .toLowerCase(),
+                  spaceTop: false,
+                  spaceBottom: false,
                   style: const TextStyle(
-                      fontSize: 12, color: NoRiskClientColors.textLight),
+                      fontSize: 17, color: NoRiskClientColors.textLight),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  AppLocalizations.of(context)!.signIn_eula,
+                NoRiskText(
+                  AppLocalizations.of(context)!.signIn_eula.toLowerCase(),
+                  spaceTop: false,
+                  spaceBottom: false,
                   style: const TextStyle(
-                      fontSize: 10, color: NoRiskClientColors.textLight),
+                      fontSize: 15, color: NoRiskClientColors.textLight),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
                 GestureDetector(
                   onTap: scanQrCode,
-                  child: Container(
-                    height: 65,
-                    margin:
+                  child: Padding(
+                    padding:
                         const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: isProcessingResult
-                            ? NoRiskClientColors.blue.withOpacity(0.5)
-                            : NoRiskClientColors.blue,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: isProcessingResult
-                            ? [
-                                const LoadingIndicator(color: Colors.white),
-                                const SizedBox(width: 10),
-                                Text(
+                    child: NoRiskContainer(
+                      height: 65,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          color: isProcessingResult
+                              ? NoRiskClientColors.blue.withOpacity(0.5)
+                              : NoRiskClientColors.blue,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: isProcessingResult
+                              ? [
+                                  const LoadingIndicator(color: Colors.white),
+                                  const SizedBox(width: 10),
+                                  NoRiskText(
+                                      AppLocalizations.of(context)!
+                                          .signIn_signingIn
+                                          .toLowerCase(),
+                                      style: const TextStyle(fontSize: 35))
+                                ]
+                              : [
+                                  NoRiskText(
                                     AppLocalizations.of(context)!
-                                        .signIn_signingIn,
-                                    style: const TextStyle(fontSize: 15))
-                              ]
-                            : [
-                                Icon(Icons.qr_code_rounded,
-                                    color: isProcessingResult
-                                        ? Colors.white.withOpacity(0.5)
-                                        : Colors.white),
-                                const SizedBox(width: 10),
-                                Text(
-                                  AppLocalizations.of(context)!
-                                      .signIn_scanQrCode,
-                                  style: TextStyle(
-                                      color: isProcessingResult
-                                          ? Colors.white.withOpacity(0.5)
-                                          : Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
+                                        .signIn_scanQrCode
+                                        .toLowerCase(),
+                                    spaceTop: false,
+                                    spaceBottom: false,
+                                    style: TextStyle(
+                                        color: isProcessingResult
+                                            ? Colors.white.withOpacity(0.5)
+                                            : Colors.white,
+                                        fontSize: 35,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                        ),
                       ),
                     ),
                   ),
@@ -131,10 +140,12 @@ class SignInState extends State<SignIn> {
                       GestureDetector(
                         onTap: () => launchUrl(Config.privacyUrl,
                             mode: LaunchMode.externalApplication),
-                        child: Text(
+                        child: NoRiskText(
                             AppLocalizations.of(context)!
-                                .settings_privacyPolicy,
+                                .settings_privacyPolicy
+                                .toLowerCase(),
                             style: TextStyle(
+                                fontSize: 22.5,
                                 color: Colors.blue,
                                 decoration: TextDecoration.underline,
                                 decorationColor: Colors.blue)),
@@ -143,8 +154,12 @@ class SignInState extends State<SignIn> {
                       GestureDetector(
                         onTap: () => launchUrl(Config.termsUrl,
                             mode: LaunchMode.externalApplication),
-                        child: Text(AppLocalizations.of(context)!.settings_tos,
+                        child: NoRiskText(
+                            AppLocalizations.of(context)!
+                                .settings_tos
+                                .toLowerCase(),
                             style: TextStyle(
+                                fontSize: 22.5,
                                 color: Colors.blue,
                                 decoration: TextDecoration.underline,
                                 decorationColor: Colors.blue)),

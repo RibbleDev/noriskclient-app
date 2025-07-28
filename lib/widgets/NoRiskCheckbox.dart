@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
 
 // ignore: must_be_immutable
 class NoRiskCheckbox extends StatefulWidget {
@@ -34,23 +36,21 @@ class McRealPostState extends State<NoRiskCheckbox> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
+          NoRiskContainer(
             width: 35,
             height: 35,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(value
-                    ? 'lib/assets/widgets/checkbox_checked.png'
-                    : 'lib/assets/widgets/checkbox.png'),
-                fit: BoxFit.fill,
-              ),
+            child: Center(
+              child: Text(value ? '✓' : '',
+                  style:
+                      TextStyle(fontSize: 25, color: NoRiskClientColors.text)),
             ),
           ),
           const SizedBox(width: 10),
           if (widget.name.isNotEmpty)
-            Text(widget.name,
+            NoRiskText(widget.name.toLowerCase(),
+                spaceTop: false,
                 style: const TextStyle(
-                    fontSize: 17.5,
+                    fontSize: 25,
                     color: NoRiskClientColors.text,
                     fontWeight: FontWeight.bold)),
         ],

@@ -1,18 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
 
 class NoRiskIconButton extends StatelessWidget {
-  const NoRiskIconButton({super.key, required this.onTap, required this.icon});
+  NoRiskIconButton(
+      {super.key,
+      required this.onTap,
+      this.transparent = false,
+      required this.icon,
+      this.width = 30,
+      this.height = 30});
 
   final Widget icon;
+  final bool transparent;
   final void Function() onTap;
+  double width;
+  double height;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-          width: 30,
-          height: 30,
+      child: NoRiskContainer(
+          width: width,
+          height: height,
+          color: transparent ? Colors.transparent : Colors.white,
           child: Center(child: icon)),
     );
   }

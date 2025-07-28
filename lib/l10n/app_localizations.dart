@@ -245,6 +245,12 @@ abstract class AppLocalizations {
   /// **'Friends'**
   String get mcReal_friendsOnly;
 
+  /// No description provided for @mcReal_partnerPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Partners'**
+  String get mcReal_partnerPosts;
+
   /// No description provided for @mcReal_justNow.
   ///
   /// In en, this message translates to:
@@ -442,6 +448,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'\'s Profile'**
   String get profile_usersProfile;
+
+  /// No description provided for @profile_stats_firstJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'First Join'**
+  String get profile_stats_firstJoin;
+
+  /// No description provided for @profile_stats_lastJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Join'**
+  String get profile_stats_lastJoin;
+
+  /// No description provided for @profile_stats_loginStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Streak'**
+  String get profile_stats_loginStreak;
+
+  /// No description provided for @profile_stats_mcReal.
+  ///
+  /// In en, this message translates to:
+  /// **'McReal Streak'**
+  String get profile_stats_mcReal;
+
+  /// No description provided for @profile_stats_playtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Playtime'**
+  String get profile_stats_playtime;
 
   /// No description provided for @profile_noPinnedPosts.
   ///
