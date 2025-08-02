@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskText.dart';
 
@@ -40,9 +41,7 @@ class McRealPostState extends State<NoRiskCheckbox> {
             width: 35,
             height: 35,
             child: Center(
-              child: Text(value ? '✓' : '',
-                  style:
-                      TextStyle(fontSize: 25, color: NoRiskClientColors.text)),
+              child: value ? NoRiskIcon.checkmark : Container(),
             ),
           ),
           const SizedBox(width: 10),

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +7,12 @@ import 'package:noriskclient/main.dart';
 import 'package:noriskclient/utils/BlockingManager.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/LoadingIndicator.dart';
+import 'package:noriskclient/widgets/NoRiskBackButton.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
 
 class Blocked extends StatefulWidget {
-  const Blocked({super.key, required this.postUpdateStream});
-
-  final StreamController<String> postUpdateStream;
+  const Blocked({super.key});
 
   @override
   State<Blocked> createState() => BlockedState();
@@ -45,16 +45,9 @@ class BlockedState extends State<Blocked> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 7.5),
-                      child: GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Center(
-                            child: NoRiskIcon.back,
-                          ),
-                        ),
-                      ),
+                      child: NoRiskBackButton(onPressed: () {
+                        Navigator.of(context).pop();
+                      }),
                     ),
                   ],
                 ),
@@ -62,10 +55,15 @@ class BlockedState extends State<Blocked> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(AppLocalizations.of(context)!.settings_blockedPlayers,
+                    NoRiskText(
+                        AppLocalizations.of(context)!
+                            .settings_blockedPlayers
+                            .toLowerCase(),
+                        spaceTop: false,
+                        spaceBottom: false,
                         style: const TextStyle(
                             color: NoRiskClientColors.text,
-                            fontSize: 27.5,
+                            fontSize: 40,
                             fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -81,54 +79,73 @@ class BlockedState extends State<Blocked> {
                       ? Center(
                           child: Padding(
                           padding: const EdgeInsets.all(10),
-                          child: Text(
+                          child: NoRiskText(
                               AppLocalizations.of(context)!
-                                  .mcReal_blocked_noBlockedPlayers,
+                                  .mcReal_blocked_noBlockedPlayers
+                                  .toLowerCase(),
+                              spaceTop: false,
+                              spaceBottom: false,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 30,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.red)),
                         ))
                       : ListView(
                       children: blockedPlayers!
-                          .map((uuid) => GestureDetector(
-                                onTap: () => unblock(uuid),
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 12.5),
-                                  padding: const EdgeInsets.all(8.5),
-                                  decoration: BoxDecoration(
-                                    color: NoRiskClientColors.darkerBackground,
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                              .map((uuid) => Column(
                                     children: [
-                                      ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(2.5),
-                                          child: cache['skins']?[uuid] ??
-                                              const SizedBox(
-                                                  height: 32,
-                                                  width: 32,
-                                                  child: LoadingIndicator())),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        cache['usernames']?[uuid] ?? 'Unknown',
-                                        style: const TextStyle(
-                                            color: NoRiskClientColors.text,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
+                                      GestureDetector(
+                                        onTap: () => unblock(uuid),
+                                        child: NoRiskContainer(
+                                          padding: const EdgeInsets.all(8.5),
+                                          decoration: BoxDecoration(
+                                            color: NoRiskClientColors
+                                                .darkerBackground,
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          2.5),
+                                                  child: cache['skins']
+                                                          ?[uuid] ??
+                                                      const SizedBox(
+                                                          height: 32,
+                                                          width: 32,
+                                                          child:
+                                                              LoadingIndicator())),
+                                              const SizedBox(width: 10),
+                                              NoRiskText(
+                                                cache['usernames']?[uuid]
+                                                        .toString() ??
+                                                    'Unknown'.toString(),
+                                                spaceTop: false,
+                                                spaceBottom: false,
+                                                style: const TextStyle(
+                                                    color:
+                                                        NoRiskClientColors.text,
+                                                    fontSize: 30,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const Spacer(),
+                                              const Icon(Icons.handshake,
+                                                  color: Colors.green, size: 30)
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                      const Spacer(),
-                                      const Icon(Icons.handshake,
-                                          color: Colors.green, size: 30)
+                                      const SizedBox(height: 12.5),
                                     ],
-                                  ),
-                                ),
-                              ))
+                                  ))
                           .toList()),
             )
           ]),
@@ -179,7 +196,6 @@ class BlockedState extends State<Blocked> {
                         onPressed: () async {
                           await BlockingManager().unblock(uuid);
                           loadBlockedPlayers();
-                          widget.postUpdateStream.sink.add('*');
                           Navigator.of(context).pop();
                         },
                         child: Text(
@@ -204,7 +220,6 @@ class BlockedState extends State<Blocked> {
                         onPressed: () async {
                           await BlockingManager().unblock(uuid);
                           loadBlockedPlayers();
-                          widget.postUpdateStream.sink.add('*');
                           Navigator.of(context).pop();
                         },
                         child: Text(

@@ -5,8 +5,6 @@ class NoRiskIcon {
       height: 20, width: 15, fit: BoxFit.fill);
   static Image comment = Image.asset('lib/assets/icons/comment.png',
       height: 30, width: 30, fit: BoxFit.fill);
-  static Image back = Image.asset('lib/assets/icons/back.png',
-      height: 30, width: 30, fit: BoxFit.fill);
   static Image upvote = Image.asset('lib/assets/icons/upvote.png',
       height: 17.5, width: 20, fit: BoxFit.fill);
   static Image downvote = Image.asset('lib/assets/icons/downvote.png',
@@ -20,7 +18,11 @@ class NoRiskIcon {
   static Image report = Image.asset('lib/assets/icons/report.png',
       height: 30, width: 30, fit: BoxFit.fill);
   static Image lock = Image.asset('lib/assets/icons/lock.png',
-      height: 30, width: 22.5, fit: BoxFit.fill);
+      height: 32.5, width: 30, fit: BoxFit.fill);
   static Image streak = Image.asset('lib/assets/icons/fire.webp',
       height: 25, width: 25, fit: BoxFit.fill);
+  static Image settings = Image.asset('lib/assets/icons/settings.png',
+      height: 20, width: 20, fit: BoxFit.fill);
+  static Image checkmark = Image.asset('lib/assets/icons/checkmark.png',
+      height: 20, width: 20, fit: BoxFit.fill);
 }

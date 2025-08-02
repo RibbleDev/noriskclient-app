@@ -6,8 +6,10 @@ import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
+import 'package:noriskclient/screens/Settings.dart';
 import 'package:noriskclient/utils/BlockingManager.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
+import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/LoadingIndicator.dart';
 import 'package:noriskclient/widgets/NoRiskBackButton.dart';
 import 'package:noriskclient/widgets/NoRiskContainer.dart';
@@ -133,9 +135,10 @@ class ProfileState extends State<Profile> {
                         const SizedBox(height: 65),
                         Row(
                           children: [
-                            if (Navigator.canPop(context))
-                            NoRiskBackButton(
-                                onPressed: () => Navigator.of(context).pop()),
+                            if (!widget.isSettings)
+                              NoRiskBackButton(
+                                  onPressed: () => Navigator.of(context).pop()),
+                            if (widget.isSettings) const SizedBox(width: 30),
                             const Spacer(),
                             Column(children: [
                               NoRiskText(
@@ -195,6 +198,18 @@ class ProfileState extends State<Profile> {
                                                     : Colors.green,
                                                 size: 20),
                                           )))),
+                            if (widget.isSettings)
+                              GestureDetector(
+                                  onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              Settings())),
+                                  child: NoRiskContainer(
+                                      child: SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: Center(child: NoRiskIcon.settings),
+                                  ))),
                             if (!widget.isSettings && blocked == null)
                               const SizedBox(width: 30),
                             const SizedBox(width: 10),
@@ -211,10 +226,17 @@ class ProfileState extends State<Profile> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             NoRiskProfileStatisticContainer(
-                              width: (MediaQuery.of(context).size.width - 2 * 15 - 1 * 10) / 2,
+                              width: (MediaQuery.of(context).size.width -
+                                      2 * 15 -
+                                      1 * 10) /
+                                  2,
                               title: AppLocalizations.of(context)!
                                   .profile_stats_firstJoin,
-                              value: DateTime.fromMillisecondsSinceEpoch(cache['profiles']?[widget.uuid]?['firstJoinTimeStamp']).toIso8601String()
+                              value: DateTime.fromMillisecondsSinceEpoch(
+                                      cache['profiles']?[widget.uuid]
+                                              ?['firstJoinTimeStamp'] ??
+                                          0)
+                                  .toIso8601String()
                                   .toString()
                                   .split('T')[0]
                                   .replaceAll("-", ".")
@@ -224,10 +246,17 @@ class ProfileState extends State<Profile> {
                             ),
                             const SizedBox(width: 10),
                             NoRiskProfileStatisticContainer(
-                              width: (MediaQuery.of(context).size.width - 2 * 15 - 1 * 10) / 2,
+                              width: (MediaQuery.of(context).size.width -
+                                      2 * 15 -
+                                      1 * 10) /
+                                  2,
                               title: AppLocalizations.of(context)!
                                   .profile_stats_lastJoin,
-                              value: DateTime.fromMillisecondsSinceEpoch(cache['profiles']?[widget.uuid]?['lastJoinTimeStamp']).toIso8601String()
+                              value: DateTime.fromMillisecondsSinceEpoch(
+                                      cache['profiles']?[widget.uuid]
+                                              ?['lastJoinTimeStamp'] ??
+                                          0)
+                                  .toIso8601String()
                                   .toString()
                                   .split('T')[0]
                                   .replaceAll("-", ".")
@@ -239,34 +268,53 @@ class ProfileState extends State<Profile> {
                         ),
                         const SizedBox(height: 10),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            NoRiskProfileStatisticContainer(
-                              width: (MediaQuery.of(context).size.width - 2 * 15 - 2 * 10) / 3,
-                              title: AppLocalizations.of(context)!
-                                  .profile_stats_loginStreak,
-                              value: cache['profiles']?[widget.uuid]?['nrcUser']['loginStreak']['days'].toString() ?? '?',
-                            ),
-                            const SizedBox(width: 10),
-                            NoRiskProfileStatisticContainer(
-                              width: (MediaQuery.of(context).size.width - 2 * 15 - 2 * 10) / 3,
-                              title: AppLocalizations.of(context)!
-                                  .profile_stats_mcReal,
-                              value: cache['profiles']?[widget.uuid]?['mcRealStreak']['days'].toString() ?? '?',
-                            ),
-                            const SizedBox(width: 10),
-                            NoRiskProfileStatisticContainer(
-                              width: (MediaQuery.of(context).size.width - 2 * 15 - 2 * 10) / 3,
-                              title: AppLocalizations.of(context)!
-                                  .profile_stats_playtime,
-                              value: Duration(milliseconds: cache['profiles']?[widget.uuid]?['playTime'])
-                                  .inDays > 0 ? '${Duration(milliseconds: cache['profiles']?[widget.uuid]?['playTime'])
-                                  .inDays}d' : '${Duration(milliseconds: cache['profiles']?[widget.uuid]?['playTime'])
-                                  .inHours}h',
-                            ),
-                          ]
-                        )
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              NoRiskProfileStatisticContainer(
+                                width: (MediaQuery.of(context).size.width -
+                                        2 * 15 -
+                                        2 * 10) /
+                                    3,
+                                title: AppLocalizations.of(context)!
+                                    .profile_stats_loginStreak,
+                                value: cache['profiles']?[widget.uuid]
+                                            ?['nrcUser']['loginStreak']['days']
+                                        .toString() ??
+                                    '?',
+                              ),
+                              const SizedBox(width: 10),
+                              NoRiskProfileStatisticContainer(
+                                width: (MediaQuery.of(context).size.width -
+                                        2 * 15 -
+                                        2 * 10) /
+                                    3,
+                                title: AppLocalizations.of(context)!
+                                    .profile_stats_mcReal,
+                                value: cache['profiles']?[widget.uuid]
+                                            ?['mcRealStreak']['days']
+                                        .toString() ??
+                                    '?',
+                              ),
+                              const SizedBox(width: 10),
+                              NoRiskProfileStatisticContainer(
+                                width: (MediaQuery.of(context).size.width -
+                                        2 * 15 -
+                                        2 * 10) /
+                                    3,
+                                title: AppLocalizations.of(context)!
+                                    .profile_stats_playtime,
+                                value: Duration(
+                                                milliseconds: cache['profiles']
+                                                            ?[widget.uuid]
+                                                        ?['playTime'] ??
+                                                    0)
+                                            .inDays >
+                                        0
+                                    ? '${Duration(milliseconds: cache['profiles']?[widget.uuid]?['playTime'] ?? 0).inDays}d'
+                                    : '${Duration(milliseconds: cache['profiles']?[widget.uuid]?['playTime'] ?? 0).inHours}h',
+                              ),
+                            ])
                       ]),
                       Padding(
                         padding: const EdgeInsets.only(top: 430),
@@ -449,15 +497,19 @@ class ProfileState extends State<Profile> {
       });
     }
 
-    await NoRiskApi().getUserProfile(widget.uuid).then((dynamic _) {
-      setState(() {
-        cache = getCache;
-      });
+    await NoRiskApi().getUserProfile(widget.uuid);
+
+    // ahaha bro wie scuffed, aber sonst ist noch nt im cache 🥀🥀🥀
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    setState(() {
+      cache = getCache;
     });
 
     List<ProfileMcRealPost> newPinnedPosts = [];
     int index = 0;
-    for (var pinnedPost in cache['profiles']?[widget.uuid]['pinnedPosts']) {
+    for (var pinnedPost
+        in cache['profiles']?[widget.uuid]?['pinnedPosts'] ?? []) {
       newPinnedPosts.add(ProfileMcRealPost(
           postData: pinnedPost,
           profilePostIndex: index,

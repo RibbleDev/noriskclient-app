@@ -66,17 +66,6 @@ class SignInState extends State<SignIn> {
               Column(children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                 NoRiskText(
-                  AppLocalizations.of(context)!
-                      .signIn_explanation
-                      .toLowerCase(),
-                  spaceTop: false,
-                  spaceBottom: false,
-                  style: const TextStyle(
-                      fontSize: 17, color: NoRiskClientColors.textLight),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                NoRiskText(
                   AppLocalizations.of(context)!.signIn_eula.toLowerCase(),
                   spaceTop: false,
                   spaceBottom: false,
@@ -89,7 +78,7 @@ class SignInState extends State<SignIn> {
                   onTap: scanQrCode,
                   child: Padding(
                     padding:
-                        const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                        const EdgeInsets.only(left: 5, right: 5, bottom: 10),
                     child: NoRiskContainer(
                       height: 65,
                       padding: const EdgeInsets.all(10),
@@ -104,8 +93,6 @@ class SignInState extends State<SignIn> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: isProcessingResult
                               ? [
-                                  const LoadingIndicator(color: Colors.white),
-                                  const SizedBox(width: 10),
                                   NoRiskText(
                                       AppLocalizations.of(context)!
                                           .signIn_signingIn
@@ -161,7 +148,7 @@ class SignInState extends State<SignIn> {
                             style: TextStyle(
                                 fontSize: 22.5,
                                 color: Colors.blue,
-                                decoration: TextDecoration.underline,
+                                decoration: TextDecoration.underline, 
                                 decorationColor: Colors.blue)),
                       ),
                     ]),

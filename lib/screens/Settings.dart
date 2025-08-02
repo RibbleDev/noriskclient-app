@@ -6,16 +6,17 @@ import 'package:noriskclient/main.dart';
 import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
 import 'package:noriskclient/screens/settings/Blocked.dart';
-import 'package:noriskclient/utils/NoRiskIcon.dart';
+import 'package:noriskclient/widgets/NoRiskBackButton.dart';
+import 'package:noriskclient/widgets/NoRiskContainer.dart';
+import 'package:noriskclient/widgets/NoRiskText.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class Settings extends StatefulWidget {
-  const Settings({super.key, required this.postUpdateStream});
-
-  final StreamController<String> postUpdateStream;
+  const Settings({super.key});
 
   @override
   State<Settings> createState() => SettingsState();
@@ -46,15 +47,10 @@ class SettingsState extends State<Settings> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 7.5),
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
-                          child: SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: Center(
-                              child: NoRiskIcon.back,
-                            ),
-                          ),
+                        child: NoRiskBackButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                         ),
                       ),
                     ],
@@ -63,10 +59,15 @@ class SettingsState extends State<Settings> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(AppLocalizations.of(context)!.settings_title,
+                      NoRiskText(
+                          AppLocalizations.of(context)!
+                              .settings_title
+                              .toLowerCase(),
+                          spaceTop: false,
+                          spaceBottom: false,
                           style: const TextStyle(
                               color: NoRiskClientColors.text,
-                              fontSize: 30,
+                              fontSize: 45,
                               fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -80,31 +81,36 @@ class SettingsState extends State<Settings> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(width: 5),
-                      Text(AppLocalizations.of(context)!.settings_language,
+                      NoRiskText(
+                          AppLocalizations.of(context)!
+                              .settings_language
+                              .toLowerCase(),
+                          spaceTop: false,
+                          spaceBottom: false,
                           style: const TextStyle(
                               color: NoRiskClientColors.text,
-                              fontSize: 15,
+                              fontSize: 25,
                               fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 5),
                   GestureDetector(
                     onTap: () => setLanguage('de'),
-                    child: Container(
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: NoRiskClientColors.darkerBackground,
-                          borderRadius: BorderRadius.circular(10)),
+                      color: AppLocalizations.of(context)!.localeName == 'de'
+                          ? NoRiskClientColors.blue
+                          : NoRiskClientColors.text,
                       child: Center(
-                        child: Text('🇩🇪 Deutsch',
+                        child: NoRiskText('Deutsch'.toLowerCase(),
                             style: TextStyle(
                                 color:
                                     AppLocalizations.of(context)!.localeName ==
                                             'de'
-                                        ? NoRiskClientColors.textLight
+                                        ? NoRiskClientColors.blue
                                         : NoRiskClientColors.text,
-                                fontSize: 20,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -112,21 +118,23 @@ class SettingsState extends State<Settings> {
                   const SizedBox(height: 5),
                   GestureDetector(
                     onTap: () => setLanguage('en'),
-                    child: Container(
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: NoRiskClientColors.darkerBackground,
-                          borderRadius: BorderRadius.circular(10)),
+                      color: AppLocalizations.of(context)!.localeName == 'en'
+                          ? NoRiskClientColors.blue
+                          : NoRiskClientColors.text,
                       child: Center(
-                        child: Text('🇺🇸 English',
+                        child: NoRiskText('English'.toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
                             style: TextStyle(
                                 color:
                                     AppLocalizations.of(context)!.localeName ==
                                             'en'
-                                        ? NoRiskClientColors.textLight
+                                        ? NoRiskClientColors.blue
                                         : NoRiskClientColors.text,
-                                fontSize: 20,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -136,11 +144,15 @@ class SettingsState extends State<Settings> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(width: 5),
-                      Text(
-                          AppLocalizations.of(context)!.settings_blockedPlayers,
+                      NoRiskText(
+                          AppLocalizations.of(context)!
+                              .settings_blockedPlayers
+                              .toLowerCase(),
+                          spaceTop: false,
+                          spaceBottom: false,
                           style: const TextStyle(
                               color: NoRiskClientColors.text,
-                              fontSize: 15,
+                              fontSize: 25,
                               fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -149,21 +161,20 @@ class SettingsState extends State<Settings> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Blocked(
-                                postUpdateStream: widget.postUpdateStream))),
-                    child: Container(
+                            builder: (context) => Blocked())),
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: NoRiskClientColors.darkerBackground,
-                          borderRadius: BorderRadius.circular(10)),
                       child: Center(
-                        child: Text(
+                        child: NoRiskText(
                             AppLocalizations.of(context)!
-                                .settings_blockedPlayers,
+                                .settings_blockedPlayers
+                                .toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
                             style: const TextStyle(
                                 color: NoRiskClientColors.text,
-                                fontSize: 20,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -173,10 +184,15 @@ class SettingsState extends State<Settings> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(width: 5),
-                      Text(AppLocalizations.of(context)!.settings_legal,
+                      NoRiskText(
+                          AppLocalizations.of(context)!
+                              .settings_legal
+                              .toLowerCase(),
+                          spaceTop: false,
+                          spaceBottom: false,
                           style: const TextStyle(
                               color: NoRiskClientColors.text,
-                              fontSize: 15,
+                              fontSize: 25,
                               fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -184,17 +200,19 @@ class SettingsState extends State<Settings> {
                   GestureDetector(
                     onTap: () => launchUrl(
                         mode: LaunchMode.externalApplication, Config.termsUrl),
-                    child: Container(
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: NoRiskClientColors.darkerBackground,
-                          borderRadius: BorderRadius.circular(10)),
                       child: Center(
-                        child: Text(AppLocalizations.of(context)!.settings_tos,
+                        child: NoRiskText(
+                            AppLocalizations.of(context)!
+                                .settings_tos
+                                .toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
                             style: const TextStyle(
                                 color: NoRiskClientColors.text,
-                                fontSize: 20,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -204,19 +222,19 @@ class SettingsState extends State<Settings> {
                     onTap: () => launchUrl(
                         mode: LaunchMode.externalApplication,
                         Config.privacyUrl),
-                    child: Container(
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: NoRiskClientColors.darkerBackground,
-                          borderRadius: BorderRadius.circular(10)),
                       child: Center(
-                        child: Text(
+                        child: NoRiskText(
                             AppLocalizations.of(context)!
-                                .settings_privacyPolicy,
+                                .settings_privacyPolicy
+                                .toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
                             style: const TextStyle(
                                 color: NoRiskClientColors.text,
-                                fontSize: 20,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -226,18 +244,22 @@ class SettingsState extends State<Settings> {
                     onTap: () => launchUrl(
                         mode: LaunchMode.externalApplication,
                         Config.imprintUrl),
-                    child: Container(
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
                       decoration: BoxDecoration(
                           color: NoRiskClientColors.darkerBackground,
                           borderRadius: BorderRadius.circular(10)),
                       child: Center(
-                        child: Text(
-                            AppLocalizations.of(context)!.settings_imprint,
+                        child: NoRiskText(
+                            AppLocalizations.of(context)!
+                                .settings_imprint
+                                .toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
                             style: const TextStyle(
                                 color: NoRiskClientColors.text,
-                                fontSize: 20,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -247,30 +269,35 @@ class SettingsState extends State<Settings> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(width: 5),
-                      Text(AppLocalizations.of(context)!.settings_support,
+                      NoRiskText(
+                          AppLocalizations.of(context)!
+                              .settings_support
+                              .toLowerCase(),
+                          spaceTop: false,
+                          spaceBottom: false,
                           style: const TextStyle(
                               color: NoRiskClientColors.text,
-                              fontSize: 15,
+                              fontSize: 25,
                               fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 5),
                   GestureDetector(
-                    onTap: () => launchUrl(
-                        mode: LaunchMode.externalApplication,
-                        Config.supportUrl),
-                    child: Container(
+                    onTap: () => launchUrl(Config.supportUrl),
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: NoRiskClientColors.darkerBackground,
-                          borderRadius: BorderRadius.circular(10)),
+                      color: Colors.green,
                       child: Center(
-                        child: Text(
-                            "🛟 ${AppLocalizations.of(context)!.settings_support}",
+                        child: NoRiskText(
+                            AppLocalizations.of(context)!
+                                .settings_support
+                                .toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
                             style: const TextStyle(
-                                color: NoRiskClientColors.text,
-                                fontSize: 20,
+                                color: Colors.green,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -280,20 +307,21 @@ class SettingsState extends State<Settings> {
                     onTap: () {
                       getUpdateStream.sink.add(['signOut']);
                       Navigator.of(context).pop();
-                      Navigator.of(context).pop();
                     },
-                    child: Container(
+                    child: NoRiskContainer(
                       width: double.infinity,
                       height: 50,
-                      decoration: BoxDecoration(
-                          color: NoRiskClientColors.darkerBackground,
-                          borderRadius: BorderRadius.circular(10)),
+                      color: Colors.red,
                       child: Center(
-                        child: Text(
-                            AppLocalizations.of(context)!.settings_signOut,
+                        child: NoRiskText(
+                            AppLocalizations.of(context)!
+                                .settings_signOut
+                                .toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
                             style: const TextStyle(
                                 color: Colors.red,
-                                fontSize: 20,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -301,12 +329,48 @@ class SettingsState extends State<Settings> {
                   const SizedBox(height: 20),
                   if (packageInfo != null)
                     Center(
-                      child: Text(
-                          "Version ${packageInfo!.version} - ${packageInfo!.buildNumber}",
+                      child: NoRiskText(
+                          "Version ${packageInfo!.version} - ${packageInfo!.buildNumber}"
+                              .toLowerCase(),
+                          spaceTop: false,
+                          spaceBottom: false,
                           style: const TextStyle(
                               color: NoRiskClientColors.textLight,
-                              fontSize: 15)),
+                              fontSize: 25)),
                     ),
+                  const SizedBox(height: 5),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => launchUrlString(
+                          'https://github.com/TimLohrer',
+                          mode: LaunchMode.externalApplication),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          NoRiskText('Made with '.toLowerCase(),
+                              spaceTop: false,
+                              style: const TextStyle(
+                                  color: NoRiskClientColors.textLight,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold)),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: Text('🧡'.toLowerCase(),
+                                style: const TextStyle(
+                                    color: NoRiskClientColors.textLight,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          NoRiskText(' by Tim Lohrer'.toLowerCase(),
+                              spaceTop: false,
+                              style: const TextStyle(
+                                  color: NoRiskClientColors.textLight,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
                 ]),
               )
             ])));

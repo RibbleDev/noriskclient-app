@@ -9,8 +9,8 @@ class Config {
   static int maxCommentContentLength = 150;
   static int maxReportContentLength = 200;
 
-  static Uri privacyUrl = Uri.parse('https://norisk.gg/privacy-policy');
-  static Uri termsUrl = Uri.parse('https://norisk.gg/terms-of-service');
-  static Uri imprintUrl = Uri.parse('https://norisk.gg/imprint');
-  static Uri supportUrl = Uri.parse('https://norisk.gg/support');
+  static Uri privacyUrl = Uri.parse('https://blog.norisk.gg/privacy-policy/');
+  static Uri termsUrl = Uri.parse('https://blog.norisk.gg/en/terms-of-use/');
+  static Uri imprintUrl = Uri.parse('https://blog.norisk.gg/impressum/');
+  static Uri supportUrl = Uri.parse('mailto:support@norisk.gg');
 }

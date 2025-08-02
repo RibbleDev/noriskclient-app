@@ -47,7 +47,8 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
             currentIndex: widget.currentIndex,
             icon: NoRiskIcon.comment,
             label: 'chat',
-            onTap: () => widget.currentIndexController.sink.add(1)
+            onTap: () => widget.currentIndexController.sink.add(1),
+            disabled: true,
           ),
           _BottomNavigationBarButton(
             index: 2,
@@ -61,7 +62,8 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
             currentIndex: widget.currentIndex,
             icon: NoRiskIcon.comment,
             label: 'friends',
-            onTap: () => widget.currentIndexController.sink.add(3)
+            onTap: () => widget.currentIndexController.sink.add(3),
+            disabled: true,
           ),
           _BottomNavigationBarButton(
             index: 4,
@@ -83,7 +85,8 @@ class _BottomNavigationBarButton extends StatelessWidget {
     required this.currentIndex,
     required this.label,
     required this.icon,
-    required this.index
+    required this.index,
+    this.disabled = false,
   });
 
   final void Function() onTap;
@@ -91,11 +94,12 @@ class _BottomNavigationBarButton extends StatelessWidget {
   final String label;
   final Widget icon;
   final int index;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-            onTap: onTap,
+      onTap: disabled ? () {} : onTap,
             child: Stack(
               children: [
                 SizedBox(
@@ -105,11 +109,17 @@ class _BottomNavigationBarButton extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 30),
                       child: NoRiskIconButton(
-                          onTap: onTap,
+                    onTap: disabled ? () {} : onTap,
                           transparent: true,
                           height: 35,
                           width: 35,
-                          icon: icon),
+                    icon: Opacity(
+                        opacity: disabled
+                            ? 0.4
+                            : currentIndex == index
+                                ? 1
+                                : 0.75,
+                        child: icon)),
                     ),
                   ),
                 ),
@@ -124,10 +134,12 @@ class _BottomNavigationBarButton extends StatelessWidget {
                               spaceBottom: false,
                               style: TextStyle(
                                   fontSize: 30,
-                                  color: currentIndex == index
+                        color: disabled
+                            ? Colors.white.withAlpha((100).floor())
+                            : currentIndex == index
                                       ? Colors.white
                                       : Colors.white
-                                          .withAlpha((255 / 2).floor()))),
+                                          .withAlpha((200).floor()))),
                         ),
                   ),
                 ),

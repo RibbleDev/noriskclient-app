@@ -22,7 +22,7 @@ class NoRiskApi {
       String backend, String endpoint, Map<String, dynamic>? params) async {
     final response = await http.get(
       Uri.parse(
-          '${getBaseUrl(getUserData['experimental'], backend)}/$endpoint?uuid=${getUserData['uuid']}${params?.entries.map((e) => '&${e.key}=${e.value}').join()}'),
+          '${getBaseUrl(getUserData['experimental'], backend)}/$endpoint?uuid=${getUserData['uuid']}${params?.entries.map((e) => '&${e.key}=${e.value}').join() ?? ''}'),
       headers: {'Authorization': 'Bearer ${getUserData['token']}'},
     );
     if (response.statusCode == 200) {
