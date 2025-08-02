@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/screens/McReal.dart';
 import 'package:noriskclient/screens/News.dart';

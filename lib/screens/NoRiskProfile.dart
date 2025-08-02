@@ -146,9 +146,7 @@ class ProfileState extends State<Profile> {
                                           ? AppLocalizations.of(context)!
                                               .profile_yourProfile
                                           : (cache['usernames']?[widget.uuid] ??
-                                                  'Unknown') +
-                                              AppLocalizations.of(context)!
-                                                  .profile_usersProfile)
+                                              'Unknown'))
                                       .toString()
                                       .toLowerCase(),
                                   spaceTop: false,

@@ -24,8 +24,18 @@ class NoRiskProfileStatisticContainer extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          NoRiskText(value.toLowerCase(), spaceTop: false, spaceBottom: false, style: TextStyle(fontSize: 50, color: NoRiskClientColors.text)),
-          NoRiskText(title.toLowerCase(), spaceTop: false, spaceBottom: false, style: TextStyle(fontSize: 22.5, color: NoRiskClientColors.text)),
+          NoRiskText(value.toLowerCase(),
+              spaceTop: false,
+              spaceBottom: false,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.125,
+                  color: NoRiskClientColors.text)),
+          NoRiskText(title.toLowerCase(),
+              spaceTop: false,
+              spaceBottom: false,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.05,
+                  color: NoRiskClientColors.text)),
         ],
       ),
     );

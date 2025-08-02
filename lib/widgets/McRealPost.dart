@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
@@ -326,16 +325,16 @@ class McRealPostState extends State<McRealPost> {
                               child: GestureDetector(
                                 onTap: widget.locked
                                     ? () {}
-                                    : widget.commentUpdateStream != null
+                                    : widget.commentUpdateStream != null &&
+                                            secondary is Image &&
+                                            primary is Image
                                         ? () => Navigator.push(context,
                                                 MaterialPageRoute(
                                                     builder: (context) {
                                               return ImageViewer(
-                                                  image: cache['posts']?[
-                                                      widget.postData['post']
-                                                          ['_id']]?[swapped
-                                                      ? 'secondary'
-                                                      : 'primary']);
+                                                  image: swapped
+                                                      ? secondary as Image
+                                                      : primary as Image);
                                             }))
                                         : openDetailsPage,
                                 onDoubleTap: () => upvote(true),
@@ -365,8 +364,8 @@ class McRealPostState extends State<McRealPost> {
                                                 borderRadius:
                                                     BorderRadius.circular(1.5),
                                                 child: swapped
-                                                    ? getSecondary()
-                                                    : getPrimary())),
+                                                    ? secondary
+                                                    : primary)),
                                         if (!holdingMainImage)
                                           Positioned(
                                               top: 10,
@@ -384,8 +383,8 @@ class McRealPostState extends State<McRealPost> {
                                                             BorderRadius
                                                                 .circular(1.5),
                                                         child: swapped
-                                                            ? getPrimary()
-                                                            : getSecondary(),
+                                                            ? primary
+                                                            : secondary,
                                                       )))),
                                       ],
                                     ),
@@ -547,12 +546,6 @@ class McRealPostState extends State<McRealPost> {
     );
   }
 
-  Widget getPrimary() =>
-      cache['posts']?[widget.postData['post']['_id']]?['primary'] ?? primary;
-  Widget getSecondary() =>
-      cache['posts']?[widget.postData['post']['_id']]?['secondary'] ??
-      secondary;
-
   String getPostTime() {
     DateTime mcRealTime = DateTime.parse(widget.postData['post']['mcRealDate'] +
         ' ' +
@@ -590,10 +583,6 @@ class McRealPostState extends State<McRealPost> {
   }
 
   Future<void> loadImages() async {
-    if (cache['posts']?[widget.postData['post']['_id']] != null) {
-      return;
-    }
-
     http.Response primaryRes = await http.get(
         Uri.parse(
             '${NoRiskApi().getAssetUrl()}/post/${widget.postData['post']['_id']}/image?uuid=${userData['uuid']}&experimental=${userData['experimental'] ?? false}&type=primary'),
@@ -613,15 +602,11 @@ class McRealPostState extends State<McRealPost> {
       return;
     }
 
-    getUpdateStream.sink.add([
-      'cachePost',
-      widget.postData['post']['_id'],
-      Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill),
-      Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill),
-      () => setState(() {
-            cache = getCache;
-          })
-    ]);
+    setState(() {
+      cache = getCache;
+      primary = Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill);
+      secondary = Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill);
+    });
   }
 
   void openProfilePage() {

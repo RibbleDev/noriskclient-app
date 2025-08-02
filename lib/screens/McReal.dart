@@ -55,7 +55,6 @@ class McRealState extends State<McReal> {
         setState(() {
           ownPost = null;
           posts = [];
-          cache['posts'] = {};
           page = 0;
         });
         loadPosts();
@@ -126,7 +125,6 @@ class McRealState extends State<McReal> {
         body: RefreshIndicator(
           onRefresh: () async {
             setState(() {
-              cache['posts'] = {};
               ownPost = null;
               ownPostData = null;
               posts = [];
@@ -225,14 +223,7 @@ class McRealState extends State<McReal> {
                                               ? FontWeight.bold
                                               : FontWeight.w400)),
                                 ),
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.55),
-                              ]),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
+                                const SizedBox(width: 7.5),
                                 NoRiskText('|',
                                     spaceTop: false,
                                     spaceBottom: false,
@@ -240,12 +231,7 @@ class McRealState extends State<McReal> {
                                         fontSize: 30,
                                         color: NoRiskClientColors.text,
                                         fontWeight: FontWeight.bold)),
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.3),
-                              ]),
-                          Center(
-                            child: 
+                                const SizedBox(width: 7.5),
                                 GestureDetector(
                                   onTap: () {
                                 if (activeTab == 1) return;
@@ -268,15 +254,8 @@ class McRealState extends State<McReal> {
                                       fontWeight: activeTab == 1
                                           ? FontWeight.bold
                                           : FontWeight.w400)),
-                            ),
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.3),
+                                ),
+                                const SizedBox(width: 7.5),
                                 NoRiskText('|',
                                     spaceTop: false,
                                     spaceBottom: false,
@@ -284,14 +263,7 @@ class McRealState extends State<McReal> {
                                         fontSize: 30,
                                         color: NoRiskClientColors.text,
                                         fontWeight: FontWeight.bold)),
-                              ]),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.6),
+                                const SizedBox(width: 7.5),
                                 GestureDetector(
                                   onTap: () {
                                     if (activeTab == 2) return;
@@ -348,7 +320,6 @@ class McRealState extends State<McReal> {
   Future<void> loadPlayerPost() async {
     if (userData['mcRealStatus'] != McRealStatus.OK) {
       setState(() {
-        cache['posts'] = {};
         ownPost = null;
         ownPostData = null;
       });

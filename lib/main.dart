@@ -65,10 +65,14 @@ class AppState extends State<App> {
           [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
-          statusBarColor: NoRiskClientColors.darkerBackground,
-          systemNavigationBarColor: NoRiskClientColors.darkerBackground,
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarColor: NoRiskClientColors.background,
+          systemNavigationBarIconBrightness: Brightness.light,
         ),
       );
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
 
     super.initState();
@@ -126,16 +130,6 @@ class AppState extends State<App> {
         if (data.length > 2) {
           data[2]();
         }
-      } else if (event == 'cachePost') {
-        if (kDebugMode) {
-          print('Caching post ${data[1]}');
-        }
-        setState(() {
-          cache['posts']?[data[1]] = {};
-          cache['posts']?[data[1]]?['primary'] = data[2];
-          cache['posts']?[data[1]]?['secondary'] = data[3];
-        });
-        data[4]();
       } else if (event == 'cacheProfile') {
         if (kDebugMode) {
           print('Caching profile ${data[1]} -> ${data[2]}');
@@ -168,6 +162,8 @@ class AppState extends State<App> {
               theme: ThemeData(
                   useMaterial3: true,
                   brightness: Brightness.dark,
+                  appBarTheme: const AppBarTheme(
+                      backgroundColor: NoRiskClientColors.background),
                   textTheme: Theme.of(context).textTheme.apply(
                       fontFamily: 'SmallCapsMC',
                       displayColor: Colors.white,

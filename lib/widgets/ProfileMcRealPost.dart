@@ -103,9 +103,9 @@ class McRealPostState extends State<ProfileMcRealPost> {
                               onTap: () => Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                 return ImageViewer(
-                                    image: cache['posts']
-                                            ?[widget.postData!['post']['_id']]
-                                        ?[swapped ? 'secondary' : 'primary']);
+                                    image: swapped
+                                        ? secondary as Image
+                                        : primary as Image);
                               })),
                               onLongPress: () => setState(() {
                                 holdingMainImage = true;
@@ -128,8 +128,8 @@ class McRealPostState extends State<ProfileMcRealPost> {
                                                     BorderRadius.circular(2.5),
                                               ),
                                               child: swapped
-                                                  ? getSecondary()
-                                                  : getPrimary()),
+                                                  ? secondary
+                                                  : primary),
                                           if (!holdingMainImage)
                                             Positioned(
                                                 top: 10,
@@ -146,13 +146,13 @@ class McRealPostState extends State<ProfileMcRealPost> {
                                                                   .circular(
                                                                       2.5),
                                                           child: swapped
-                                                              ? getPrimary()
-                                                              : getSecondary(),
+                                                              ? primary
+                                                              : secondary,
                                                         )))),
                                         ],
                                       ),
-                                      if (!(getPrimary() is Container ||
-                                              getSecondary() is Container) &&
+                                      if (!(primary is Container ||
+                                              secondary is Container) &&
                                           widget.profileUuid ==
                                               userData['uuid'])
                                         Positioned(
@@ -172,12 +172,6 @@ class McRealPostState extends State<ProfileMcRealPost> {
                 ),
     );
   }
-
-  Widget getPrimary() =>
-      cache['posts']?[widget.postData?['post']?['_id']]?['primary'] ?? primary;
-  Widget getSecondary() =>
-      cache['posts']?[widget.postData?['post']?['_id']]?['secondary'] ??
-      secondary;
 
   String getPostTime() {
     DateTime uploadTime = DateTime.parse(widget.postData!['post']
@@ -199,11 +193,6 @@ class McRealPostState extends State<ProfileMcRealPost> {
   }
 
   Future<void> loadImages() async {
-    if (widget.postData == null ||
-        cache['posts']?[widget.postData!['post']['_id']] != null) {
-      return;
-    }
-
     http.Response primaryRes = await http.get(
         Uri.parse(
             '${NoRiskApi().getAssetUrl()}/post/${widget.postData!['post']['_id']}/image?uuid=${userData['uuid']}&experimental=${userData['experimental'] ?? false}&type=primary'),
@@ -221,15 +210,11 @@ class McRealPostState extends State<ProfileMcRealPost> {
       return;
     }
 
-    getUpdateStream.sink.add([
-      'cachePost',
-      widget.postData!['post']['_id'],
-      Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill),
-      Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill),
-      () => setState(() {
-            cache = getCache;
-          })
-    ]);
+    setState(() {
+      cache = getCache;
+      primary = Image.memory(primaryRes.bodyBytes, fit: BoxFit.fill);
+      secondary = Image.memory(secondaryRes.bodyBytes, fit: BoxFit.fill);
+    });
   }
 
   void updateData(newData) {

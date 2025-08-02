@@ -103,7 +103,7 @@ class _BottomNavigationBarButton extends StatelessWidget {
             child: Stack(
               children: [
                 SizedBox(
-                  width: 80,
+            width: 65,
                   height: 75,
                   child: Center(
                     child: Padding(
@@ -124,7 +124,7 @@ class _BottomNavigationBarButton extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: 80,
+            width: 65,
                   height: 75,
                   child: Center(
                     child: Padding(
@@ -133,7 +133,7 @@ class _BottomNavigationBarButton extends StatelessWidget {
                               spaceTop: false,
                               spaceBottom: false,
                               style: TextStyle(
-                                  fontSize: 30,
+                        fontSize: 25,
                         color: disabled
                             ? Colors.white.withAlpha((100).floor())
                             : currentIndex == index

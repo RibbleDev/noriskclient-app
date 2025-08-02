@@ -9,7 +9,6 @@ import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
-import 'package:noriskclient/widgets/LoadingIndicator.dart';
 import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskText.dart';
 import 'package:noriskclient/widgets/QRScannerOverlayShape.dart';
@@ -59,7 +58,7 @@ class SignInState extends State<SignIn> {
                       style: TextStyle(
                           color: NoRiskClientColors.text,
                           fontWeight: FontWeight.bold,
-                          fontSize: 80,
+                          fontSize: MediaQuery.of(context).size.width * 0.15,
                           letterSpacing: -1)),
                 ],
               ),
