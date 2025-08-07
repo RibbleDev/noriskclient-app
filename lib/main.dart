@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
-import 'package:noriskclient/screens/NoRiskClient.dart';
+import 'package:noriskclient/NoRiskClient.dart';
 import 'package:noriskclient/screens/SignIn.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -50,10 +51,12 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
   Widget app = Container();
+  StreamController<int> activeTabIndexController = StreamController<int>();
 
   @override
   void initState() {
     removeSplashScreen();
+    loadLanguage();
 
     isIOS = Theme.of(context).platform == TargetPlatform.iOS ||
         Theme.of(context).platform == TargetPlatform.macOS;
@@ -92,6 +95,7 @@ class AppState extends State<App> {
         if (Navigator.canPop(context)) {
           Navigator.pop(context);
         }
+        activeTabIndex = 2;
         clearUserData();
         clearCache();
       } else if (event == 'tabIndex') {
@@ -189,8 +193,7 @@ class AppState extends State<App> {
                 locale: provider.locale,
                 theme: const CupertinoThemeData(
                   textTheme: CupertinoTextThemeData(
-                    textStyle:
-                        TextStyle(
+                    textStyle: TextStyle(
                         color: Colors.white, fontFamily: "SmallCapsMC"),
                   ),
                 ),
@@ -278,6 +281,24 @@ class AppState extends State<App> {
       setState(() {
         cache['usernames']?[uuid] = jsonDecode(res.body)['name'];
       });
+    }
+  }
+
+  Future<void> loadLanguage() async {
+    // Ich schäme mich dafür aber juckt jz grad :skull:
+    await Future.delayed(const Duration(seconds: 1));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String language = prefs.getString('language') ??
+        (Config.availableLanguages
+                .contains(PlatformDispatcher.instance.locale.languageCode)
+            ? PlatformDispatcher.instance.locale.languageCode
+            : Config.fallbackLangauge);
+    if (!mounted) return;
+    final provider = Provider.of<LocaleProvider>(context, listen: false);
+    provider.setLocale(language);
+
+    if (prefs.getString('language') == null) {
+      await prefs.setString('language', language);
     }
   }
 }

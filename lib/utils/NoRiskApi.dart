@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:http/http.dart' as http;
 import 'package:noriskclient/main.dart';
@@ -29,10 +30,58 @@ class NoRiskApi {
       return jsonDecode(utf8.decode(response.bodyBytes)) as T;
     } else if (response.statusCode == 401) {
       getUpdateStream.sink.add(['signOut']);
+      return null;
     } else {
       throw Exception('Failed to load data: ${response.body}');
     }
   }
+
+  Future<T?> _postData<T>(String backend, String endpoint,
+      Map<String, dynamic>? body, Map<String, dynamic>? params) async {
+    final response = await http.post(
+      Uri.parse(
+          '${getBaseUrl(getUserData['experimental'], backend)}/$endpoint?uuid=${getUserData['uuid']}${params?.entries.map((e) => '&${e.key}=${e.value}').join() ?? ''}'),
+      body: body != null ? jsonEncode(body) : null,
+      headers: {
+        'Authorization': 'Bearer ${getUserData['token']}',
+        'Content-Type': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      return T is String
+          ? response.body.toString() as T
+          : jsonDecode(utf8.decode(response.bodyBytes)) as T;
+    } else if (response.statusCode == 401) {
+      getUpdateStream.sink.add(['signOut']);
+      return null;
+    } else {
+      throw Exception('Failed to post data: ${response.body}');
+    }
+  }
+
+  Future<T?> _deleteData<T>(String backend, String endpoint,
+      Map<String, dynamic>? body, Map<String, dynamic>? params) async {
+    final response = await http.delete(
+      Uri.parse(
+          '${getBaseUrl(getUserData['experimental'], backend)}/$endpoint?uuid=${getUserData['uuid']}${params?.entries.map((e) => '&${e.key}=${e.value}').join() ?? ''}'),
+      body: body != null ? jsonEncode(body) : null,
+      headers: {
+        'Authorization': 'Bearer ${getUserData['token']}',
+        'Content-Type': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      return T is! Map && T is! List
+          ? response.body.toString() as T
+          : jsonDecode(utf8.decode(response.bodyBytes)) as T;
+    } else if (response.statusCode == 401) {
+      getUpdateStream.sink.add(['signOut']);
+      return null;
+    } else {
+      throw Exception('Failed to post data: ${response.body}');
+    }
+  }
+
 
   Future<Map> getUserProfile(String uuid) async {
     if (getCache['profiles']?.containsKey(uuid) ?? false) {
@@ -53,5 +102,29 @@ class NoRiskApi {
     List<dynamic>? data = await _fetchData<List<dynamic>>(
         'wordpress', 'posts', {'categories': '21,2'});
     return data ?? [];
+  }
+
+  Future<List<dynamic>> getPrivateChats() async {
+    List<dynamic>? data = await _fetchData("messaging", "chat/private", null);
+
+    return data ?? [];
+  }
+
+  Future<List<dynamic>> getChatMessages(String chatId, int page) async {
+    List<dynamic>? data = await _fetchData(
+        "messaging", "chat/$chatId/messages", {'page': page.toString()});
+
+    return data ?? [];
+  }
+
+  Future<Map<String, dynamic>> sendChatMessage(
+      String chatId, String content) async {
+    return await _postData(
+        "messaging", "chat/$chatId/messages", {'content': content}, null);
+  }
+
+  Future<String> deleteChatMessage(String chatId, String messageId) async {
+    return await _deleteData(
+        "messaging", "chat/$chatId/messages", {'messageID': messageId}, null);
   }
 }

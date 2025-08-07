@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
+import 'package:noriskclient/screens/Chats.dart';
 import 'package:noriskclient/screens/McReal.dart';
 import 'package:noriskclient/screens/News.dart';
 import 'package:noriskclient/screens/NoRiskProfile.dart';
@@ -41,7 +40,7 @@ class NoRiskClientState extends State<NoRiskClient> {
       case 0:
         return News(); // News
       case 1:
-        return Container(color: Colors.green); // Chat
+        return Chats(); // Chat
       case 2:
         return McReal();
       case 3:
@@ -56,6 +55,7 @@ class NoRiskClientState extends State<NoRiskClient> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
         body: Stack(children: [
       getActiveTab(),
       Align(

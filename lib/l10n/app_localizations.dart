@@ -562,6 +562,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You don\'t have any blocked players.'**
   String get mcReal_blocked_noBlockedPlayers;
+
+  /// No description provided for @chat_delete_message_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Message'**
+  String get chat_delete_message_title;
+
+  /// No description provided for @chat_delete_message_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this message?'**
+  String get chat_delete_message_content;
+
+  /// No description provided for @chat_delete_message_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get chat_delete_message_cancel;
+
+  /// No description provided for @chat_delete_message_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get chat_delete_message_delete;
+
+  /// No description provided for @chat_message_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This message was deleted.'**
+  String get chat_message_deleted;
+
+  /// No description provided for @chat_chat_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty Chat'**
+  String get chat_chat_empty;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

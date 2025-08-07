@@ -8,7 +8,6 @@ import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/main.dart';
-import 'package:noriskclient/provider/localeProvider.dart';
 import 'package:noriskclient/screens/NoRiskProfile.dart';
 import 'package:noriskclient/utils/BlockingManager.dart';
 import 'package:noriskclient/utils/McRealStatus.dart';
@@ -17,8 +16,6 @@ import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/McRealPost.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
 import 'package:noriskclient/widgets/NoRiskText.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 Map<String, dynamic>? ownPostData;
 
@@ -41,7 +38,6 @@ class McRealState extends State<McReal> {
 
   @override
   void initState() {
-    loadLanguage();
     getUpdateStream.sink.add([
       'loadSkin',
       userData['uuid'],
@@ -121,6 +117,7 @@ class McRealState extends State<McReal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: NoRiskClientColors.background,
         body: RefreshIndicator(
           onRefresh: () async {
@@ -178,6 +175,7 @@ class McRealState extends State<McReal> {
                                                   });
                                                   loadPosts();
                                                 },
+                                                transparent: true,
                                                 icon: NoRiskIcon.reload)))
                                     : Container()
                               ]),
@@ -195,100 +193,96 @@ class McRealState extends State<McReal> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(height: Platform.isAndroid ? 45 : 55),
-                        Stack(children: [
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    if (activeTab == 0) return;
-                                    setState(() {
-                                      activeTab = 0;
-                                      posts = [];
-                                      page = 0;
-                                    });
-                                    loadPosts();
-                                  },
-                                  child: NoRiskText(
-                                      AppLocalizations.of(context)!
-                                          .mcReal_friendsOnly
-                                          .toLowerCase(),
-                                      spaceTop: false,
-                                      spaceBottom: false,
-                                      style: TextStyle(
-                                          fontSize: 30,
-                                          color: NoRiskClientColors.text,
-                                          fontWeight: activeTab == 0
-                                              ? FontWeight.bold
-                                              : FontWeight.w400)),
-                                ),
-                                const SizedBox(width: 7.5),
-                                NoRiskText('|',
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // const SizedBox(width: 15),
+                              GestureDetector(
+                                onTap: () {
+                                  if (activeTab == 0) return;
+                                  setState(() {
+                                    activeTab = 0;
+                                    posts = [];
+                                    page = 0;
+                                  });
+                                  loadPosts();
+                                },
+                                child: NoRiskText(
+                                    AppLocalizations.of(context)!
+                                        .mcReal_friendsOnly
+                                        .toLowerCase(),
                                     spaceTop: false,
                                     spaceBottom: false,
                                     style: TextStyle(
                                         fontSize: 30,
                                         color: NoRiskClientColors.text,
-                                        fontWeight: FontWeight.bold)),
-                                const SizedBox(width: 7.5),
-                                GestureDetector(
-                                  onTap: () {
-                                if (activeTab == 1) return;
-                                    setState(() {
-                                  activeTab = 1;
-                                      posts = [];
-                                      page = 0;
-                                    });
-                                    loadPosts();
-                                  },
-                              child: NoRiskText(
-                                      AppLocalizations.of(context)!
-                                      .mcReal_discovery
-                                      .toLowerCase(),
+                                        fontWeight: activeTab == 0
+                                            ? FontWeight.bold
+                                            : FontWeight.w400)),
+                              ),
+                              NoRiskText('|',
                                   spaceTop: false,
                                   spaceBottom: false,
-                                      style: TextStyle(
+                                  style: TextStyle(
                                       fontSize: 30,
-                                          color: NoRiskClientColors.text,
-                                      fontWeight: activeTab == 1
-                                          ? FontWeight.bold
-                                          : FontWeight.w400)),
-                                ),
-                                const SizedBox(width: 7.5),
-                                NoRiskText('|',
+                                      color: NoRiskClientColors.text,
+                                      fontWeight: FontWeight.bold)),
+                              GestureDetector(
+                                onTap: () {
+                                  if (activeTab == 1) return;
+                                  setState(() {
+                                    activeTab = 1;
+                                    posts = [];
+                                    page = 0;
+                                  });
+                                  loadPosts();
+                                },
+                                child: NoRiskText(
+                                    AppLocalizations.of(context)!
+                                        .mcReal_discovery
+                                        .toLowerCase(),
                                     spaceTop: false,
                                     spaceBottom: false,
                                     style: TextStyle(
                                         fontSize: 30,
                                         color: NoRiskClientColors.text,
-                                        fontWeight: FontWeight.bold)),
-                                const SizedBox(width: 7.5),
-                                GestureDetector(
-                                  onTap: () {
-                                    if (activeTab == 2) return;
-                                    setState(() {
-                                      activeTab = 2;
-                                      posts = [];
-                                      page = 0;
-                                    });
-                                    loadPosts();
-                                  },
-                                  child: NoRiskText(
-                                      AppLocalizations.of(context)!
-                                          .mcReal_partnerPosts
-                                          .toLowerCase(),
-                                      spaceTop: false,
-                                      spaceBottom: false,
-                                      style: TextStyle(
-                                          fontSize: 30,
-                                          color: NoRiskClientColors.text,
-                                          fontWeight: activeTab == 2
-                                              ? FontWeight.bold
-                                              : FontWeight.w400)),
-                                ),
-                              ]),
-                        ]),
+                                        fontWeight: activeTab == 1
+                                            ? FontWeight.bold
+                                            : FontWeight.w400)),
+                              ),
+                              NoRiskText('|',
+                                  spaceTop: false,
+                                  spaceBottom: false,
+                                  style: TextStyle(
+                                      fontSize: 30,
+                                      color: NoRiskClientColors.text,
+                                      fontWeight: FontWeight.bold)),
+                              GestureDetector(
+                                onTap: () {
+                                  if (activeTab == 2) return;
+                                  setState(() {
+                                    activeTab = 2;
+                                    posts = [];
+                                    page = 0;
+                                  });
+                                  loadPosts();
+                                },
+                                child: NoRiskText(
+                                    AppLocalizations.of(context)!
+                                        .mcReal_partnerPosts
+                                        .toLowerCase(),
+                                    spaceTop: false,
+                                    spaceBottom: false,
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        color: NoRiskClientColors.text,
+                                        fontWeight: activeTab == 2
+                                            ? FontWeight.bold
+                                            : FontWeight.w400)),
+                              ),
+                              // const SizedBox(width: 15),
+                            ]),
                       ],
                     ),
                   ),
@@ -297,24 +291,6 @@ class McRealState extends State<McReal> {
             ],
           ),
         ));
-  }
-
-  Future<void> loadLanguage() async {
-    // Ich schäme mich dafür aber juckt jz grad :skull:
-    await Future.delayed(const Duration(seconds: 1));
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String language = prefs.getString('language') ??
-        (Config.availableLanguages
-                .contains(PlatformDispatcher.instance.locale.languageCode)
-            ? PlatformDispatcher.instance.locale.languageCode
-            : Config.fallbackLangauge);
-    if (!mounted) return;
-    final provider = Provider.of<LocaleProvider>(context, listen: false);
-    provider.setLocale(language);
-
-    if (prefs.getString('language') == null) {
-      await prefs.setString('language', language);
-    }
   }
 
   Future<void> loadPlayerPost() async {

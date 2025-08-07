@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:noriskclient/utils/StringUtils.dart';
 
 class NoRiskText extends Text {
   NoRiskText(
@@ -9,15 +10,29 @@ class NoRiskText extends Text {
     TextAlign? textAlign,
     TextStyle? style,
     TextDirection? textDirection,
+    double? maxLength,
     Locale? locale,
     bool softWrap = true,
     TextOverflow overflow = TextOverflow.clip,
     int? maxLines,
     StrutStyle? strutStyle,
   }) : super(
-          data,
+          StringUtils.enforceMaxLengthByPixels(
+            data,
+            maxLength != null ? maxLength.toDouble() : double.infinity,
+            TextStyle(
+                color: style?.color,
+                fontSize: style?.fontSize,
+                fontWeight: style?.fontWeight,
+                fontFamily: 'SmallCapsMC'),
+          ),
           key: key,
-          style: TextStyle(color: style?.color, fontSize: style?.fontSize, fontWeight: style?.fontWeight, fontFamily: 'SmallCapsMC'),
+          style: TextStyle(
+              color: style?.color,
+              fontSize: style?.fontSize,
+              fontWeight: style?.fontWeight,
+              height: style?.height,
+              fontFamily: 'SmallCapsMC'),
           textAlign: textAlign,
           textDirection: textDirection,
           textHeightBehavior: TextHeightBehavior(applyHeightToFirstAscent: spaceTop, applyHeightToLastDescent: spaceBottom),

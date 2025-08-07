@@ -23,6 +23,7 @@ class _NewsState extends State<News> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: NoRiskClientColors.background,
       body: Padding(
         padding:

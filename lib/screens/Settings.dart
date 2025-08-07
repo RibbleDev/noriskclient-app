@@ -34,6 +34,7 @@ class SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: NoRiskClientColors.background,
         body: Padding(
             padding: const EdgeInsets.all(15),
@@ -347,21 +348,21 @@ class SettingsState extends State<Settings> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          NoRiskText('Made with '.toLowerCase(),
+                          NoRiskText('Made with'.toLowerCase(),
                               spaceTop: false,
                               style: const TextStyle(
                                   color: NoRiskClientColors.textLight,
                                   fontSize: 25,
                                   fontWeight: FontWeight.bold)),
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 5),
-                            child: Text('🧡'.toLowerCase(),
+                            padding: const EdgeInsets.only(bottom: 2.5),
+                            child: Text(' 🧡 '.toLowerCase(),
                                 style: const TextStyle(
                                     color: NoRiskClientColors.textLight,
-                                    fontSize: 15,
+                                    fontSize: 13.5,
                                     fontWeight: FontWeight.bold)),
                           ),
-                          NoRiskText(' by Tim Lohrer'.toLowerCase(),
+                          NoRiskText('by Tim Lohrer'.toLowerCase(),
                               spaceTop: false,
                               style: const TextStyle(
                                   color: NoRiskClientColors.textLight,

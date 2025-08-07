@@ -32,6 +32,7 @@ class BlockedState extends State<Blocked> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: NoRiskClientColors.background,
         body: Padding(
           padding: const EdgeInsets.all(15),

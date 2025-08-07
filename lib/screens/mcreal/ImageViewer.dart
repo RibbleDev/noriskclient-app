@@ -10,6 +10,7 @@ class ImageViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: NoRiskClientColors.darkerBackground,
       body: Stack(
         children: [

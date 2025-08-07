@@ -37,6 +37,7 @@ class SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: NoRiskClientColors.background,
         body: Padding(
           padding: const EdgeInsets.all(15),
@@ -181,6 +182,7 @@ class SignInState extends State<SignIn> {
         .push(MaterialPageRoute(builder: (BuildContext context) {
       MobileScannerController controller = MobileScannerController();
       return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: NoRiskClientColors.background,
         body: Stack(
           children: [

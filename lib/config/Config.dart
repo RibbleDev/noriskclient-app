@@ -9,6 +9,8 @@ class Config {
   static int maxCommentContentLength = 150;
   static int maxReportContentLength = 200;
 
+  static int messagesPerPage = 5;
+
   static Uri privacyUrl = Uri.parse('https://blog.norisk.gg/privacy-policy/');
   static Uri termsUrl = Uri.parse('https://blog.norisk.gg/en/terms-of-use/');
   static Uri imprintUrl = Uri.parse('https://blog.norisk.gg/impressum/');

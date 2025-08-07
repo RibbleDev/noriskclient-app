@@ -241,4 +241,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mcReal_blocked_noBlockedPlayers => 'You don\'t have any blocked players.';
+
+  @override
+  String get chat_delete_message_title => 'Delete Message';
+
+  @override
+  String get chat_delete_message_content => 'Are you sure you want to delete this message?';
+
+  @override
+  String get chat_delete_message_cancel => 'Cancel';
+
+  @override
+  String get chat_delete_message_delete => 'Delete';
+
+  @override
+  String get chat_message_deleted => 'This message was deleted.';
+
+  @override
+  String get chat_chat_empty => 'Empty Chat';
 }

@@ -76,5 +76,11 @@
   "mcReal_profile_unblockUserPopupTitle": "Bist du sicher?",
   "mcReal_profile_unblockUserPopupContent": "Möchtest du diesen Spieler wirklich entsperren?",
   "mcReal_profile_blockedPlayer": "Du hast diesen Spieler blockiert.",
-  "mcReal_blocked_noBlockedPlayers": "Du hast keine Spieler blockiert."
+  "mcReal_blocked_noBlockedPlayers": "Du hast keine Spieler blockiert.",
+  "chat_delete_message_title": "Nachricht Löschen",
+  "chat_delete_message_content": "Bist du sicher, dass du diese Nachricht löschen willst?",
+  "chat_delete_message_cancel": "Abbrechen",
+  "chat_delete_message_delete": "Löschen",
+  "chat_message_deleted": "Diese Nachricht wurde gelöscht.",
+  "chat_chat_empty": "Leerer Chat"
 }

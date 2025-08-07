@@ -27,9 +27,9 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
   Widget build(BuildContext context) {
     return NoRiskContainer(
       height: 75,
-      width: double.infinity,
+      width: MediaQuery.of(context).size.width,
       color: NoRiskClientColors.light,
-      backgroundOpacity: 200,
+      backgroundOpacity: 240,
       borderOpacity: 200,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -38,29 +38,28 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
           _BottomNavigationBarButton(
             index: 0,
             currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.comment,
+              icon: NoRiskIcon.news,
             label: 'news',
             onTap: () => widget.currentIndexController.sink.add(0)
           ),
           _BottomNavigationBarButton(
             index: 1,
             currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.comment,
-            label: 'chat',
+            icon: NoRiskIcon.chats,
+            label: 'chats',
             onTap: () => widget.currentIndexController.sink.add(1),
-            disabled: true,
           ),
           _BottomNavigationBarButton(
             index: 2,
             currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.comment,
+              icon: NoRiskIcon.mcreal,
             label: 'mcreal',
             onTap: () => widget.currentIndexController.sink.add(2)
           ),
           _BottomNavigationBarButton(
             index: 3,
             currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.comment,
+            icon: NoRiskIcon.friends,
             label: 'friends',
             onTap: () => widget.currentIndexController.sink.add(3),
             disabled: true,
@@ -68,7 +67,7 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
           _BottomNavigationBarButton(
             index: 4,
             currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.comment,
+              icon: NoRiskIcon.profile,
             label: 'you',
             onTap: () => widget.currentIndexController.sink.add(4)
           ),
