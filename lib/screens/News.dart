@@ -27,7 +27,7 @@ class _NewsState extends State<News> {
       backgroundColor: NoRiskClientColors.background,
       body: Padding(
         padding:
-            const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 45),
+            const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 55),
         child: RefreshIndicator(
             onRefresh: loadNews, child: ListView(children: news)),
       ),

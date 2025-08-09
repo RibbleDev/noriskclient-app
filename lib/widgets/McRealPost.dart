@@ -443,11 +443,13 @@ class McRealPostState extends State<McRealPost> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               NoRiskText(
-                                  StringUtils.enforceMaxLength(
-                                      widget.postData['post']['title']
-                                          .toString()
-                                          .toUpperCase(),
-                                      20),
+                                  widget.postData['post']['title']
+                                      .toString()
+                                      .toUpperCase(),
+                                  maxLength: MediaQuery.of(context).size.width -
+                                      2 * 15 -
+                                      2 * 12 -
+                                      160,
                                   spaceTop: false,
                                   spaceBottom: false,
                                   style: const TextStyle(

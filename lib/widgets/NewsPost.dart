@@ -32,7 +32,17 @@ class NewsPost extends StatelessWidget {
           children: [
             Row(
               children: [
-                NoRiskText('${title.toLowerCase()} - $postedAt',
+                NoRiskText(title.toLowerCase(),
+                    maxLength: MediaQuery.of(context).size.width -
+                        2 * 15 -
+                        2 * 10 -
+                        115,
+                    spaceTop: false,
+                    spaceBottom: false,
+                    style: TextStyle(
+                        fontSize: 25, color: NoRiskClientColors.text)),
+                const Spacer(),
+                NoRiskText(postedAt,
                     spaceTop: false,
                     spaceBottom: false,
                     style: TextStyle(

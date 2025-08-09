@@ -97,7 +97,9 @@ class SignInState extends State<SignIn> {
                                       AppLocalizations.of(context)!
                                           .signIn_signingIn
                                           .toLowerCase(),
-                                      style: const TextStyle(fontSize: 35))
+                                      style: TextStyle(
+                                          fontSize: 35,
+                                          color: Colors.white.withOpacity(0.5)))
                                 ]
                               : [
                                   NoRiskText(

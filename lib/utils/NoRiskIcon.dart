@@ -32,13 +32,13 @@ class NoRiskIcon {
       fit: BoxFit.fill);
 
   static Image news = Image.asset('lib/assets/widgets/news.png',
-      height: 26, width: 26, fit: BoxFit.fill);
+      height: 25, width: 25, fit: BoxFit.fill);
   static Image chats = Image.asset('lib/assets/widgets/chats.png',
-      height: 30, width: 30, fit: BoxFit.fill);
+      height: 25, width: 25, fit: BoxFit.fill);
   static Image mcreal = Image.asset('lib/assets/widgets/mcreal.png',
-      height: 27, width: 27, fit: BoxFit.fill);
+      height: 25, width: 25, fit: BoxFit.fill);
   static Image friends = Image.asset('lib/assets/widgets/friends.png',
-      height: 27, width: 27, fit: BoxFit.fill);
+      height: 25, width: 25, fit: BoxFit.fill);
   static Image profile = Image.asset('lib/assets/widgets/profile.png',
-      height: 29, width: 29, fit: BoxFit.fill);
+      height: 25, width: 25, fit: BoxFit.fill);
 }

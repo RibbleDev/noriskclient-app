@@ -124,7 +124,8 @@ class McRealState extends State<PostDetails> {
           children: [
             Padding(
               padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.width * 0.85),
+                  top: MediaQuery.of(context).size.width * 0.85 +
+                      (isAndroid ? 50 : 0)),
               child: RefreshIndicator(
                 onRefresh: () {
                   setState(() {
@@ -162,6 +163,8 @@ class McRealState extends State<PostDetails> {
                                                   color:
                                                       NoRiskClientColors.text)),
                                         ),
+                                      if ((comments ?? []).length < 5)
+                                        const SizedBox(height: 500),
                                       const SizedBox(height: 50)
                                     ])
                               : const Center(

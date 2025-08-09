@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/main.dart';

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/main.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
@@ -26,10 +27,10 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return NoRiskContainer(
-      height: 75,
+      height: isAndroid ? 60 : 70,
       width: MediaQuery.of(context).size.width,
       color: NoRiskClientColors.light,
-      backgroundOpacity: 240,
+      backgroundOpacity: 225,
       borderOpacity: 200,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -103,10 +104,10 @@ class _BottomNavigationBarButton extends StatelessWidget {
               children: [
                 SizedBox(
             width: 65,
-                  height: 75,
+            height: 55,
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 30),
+                padding: const EdgeInsets.only(bottom: 20),
                       child: NoRiskIconButton(
                     onTap: disabled ? () {} : onTap,
                           transparent: true,
@@ -124,10 +125,10 @@ class _BottomNavigationBarButton extends StatelessWidget {
                 ),
                 SizedBox(
             width: 65,
-                  height: 75,
+            height: 55,
                   child: Center(
                     child: Padding(
-                          padding: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.only(top: 20),
                           child: NoRiskText(label,
                               spaceTop: false,
                               spaceBottom: false,

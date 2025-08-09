@@ -71,7 +71,7 @@ class AppState extends State<App> {
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark,
-          systemNavigationBarColor: NoRiskClientColors.background,
+          systemNavigationBarColor: Colors.transparent,
           systemNavigationBarIconBrightness: Brightness.light,
         ),
       );
