@@ -41,4 +41,7 @@ class NoRiskIcon {
       height: 25, width: 25, fit: BoxFit.fill);
   static Image profile = Image.asset('lib/assets/widgets/profile.png',
       height: 25, width: 25, fit: BoxFit.fill);
+
+  static Image gamescom = Image.asset('lib/assets/widgets/gamescom.png',
+      height: 25, width: 25, fit: BoxFit.fill);
 }

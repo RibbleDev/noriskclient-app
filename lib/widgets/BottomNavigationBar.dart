@@ -69,7 +69,7 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
           _BottomNavigationBarButton(
             index: 3,
             currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.friends,
+            icon: NoRiskIcon.gamescom,
             label: 'gamescom',
             onTap: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (BuildContext context) {

@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/screens/GiveawayAdminInfo.dart';
+import 'package:noriskclient/screens/GiveawayResult.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
 import 'package:noriskclient/widgets/QRScannerOverlayShape.dart';
 
@@ -95,24 +96,48 @@ class _ScanQRCodeState extends State<ScanQRCode> {
   void handleQrCodeResult(MobileScannerController controller, String code) async {
     print('QR Code Detected: $code');
 
-    if (code.contains("/giveaways/") && widget.isAdminScan) {
+    if (code.contains("/giveaways/")) {
       String giveawayId = code.split("/")[code.split("/").length - 2];
-
-      Map<String, dynamic> giveawayData = await NoRiskApi().getGiveawayAdminInfo(giveawayId);
-
-      if (giveawayData['itemId'] == null) {
-        Fluttertoast.showToast(msg: 'Invalid voucher QR code');
-        return;
-      }
 
       controller.stop();
       controller.dispose();
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GiveawayAdminInfo(
-                giveawayId: giveawayId, itemId: giveawayData['itemId'], additionalInfo: giveawayData['additionalInformation'] ?? 'null'),
-          ));
+      if (widget.isAdminScan) {
+        Map<String, dynamic> giveawayData =
+            await NoRiskApi().getGiveawayAdminInfo(giveawayId);
+
+        if (giveawayData['itemId'] == null) {
+          Fluttertoast.showToast(msg: 'Invalid voucher QR code');
+          return;
+        }
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GiveawayAdminInfo(
+                  giveawayId: giveawayId,
+                  itemId: giveawayData['itemId'],
+                  additionalInfo:
+                      giveawayData['additionalInformation'] ?? 'null'),
+            ));
+      } else {
+        Map<String, dynamic>? resultData =
+            await NoRiskApi().redeemGiveaway(giveawayId);
+
+        if (resultData == null) {
+          Fluttertoast.showToast(msg: 'Invalid voucher QR code');
+          return;
+        }
+
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GiveawayResult(
+                itemId: resultData['id'] ?? '',
+                itemName: resultData['name'] ?? '',
+                itemRarity: resultData['rarity'] ?? '',
+                errorMessage: resultData['error'] ?? '',
+              ),
+            ));
+      }
     }
   }
 }

@@ -81,7 +81,6 @@ class NoRiskApi {
     }
   }
 
-
   Future<Map> getUserProfile(String uuid) async {
     if (getCache['profiles']?.containsKey(uuid) ?? false) {
       return getCache['profiles']![uuid];
@@ -135,6 +134,27 @@ class NoRiskApi {
       return {};
     } else {
       return data;
+    }
+  }
+
+  Future<Map<String, dynamic>?> redeemGiveaway(String giveawayId) async {
+    final response = await http.post(
+      Uri.parse(
+          '${getBaseUrl(getUserData['experimental'], "cosmetics")}/giveaways/$giveawayId/redeem?uuid=${getUserData['uuid']}'),
+      body: null,
+      headers: {
+        'Authorization': 'Bearer ${getUserData['token']}',
+        'Content-Type': 'application/json'
+      },
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
+    } else if (response.statusCode == 401) {
+      getUpdateStream.sink.add(['signOut']);
+      return null;
+    } else {
+      return {'error': utf8.decode(response.bodyBytes)};
     }
   }
 }
