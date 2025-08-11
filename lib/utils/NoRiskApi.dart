@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:http/http.dart' as http;
 import 'package:noriskclient/main.dart';
@@ -126,5 +125,16 @@ class NoRiskApi {
   Future<String> deleteChatMessage(String chatId, String messageId) async {
     return await _deleteData(
         "messaging", "chat/$chatId/messages", {'messageID': messageId}, null);
+  }
+
+  Future<Map<String, dynamic>> getGiveawayAdminInfo(String giveawayId) async {
+    Map<String, dynamic>? data =
+        await _fetchData("cosmetics", "giveaways/admin/$giveawayId", null);
+
+    if (data == null) {
+      return {};
+    } else {
+      return data;
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
+import 'package:noriskclient/screens/ScanQRCode.dart';
 import 'package:noriskclient/screens/settings/Blocked.dart';
 import 'package:noriskclient/widgets/NoRiskBackButton.dart';
 import 'package:noriskclient/widgets/NoRiskContainer.dart';
@@ -303,6 +304,47 @@ class SettingsState extends State<Settings> {
                       ),
                     ),
                   ),
+                  if (['DEVELOPER', 'ADMIN'].contains(cache['profiles']
+                              ?[getUserData['uuid']]?['nrcUser']?['rank']
+                          ?.toString()
+                          .toUpperCase() ??
+                      'DEFAULT'))
+                    Column(children: [
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const SizedBox(width: 5),
+                          NoRiskText('Admin Options'.toLowerCase(),
+                              spaceTop: false,
+                              spaceBottom: false,
+                              style: const TextStyle(
+                                  color: NoRiskClientColors.text,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const ScanQRCode(isAdminScan: true))),
+                        child: NoRiskContainer(
+                          width: double.infinity,
+                          height: 50,
+                          child: Center(
+                            child: NoRiskText('Get Giveaway Info'.toLowerCase(),
+                                spaceTop: false,
+                                spaceBottom: false,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                    ]),
                   const SizedBox(height: 50),
                   GestureDetector(
                     onTap: () {
@@ -343,7 +385,7 @@ class SettingsState extends State<Settings> {
                   Center(
                     child: GestureDetector(
                       onTap: () => launchUrlString(
-                          'https://github.com/TimLohrer',
+                          'https://timlohrer.dev',
                           mode: LaunchMode.externalApplication),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

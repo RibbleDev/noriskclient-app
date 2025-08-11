@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
+import 'package:noriskclient/screens/ScanQRCode.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
@@ -57,13 +58,24 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
             label: 'mcreal',
             onTap: () => widget.currentIndexController.sink.add(2)
           ),
+          // _BottomNavigationBarButton(
+          //   index: 3,
+          //   currentIndex: widget.currentIndex,
+          //   icon: NoRiskIcon.friends,
+          //   label: 'friends',
+          //   onTap: () => widget.currentIndexController.sink.add(3),
+          //   disabled: true,
+          // ),
           _BottomNavigationBarButton(
             index: 3,
             currentIndex: widget.currentIndex,
             icon: NoRiskIcon.friends,
-            label: 'friends',
-            onTap: () => widget.currentIndexController.sink.add(3),
-            disabled: true,
+            label: 'gamescom',
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (BuildContext context) {
+              return ScanQRCode();
+            })),
+            fontSize: 21,
           ),
           _BottomNavigationBarButton(
             index: 4,
@@ -87,6 +99,7 @@ class _BottomNavigationBarButton extends StatelessWidget {
     required this.icon,
     required this.index,
     this.disabled = false,
+    this.fontSize = 23.5,
   });
 
   final void Function() onTap;
@@ -95,6 +108,7 @@ class _BottomNavigationBarButton extends StatelessWidget {
   final Widget icon;
   final int index;
   final bool disabled;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +147,7 @@ class _BottomNavigationBarButton extends StatelessWidget {
                               spaceTop: false,
                               spaceBottom: false,
                               style: TextStyle(
-                        fontSize: 25,
+                        fontSize: fontSize,
                         color: disabled
                             ? Colors.white.withAlpha((100).floor())
                             : currentIndex == index
