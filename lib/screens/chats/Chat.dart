@@ -104,140 +104,149 @@ class ChatState extends State<Chat> {
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: NoRiskClientColors.background,
-        body: Column(children: [
-          SizedBox(height: isAndroid ? 40 : 60),
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 7.5),
-                      child: NoRiskBackButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+        body: Padding(
+          padding: EdgeInsets.only(
+              bottom:
+                  isAndroid ? MediaQuery.of(context).viewPadding.bottom : 0),
+          child: Column(children: [
+            SizedBox(height: isAndroid ? 40 : 60),
+            Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 7.5),
+                        child: NoRiskBackButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: openProfilePage,
-                      child: NoRiskText(
-                          cache['profiles']?[widget.participantId]?['nrcUser']
-                                      ?['ign']
-                                  ?.toString()
-                                  .toLowerCase() ??
-                              '',
-                          spaceTop: false,
-                          spaceBottom: false,
-                          style: const TextStyle(
-                              color: NoRiskClientColors.text,
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-              width: MediaQuery.of(context).size.width - 2 * 15,
-              height: MediaQuery.of(context).size.height -
-                  195 + (isAndroid ? 20 : 0) -
-                  (keyboardVisible
-                      ? isAndroid
-                          ? 300
-                          : 345
-                      : 0),
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  setState(() {
-                    messages = [];
-                    page = 1;
-                  });
-                  loadMessages();
-                },
-                child: ListView(
-                  controller: scrollController,
-                  reverse: true,
-                  children: [
-                    messages.isEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 35),
-                            child: NoRiskText(AppLocalizations.of(context)!.chat_chat_empty.toLowerCase(),
-                                spaceTop: false,
-                                spaceBottom: false,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                    fontSize: 20,
-                                    color: NoRiskClientColors.textLight)),
-                          )
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                                ...messages,
-                                const SizedBox(height: 10),
-                              ]),
-                  ],
-                ),
-              )),
-          const SizedBox(height: 5),
-          Padding(
-            padding: const EdgeInsets.only(left: 15, right: 15),
-            child: NoRiskTextField(
-              controller: textController,
-              focusNode: focusNode,
-              width: MediaQuery.of(context).size.width - 2 * 10,
-              hintText: 'Type a message',
-              hasSendButton: true,
-              onSubmitted: (String text, bool wasButtonPressed) {
-                if (text.isEmpty) {
-                  return;
-                }
-                textController.clear();
-                focusNode.unfocus();
-                NoRiskApi()
-                    .sendChatMessage(widget.chatId, text)
-                    .then((Map<String, dynamic> data) {
-                  setState(() {
-                    messages.insert(
-                      messages.length,
-                      Message(
-                        chatId: widget.chatId,
-                        messageId: data['_id'],
-                        content: data['content'],
-                        senderId: getUserData['uuid'],
-                        sentAt: data['sentAt'],
-                        status: data['readAt'] != null
-                            ? MessageStatus.READ
-                            : data['recivedAt'] != data['sentAt']
-                                ? MessageStatus.RECIVED
-                                : data['sentAt'] != null
-                                    ? MessageStatus.SENT
-                                    : MessageStatus.PENDING,
-                        chatUpdateStream: widget.chatUpdateStream,
+                Padding(
+                  padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: openProfilePage,
+                        child: NoRiskText(
+                            cache['profiles']?[widget.participantId]?['nrcUser']
+                                        ?['ign']
+                                    ?.toString()
+                                    .toLowerCase() ??
+                                '',
+                            spaceTop: false,
+                            spaceBottom: false,
+                            style: const TextStyle(
+                                color: NoRiskClientColors.text,
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold)),
                       ),
-                    );
-                  });
-                  widget.chatUpdateStream.sink.add('*');
-                });
-              },
+                    ],
+                  ),
+                ),
+              ],
             ),
-          )
-        ]));
+            const SizedBox(height: 10),
+            SizedBox(
+                width: MediaQuery.of(context).size.width - 2 * 15,
+                height: MediaQuery.of(context).size.height -
+                    195 +
+                    (isAndroid ? 20 : 0) -
+                    (keyboardVisible
+                        ? isAndroid
+                            ? 300
+                            : 345
+                        : 0),
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      messages = [];
+                      page = 1;
+                    });
+                    loadMessages();
+                  },
+                  child: ListView(
+                    controller: scrollController,
+                    reverse: true,
+                    children: [
+                      messages.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 35),
+                              child: NoRiskText(
+                                  AppLocalizations.of(context)!
+                                      .chat_chat_empty
+                                      .toLowerCase(),
+                                  spaceTop: false,
+                                  spaceBottom: false,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      color: NoRiskClientColors.textLight)),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                  ...messages,
+                                  const SizedBox(height: 10),
+                                ]),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: NoRiskTextField(
+                controller: textController,
+                focusNode: focusNode,
+                width: MediaQuery.of(context).size.width - 2 * 10,
+                hintText: 'Type a message',
+                hasSendButton: true,
+                onSubmitted: (String text, bool wasButtonPressed) {
+                  if (text.isEmpty) {
+                    return;
+                  }
+                  textController.clear();
+                  focusNode.unfocus();
+                  NoRiskApi()
+                      .sendChatMessage(widget.chatId, text)
+                      .then((Map<String, dynamic> data) {
+                    setState(() {
+                      messages.insert(
+                        messages.length,
+                        Message(
+                          chatId: widget.chatId,
+                          messageId: data['_id'],
+                          content: data['content'],
+                          senderId: getUserData['uuid'],
+                          sentAt: data['sentAt'],
+                          status: data['readAt'] != null
+                              ? MessageStatus.READ
+                              : data['recivedAt'] != data['sentAt']
+                                  ? MessageStatus.RECIVED
+                                  : data['sentAt'] != null
+                                      ? MessageStatus.SENT
+                                      : MessageStatus.PENDING,
+                          chatUpdateStream: widget.chatUpdateStream,
+                        ),
+                      );
+                    });
+                    widget.chatUpdateStream.sink.add('*');
+                  });
+                },
+              ),
+            )
+          ]),
+        ));
   }
 
   Future<void> loadMessages() async {
