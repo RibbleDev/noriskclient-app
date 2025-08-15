@@ -60,15 +60,9 @@ class NoRiskClientState extends State<NoRiskClient> {
           getActiveTab(),
           Align(
               alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    bottom: isAndroid
-                        ? MediaQuery.of(context).viewPadding.bottom
-                        : 0),
-                child: NoRiskBottomNavigationBar(
-                    currentIndex: tabIndex,
-                    currentIndexController: activeTabIndexController),
-              )),
+              child: NoRiskBottomNavigationBar(
+                  currentIndex: tabIndex,
+                  currentIndexController: activeTabIndexController)),
         ]));
   }
 }

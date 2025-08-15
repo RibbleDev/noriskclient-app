@@ -28,63 +28,65 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return NoRiskContainer(
-      height: isAndroid ? 60 : 70,
+      height: isAndroid ? 60 + MediaQuery.of(context).viewPadding.bottom : 70,
       width: MediaQuery.of(context).size.width,
       color: NoRiskClientColors.light,
       backgroundOpacity: 225,
       borderOpacity: 200,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _BottomNavigationBarButton(
-            index: 0,
-            currentIndex: widget.currentIndex,
-              icon: NoRiskIcon.news,
-            label: 'news',
-            onTap: () => widget.currentIndexController.sink.add(0)
-          ),
-          _BottomNavigationBarButton(
-            index: 1,
-            currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.chats,
-            label: 'chats',
-            onTap: () => widget.currentIndexController.sink.add(1),
-          ),
-          _BottomNavigationBarButton(
-            index: 2,
-            currentIndex: widget.currentIndex,
-              icon: NoRiskIcon.mcreal,
-            label: 'mcreal',
-            onTap: () => widget.currentIndexController.sink.add(2)
-          ),
-          // _BottomNavigationBarButton(
-          //   index: 3,
-          //   currentIndex: widget.currentIndex,
-          //   icon: NoRiskIcon.friends,
-          //   label: 'friends',
-          //   onTap: () => widget.currentIndexController.sink.add(3),
-          //   disabled: true,
-          // ),
-          _BottomNavigationBarButton(
-            index: 3,
-            currentIndex: widget.currentIndex,
-            icon: NoRiskIcon.gamescom,
-            label: 'gamescom',
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (BuildContext context) {
-              return ScanQRCode();
-            })),
-            fontSize: 21,
-          ),
-          _BottomNavigationBarButton(
-            index: 4,
-            currentIndex: widget.currentIndex,
-              icon: NoRiskIcon.profile,
-            label: 'you',
-            onTap: () => widget.currentIndexController.sink.add(4)
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.only(
+            bottom: isAndroid ? MediaQuery.of(context).viewPadding.bottom : 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _BottomNavigationBarButton(
+                index: 0,
+                currentIndex: widget.currentIndex,
+                icon: NoRiskIcon.news,
+                label: 'news',
+                onTap: () => widget.currentIndexController.sink.add(0)),
+            _BottomNavigationBarButton(
+              index: 1,
+              currentIndex: widget.currentIndex,
+              icon: NoRiskIcon.chats,
+              label: 'chats',
+              onTap: () => widget.currentIndexController.sink.add(1),
+            ),
+            _BottomNavigationBarButton(
+                index: 2,
+                currentIndex: widget.currentIndex,
+                icon: NoRiskIcon.mcreal,
+                label: 'mcreal',
+                onTap: () => widget.currentIndexController.sink.add(2)),
+            // _BottomNavigationBarButton(
+            //   index: 3,
+            //   currentIndex: widget.currentIndex,
+            //   icon: NoRiskIcon.friends,
+            //   label: 'friends',
+            //   onTap: () => widget.currentIndexController.sink.add(3),
+            //   disabled: true,
+            // ),
+            _BottomNavigationBarButton(
+                index: 3,
+                currentIndex: widget.currentIndex,
+                icon: NoRiskIcon.gamescom,
+                label: 'gamescom',
+                onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                      return ScanQRCode();
+                    })),
+                fontSize: 21,
+                disabled: DateTime.now().isBefore(DateTime(2025, 8, 22))
+            ),
+            _BottomNavigationBarButton(
+                index: 4,
+                currentIndex: widget.currentIndex,
+                icon: NoRiskIcon.profile,
+                label: 'you',
+                onTap: () => widget.currentIndexController.sink.add(4)),
+          ],
+        ),
       ),
     );
   }
