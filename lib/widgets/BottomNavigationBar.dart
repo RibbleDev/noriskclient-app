@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/screens/ScanQRCode.dart';
@@ -77,7 +78,7 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
                       return ScanQRCode();
                     })),
                 fontSize: 21,
-                disabled: DateTime.now().isBefore(DateTime(2025, 8, 22))
+                disabled: DateTime.now().isBefore(DateTime(2025, 8, 20))
             ),
             _BottomNavigationBarButton(
                 index: 4,
