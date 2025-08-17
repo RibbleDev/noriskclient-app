@@ -18,7 +18,7 @@ class NoRiskProfileStatisticContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NoRiskContainer(
-      height: 65,
+      height: MediaQuery.of(context).size.width * 0.15,
       width: width,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
