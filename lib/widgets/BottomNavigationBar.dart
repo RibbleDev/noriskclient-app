@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/screens/ScanQRCode.dart';
