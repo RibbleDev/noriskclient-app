@@ -52,7 +52,7 @@
   "settings_signOut": "Abmelden",
   "settings_title": "Einstellungen",
   "signIn_eula": "Durch die Anmeldung erklärst du dich mit den Nutzungsbedingungen und Datenschutzrichtlinien einverstanden.",
-  "signIn_explanation": "Um dich anzumelden, scanne einfach den QR-Code aus dem NoRiskClient Launcher unter der Menu Option \"McReal App\" in den Einstellungen.",
+  "signIn_explanation": "Um dich anzumelden, scanne einfach den QR-Code aus dem NoRisk Client Launcher unter der Menü Option \"Social Accounts\" neben dem account manager.",
   "signIn_scanQrCode": "QR Code Scannen",
   "signIn_signIn": "Anmelden",
   "signIn_signingIn": "Wird angemeldet...",

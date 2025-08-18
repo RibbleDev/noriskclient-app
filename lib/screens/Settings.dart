@@ -345,6 +345,38 @@ class SettingsState extends State<Settings> {
                         ),
                       ),
                     ]),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(width: 5),
+                      NoRiskText('Updates'.toLowerCase(),
+                          spaceTop: false,
+                          spaceBottom: false,
+                          style: const TextStyle(
+                              color: NoRiskClientColors.text,
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  GestureDetector(
+                    onTap: () => launchUrl(
+                        isAndroid ? Config.playStoreUrl : Config.appStoreUrl),
+                    child: NoRiskContainer(
+                      width: double.infinity,
+                      height: 50,
+                      child: Center(
+                        child: NoRiskText(
+                            (isAndroid ? 'PlayStore' : 'AppStore')
+                                .toLowerCase(),
+                            spaceTop: false,
+                            spaceBottom: false,
+                            style: const TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 50),
                   GestureDetector(
                     onTap: () {

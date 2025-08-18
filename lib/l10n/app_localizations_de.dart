@@ -168,7 +168,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get signIn_eula => 'Durch die Anmeldung erklärst du dich mit den Nutzungsbedingungen und Datenschutzrichtlinien einverstanden.';
 
   @override
-  String get signIn_explanation => 'Um dich anzumelden, scanne einfach den QR-Code aus dem NoRiskClient Launcher unter der Menu Option \"McReal App\" in den Einstellungen.';
+  String get signIn_explanation => 'Um dich anzumelden, scanne einfach den QR-Code aus dem NoRisk Client Launcher unter der Menü Option \"Social Accounts\" neben dem account manager.';
 
   @override
   String get signIn_scanQrCode => 'QR Code Scannen';

@@ -416,7 +416,7 @@ abstract class AppLocalizations {
   /// No description provided for @signIn_explanation.
   ///
   /// In en, this message translates to:
-  /// **'To sign in just scan the QR-Code from the NoRiskClient Launcher under the menu option \"McReal App\" in the settings tab.'**
+  /// **'To sign in just scan the QR-Code from the NoRiskClient Launcher under the menu option \"Social Accounts\" next to the account manager.'**
   String get signIn_explanation;
 
   /// No description provided for @signIn_scanQrCode.

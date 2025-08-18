@@ -15,4 +15,9 @@ class Config {
   static Uri termsUrl = Uri.parse('https://blog.norisk.gg/en/terms-of-use/');
   static Uri imprintUrl = Uri.parse('https://blog.norisk.gg/impressum/');
   static Uri supportUrl = Uri.parse('mailto:support@norisk.gg');
+
+  static Uri playStoreUrl = Uri.parse(
+      'https://play.google.com/store/apps/details?id=gg.norisk.noriskclient');
+  static Uri appStoreUrl =
+      Uri.parse('https://apps.apple.com/de/app/norisk-client/id6661020268');
 }

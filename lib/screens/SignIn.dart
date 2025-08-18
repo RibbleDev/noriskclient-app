@@ -66,6 +66,19 @@ class SignInState extends State<SignIn> {
               Column(children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                 NoRiskText(
+                  AppLocalizations.of(context)!
+                      .signIn_explanation
+                      .toLowerCase(),
+                  spaceTop: false,
+                  spaceBottom: false,
+                  style: const TextStyle(
+                      height: 0.85,
+                      fontSize: 17.5,
+                      color: NoRiskClientColors.textLight),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                NoRiskText(
                   AppLocalizations.of(context)!.signIn_eula.toLowerCase(),
                   spaceTop: false,
                   spaceBottom: false,
@@ -78,7 +91,7 @@ class SignInState extends State<SignIn> {
                   onTap: scanQrCode,
                   child: Padding(
                     padding:
-                        const EdgeInsets.only(left: 5, right: 5, bottom: 10),
+                        const EdgeInsets.only(bottom: 10),
                     child: NoRiskContainer(
                       height: 65,
                       padding: const EdgeInsets.all(10),
@@ -96,7 +109,9 @@ class SignInState extends State<SignIn> {
                                   NoRiskText(
                                       AppLocalizations.of(context)!
                                           .signIn_signingIn
-                                          .toLowerCase(),
+                                          .toLowerCase(),  
+                                      spaceTop: false,
+                                      spaceBottom: false,
                                       style: TextStyle(
                                           fontSize: 35,
                                           color: Colors.white.withOpacity(0.5)))

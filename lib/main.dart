@@ -170,6 +170,7 @@ class AppState extends State<App> {
                       backgroundColor: NoRiskClientColors.background),
                   textTheme: Theme.of(context).textTheme.apply(
                       fontFamily: 'SmallCapsMC',
+                      fontSizeFactor: 1.25,
                       displayColor: Colors.white,
                       bodyColor: Colors.white)),
               home: MediaQuery(

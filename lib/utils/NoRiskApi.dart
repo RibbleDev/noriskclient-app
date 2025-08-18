@@ -157,4 +157,16 @@ class NoRiskApi {
       return {'error': utf8.decode(response.bodyBytes)};
     }
   }
+
+  Future<String?> isAndroidAppReleased() async {
+    final response = await http
+        .get(Uri.parse('https://dl-staging.norisk.gg/android_app_release'));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(utf8.decode(response.bodyBytes))['currentVersion']
+          as String?;
+    } else {
+      return null;
+    }
+  }
 }

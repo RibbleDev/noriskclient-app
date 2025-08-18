@@ -326,7 +326,11 @@ class ProfileState extends State<Profile> {
                                   ),
                                 ]),
                             const SizedBox(height: 15),
-                            if (!noPinns && blocked != true) ...pinns!,
+                            if (!noPinns && blocked != true)
+                              Column(children: [
+                                ...pinns!,
+                                const SizedBox(height: 50)
+                              ]),
                             if (noPinns || blocked == true)
                                           SizedBox(
                                             height: MediaQuery.of(context)
