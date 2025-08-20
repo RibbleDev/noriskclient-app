@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:noriskclient/l10n/app_localizations.dart';
@@ -14,7 +13,6 @@ import 'package:noriskclient/widgets/NoRiskText.dart';
 import 'package:noriskclient/widgets/QRScannerOverlayShape.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 
@@ -30,8 +28,10 @@ class SignInState extends State<SignIn> {
 
   @override
   void initState() {
-    loadLanguage();
     super.initState();
+
+    final provider = Provider.of<LocaleProvider>(context, listen: false);
+    provider.loadLocale();
   }
 
   @override
@@ -174,24 +174,6 @@ class SignInState extends State<SignIn> {
             ],
           ),
         ));
-  }
-
-  Future<void> loadLanguage() async {
-    // Ich schäme mich dafür aber juckt jz grad :skull:
-    await Future.delayed(const Duration(seconds: 1));
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String language = prefs.getString('language') ??
-        (Config.availableLanguages
-                .contains(PlatformDispatcher.instance.locale.languageCode)
-            ? PlatformDispatcher.instance.locale.languageCode
-            : Config.fallbackLangauge);
-    if (!mounted) return;
-    final provider = Provider.of<LocaleProvider>(context, listen: false);
-    provider.setLocale(language);
-
-    if (prefs.getString('language') == null) {
-      await prefs.setString('language', language);
-    }
   }
 
   void scanQrCode() {

@@ -5,8 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:noriskclient/config/Colors.dart';
-import 'package:noriskclient/config/Config.dart';
+import 'package:noriskclient/config/Colors.dart'; 
 import 'package:noriskclient/provider/localeProvider.dart';
 import 'package:noriskclient/NoRiskClient.dart';
 import 'package:noriskclient/screens/SignIn.dart';
@@ -56,7 +55,6 @@ class AppState extends State<App> {
   @override
   void initState() {
     removeSplashScreen();
-    loadLanguage();
 
     isIOS = Theme.of(context).platform == TargetPlatform.iOS ||
         Theme.of(context).platform == TargetPlatform.macOS;
@@ -79,7 +77,7 @@ class AppState extends State<App> {
     }
 
     super.initState();
-
+    
     loadUserData();
     updateStream.stream.listen((List data) async {
       String event = data[0];
@@ -282,24 +280,6 @@ class AppState extends State<App> {
       setState(() {
         cache['usernames']?[uuid] = jsonDecode(res.body)['name'];
       });
-    }
-  }
-
-  Future<void> loadLanguage() async {
-    // Ich schäme mich dafür aber juckt jz grad :skull:
-    await Future.delayed(const Duration(seconds: 1));
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String language = prefs.getString('language') ??
-        (Config.availableLanguages
-                .contains(PlatformDispatcher.instance.locale.languageCode)
-            ? PlatformDispatcher.instance.locale.languageCode
-            : Config.fallbackLangauge);
-    if (!mounted) return;
-    final provider = Provider.of<LocaleProvider>(context, listen: false);
-    provider.setLocale(language);
-
-    if (prefs.getString('language') == null) {
-      await prefs.setString('language', language);
     }
   }
 }

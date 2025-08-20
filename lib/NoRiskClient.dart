@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/main.dart';
+import 'package:noriskclient/provider/localeProvider.dart';
 import 'package:noriskclient/screens/Chats.dart';
 import 'package:noriskclient/screens/McReal.dart';
 import 'package:noriskclient/screens/News.dart';
@@ -14,6 +15,7 @@ import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NoRiskClient extends StatefulWidget {
@@ -164,6 +166,9 @@ class NoRiskClientState extends State<NoRiskClient> {
   @override
   void initState() {
     super.initState();
+    final provider = Provider.of<LocaleProvider>(context, listen: false);
+    provider.loadLocale();
+
     activeTabIndexController.stream.listen((index) {
       updateStream.add(["tabIndex", index]);
       setState(() {
