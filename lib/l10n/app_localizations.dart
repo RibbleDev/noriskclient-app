@@ -598,6 +598,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Empty Chat'**
   String get chat_chat_empty;
+
+  /// No description provided for @navbar_you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get navbar_you;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

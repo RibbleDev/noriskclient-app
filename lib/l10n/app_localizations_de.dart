@@ -259,4 +259,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get chat_chat_empty => 'Leerer Chat';
+
+  @override
+  String get navbar_you => 'Du';
 }

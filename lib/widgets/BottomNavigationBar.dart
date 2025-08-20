@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/screens/ScanQRCode.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
@@ -83,7 +84,7 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
                 index: 4,
                 currentIndex: widget.currentIndex,
                 icon: NoRiskIcon.profile,
-                label: 'you',
+                label: AppLocalizations.of(context)!.navbar_you.toLowerCase(),
                 onTap: () => widget.currentIndexController.sink.add(4)),
           ],
         ),

@@ -82,5 +82,6 @@
   "chat_delete_message_cancel": "Cancel",
   "chat_delete_message_delete": "Delete",
   "chat_message_deleted": "This message was deleted.",
-  "chat_chat_empty": "Empty Chat"
+  "chat_chat_empty": "Empty Chat",
+  "navbar_you": "You"
 }
