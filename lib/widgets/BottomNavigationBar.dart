@@ -73,10 +73,7 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
                 currentIndex: widget.currentIndex,
                 icon: NoRiskIcon.gamescom,
                 label: 'gamescom',
-                onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (BuildContext context) {
-                      return ScanQRCode();
-                    })),
+                onTap: () => widget.currentIndexController.sink.add(3),
                 fontSize: 21,
                 disabled: DateTime.now().isBefore(DateTime(2025, 8, 20))
             ),

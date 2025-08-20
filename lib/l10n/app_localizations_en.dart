@@ -262,4 +262,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navbar_you => 'You';
+
+  @override
+  String get gamescom_no_infos => 'There are no infos available at the moment.';
 }

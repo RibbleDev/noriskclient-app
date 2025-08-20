@@ -6,6 +6,7 @@ import 'package:noriskclient/config/Config.dart';
 import 'package:noriskclient/main.dart';
 import 'package:noriskclient/provider/localeProvider.dart';
 import 'package:noriskclient/screens/Chats.dart';
+import 'package:noriskclient/screens/Gamescom.dart';
 import 'package:noriskclient/screens/McReal.dart';
 import 'package:noriskclient/screens/News.dart';
 import 'package:noriskclient/screens/NoRiskProfile.dart';
@@ -192,7 +193,7 @@ class NoRiskClientState extends State<NoRiskClient> {
       case 2:
         return McReal();
       case 3:
-        return Container(); // Placeholder
+        return Gamescom(); // Placeholder
       case 4:
         return Profile(uuid: userData['uuid'], isSettings: true); // You
       default:

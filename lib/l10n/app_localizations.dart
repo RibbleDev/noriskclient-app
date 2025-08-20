@@ -604,6 +604,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You'**
   String get navbar_you;
+
+  /// No description provided for @gamescom_no_infos.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no infos available at the moment.'**
+  String get gamescom_no_infos;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
