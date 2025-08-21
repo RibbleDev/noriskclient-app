@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/config/Colors.dart';
+import 'package:noriskclient/main.dart';
 import 'package:noriskclient/screens/ScanQRCode.dart';
 import 'package:noriskclient/screens/mcreal/ImageViewer.dart';
 import 'package:noriskclient/utils/NoRiskApi.dart';
@@ -33,7 +34,14 @@ class GamescomState extends State<Gamescom> {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 85, bottom: 150, left: 10, right: 10),
+                padding: EdgeInsets.only(
+                    top: 85,
+                    bottom: 150 +
+                        (isAndroid
+                            ? MediaQuery.of(context).viewPadding.bottom
+                            : 0),
+                    left: 10,
+                    right: 10),
                 child: RefreshIndicator(
                     onRefresh: () async {
                       setState(() {
@@ -122,7 +130,11 @@ class GamescomState extends State<Gamescom> {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 55),
+                  padding: EdgeInsets.only(
+                      bottom: 55 +
+                          (isAndroid
+                              ? MediaQuery.of(context).viewPadding.bottom
+                              : 0)),
                   child: GestureDetector(
                     onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (BuildContext context) {
