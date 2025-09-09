@@ -18,11 +18,13 @@ class ScanQRCode extends StatefulWidget {
 
 class _ScanQRCodeState extends State<ScanQRCode> {
   MobileScannerController controller = MobileScannerController();
+  int? lastRedeem;
 
   @override
   void initState() {
     super.initState();
     controller.start();
+    lastRedeem = DateTime.now().millisecondsSinceEpoch;
   }
 
   @override
@@ -93,7 +95,8 @@ class _ScanQRCodeState extends State<ScanQRCode> {
     );
   }
 
-  void handleQrCodeResult(MobileScannerController controller, String code) async {
+  void handleQrCodeResult(
+      MobileScannerController controller, String code) async {
     print('QR Code Detected: $code');
 
     if (code.contains("/giveaways/")) {
@@ -119,6 +122,10 @@ class _ScanQRCodeState extends State<ScanQRCode> {
                       giveawayData['additionalInformation'] ?? 'null'),
             ));
       } else {
+        if (lastRedeem! + 1000 >= DateTime.now().millisecondsSinceEpoch) {
+          return;
+        }
+        
         Map<String, dynamic>? resultData =
             await NoRiskApi().redeemGiveaway(giveawayId);
 
@@ -126,6 +133,8 @@ class _ScanQRCodeState extends State<ScanQRCode> {
           Fluttertoast.showToast(msg: 'Invalid voucher QR code');
           return;
         }
+
+        lastRedeem = DateTime.now().millisecondsSinceEpoch;
 
         Navigator.pushReplacement(
             context,
