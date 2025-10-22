@@ -1,6 +1,4 @@
-# noriskclient
-
-A new Flutter project.
+# NoRisk Client Mobile App written in flutter
 
 ## Getting Started
 
