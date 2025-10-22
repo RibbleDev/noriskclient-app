@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:noriskclient/config/Colors.dart';
 import 'package:noriskclient/l10n/app_localizations.dart';
 import 'package:noriskclient/main.dart';
-import 'package:noriskclient/screens/ScanQRCode.dart';
 import 'package:noriskclient/utils/NoRiskIcon.dart';
 import 'package:noriskclient/widgets/NoRiskContainer.dart';
 import 'package:noriskclient/widgets/NoRiskIconButton.dart';
@@ -75,7 +74,7 @@ class NoRiskBottomNavigationBarState extends State<NoRiskBottomNavigationBar> {
                 label: 'gamescom',
                 onTap: () => widget.currentIndexController.sink.add(3),
                 fontSize: 21,
-                disabled: DateTime.now().isBefore(DateTime(2025, 8, 20))
+                disabled: true // DateTime.now().isBefore(DateTime(2025, 8, 20))
             ),
             _BottomNavigationBarButton(
                 index: 4,

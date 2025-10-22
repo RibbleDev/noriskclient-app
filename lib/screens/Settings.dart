@@ -373,7 +373,9 @@ class SettingsState extends State<Settings> {
                             spaceTop: false,
                             spaceBottom: false,
                             style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold)),
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: NoRiskClientColors.text)),
                       ),
                     ),
                   ),
