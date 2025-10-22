@@ -2,7 +2,7 @@ name: noriskclient
 description: "NoRisk Client mobile app."
 publish_to: 'none'
 
-version: 2.0.6-2+19
+version: 2.0.7+20
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
