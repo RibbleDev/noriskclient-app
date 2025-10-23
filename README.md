@@ -14,8 +14,10 @@
    ```
 4. run
    ```
-   flutter run to start the app!
+   flutter run
    ```
+   to start the app!
+   
 ### Note from developer / code-owner ([@TimLohrer](https://github.com/TimLohrer))
 
 I know a few things in this code base are far from optimal.
