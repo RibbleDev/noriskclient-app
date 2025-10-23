@@ -3,10 +3,19 @@
 ## Getting Started
 
 1. Install [flutter](https://flutter.dev/)
-2. run flutter pub get
-3. run flutter gen-l10n to generate translations
-4. run flutter run to start the app!
-
+  
+2. run
+   ```
+   flutter pub get
+   ```
+3. run
+   ```
+   flutter gen-l10n to generate translations
+   ```
+4. run
+   ```
+   flutter run to start the app!
+   ```
 ### Note from developer / code-owner ([@TimLohrer](https://github.com/TimLohrer))
 
 I know a few things in this code base are far from optimal.
