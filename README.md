@@ -1,3 +1,7 @@
+> [!Note]
+> This is a Fork of the NoRiskClient Mobile App
+
+
 # NoRisk Client Mobile App written in flutter
 
 ## Getting Started
@@ -10,7 +14,7 @@
    ```
 3. run
    ```
-   flutter gen-l10n to generate translations
+   flutter gen-l10n
    ```
 4. run
    ```
